@@ -61,29 +61,32 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
     }
   }, [started, finished]);
 
+  const endedRef = useRef(false);
+
   const handleKey = (key: string) => {
     if (finished || !started) return;
     if (key === 'C') return setInput('');
-    if (key === '⌫') return setInput((p) => p.slice(0, -1));
-    setInput((prev) => {
-      const next = prev + key;
-      const answer = current.a * current.b;
-      const maxLen = answer.toString().length;
-      if (next.length > maxLen) return prev;
-      if (parseInt(next) === answer) {
-        vibrate(15);
-        if (index >= problems.length - 1) {
-          finishChallenge();
-        } else {
-          setIndex((i) => i + 1);
-        }
-        return '';
+    if (key === '⌫') return setInput(input.slice(0, -1));
+    const next = input + key;
+    const answer = current.a * current.b;
+    const maxLen = answer.toString().length;
+    if (next.length > maxLen) return;
+    if (parseInt(next) === answer) {
+      vibrate(15);
+      setInput('');
+      if (index >= problems.length - 1) {
+        finishChallenge();
+      } else {
+        setIndex(index + 1);
       }
-      return next;
-    });
+    } else {
+      setInput(next);
+    }
   };
 
   const finishChallenge = () => {
+    if (endedRef.current) return;
+    endedRef.current = true;
     setFinished(true);
     if (timerRef.current) window.clearInterval(timerRef.current);
     const final = Date.now() - (startRef.current || Date.now());

@@ -84,20 +84,18 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
   const handleKey = (key: string) => {
     if (phase !== 'playing') return;
     if (key === 'C') return setInput('');
-    if (key === '⌫') return setInput((p) => p.slice(0, -1));
-    setInput((prev) => {
-      const next = prev + key;
-      const ans = a * b;
-      const maxLen = ans.toString().length;
-      if (next.length > maxLen) return prev;
-      if (parseInt(next) === ans) {
-        setScore((s) => s + ans);
-        setProblemCount((c) => c + 1);
-        nextProblem(stage!.max);
-        return '';
-      }
-      return next;
-    });
+    if (key === '⌫') return setInput(input.slice(0, -1));
+    const next = input + key;
+    const ans = a * b;
+    const maxLen = ans.toString().length;
+    if (next.length > maxLen) return;
+    if (parseInt(next) === ans) {
+      setScore(score + ans);
+      setProblemCount(problemCount + 1);
+      nextProblem(stage!.max);
+    } else {
+      setInput(next);
+    }
   };
 
   if (phase === 'select') {

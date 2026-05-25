@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { navigate } from '../App';
 import { LearningEngine } from '../utils/LearningEngine';
 import { KUKU_READINGS } from '../data/kukuReadings';
@@ -13,6 +13,10 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
   const [input, setInput] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
   const [resultMsg, setResultMsg] = useState('');
+  const successTimerRef = useRef<number | null>(null);
+  const endedRef = useRef(false);
+  const phaseRef = useRef(phase);
+  useEffect(() => { phaseRef.current = phase; }, [phase]);
 
   const problems = Array.from({ length: 9 }, (_, i) => ({ a: level, b: i + 1 }));
   const current = problems[index];
@@ -21,10 +25,16 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
     setIndex(0);
     setInput('');
     setPhase('list');
+    endedRef.current = false;
   }, [level]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
+    // phase が quiz → list/done に変わったら、保留中の success timeout をキャンセル
+    if (phase !== 'quiz' && successTimerRef.current) {
+      window.clearTimeout(successTimerRef.current);
+      successTimerRef.current = null;
+    }
   }, [phase]);
 
   const startQuiz = () => {
@@ -32,35 +42,41 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
     setInput('');
     setShowSuccess(false);
     setPhase('quiz');
+    endedRef.current = false;
   };
 
   const handleKey = (key: string) => {
     if (phase !== 'quiz' || showSuccess) return;
     if (key === 'C') return setInput('');
-    if (key === '⌫') return setInput((p) => p.slice(0, -1));
-    setInput((prev) => {
-      const next = prev + key;
-      const answer = current.a * current.b;
-      const maxLen = answer.toString().length;
-      if (next.length > maxLen) return prev;
-      if (parseInt(next) === answer) {
-        vibrate(20);
-        setShowSuccess(true);
-        setTimeout(() => {
-          setShowSuccess(false);
-          setInput('');
-          if (index >= problems.length - 1) {
-            finish();
-          } else {
-            setIndex((i) => i + 1);
-          }
-        }, 400);
-      }
-      return next;
-    });
+    if (key === '⌫') return setInput(input.slice(0, -1));
+    const next = input + key;
+    const answer = current.a * current.b;
+    const maxLen = answer.toString().length;
+    if (next.length > maxLen) return;
+    if (parseInt(next) === answer) {
+      vibrate(20);
+      setShowSuccess(true);
+      setInput(next);
+      successTimerRef.current = window.setTimeout(() => {
+        successTimerRef.current = null;
+        // phase が変わっていたら何もしない（戻る押下後の保留分など）
+        if (phaseRef.current !== 'quiz' || endedRef.current) return;
+        setShowSuccess(false);
+        setInput('');
+        if (index >= problems.length - 1) {
+          finish();
+        } else {
+          setIndex(index + 1);
+        }
+      }, 400);
+    } else {
+      setInput(next);
+    }
   };
 
   const finish = () => {
+    if (endedRef.current) return;
+    endedRef.current = true;
     LearningEngine.setLearningCompleted(level);
     setPhase('done');
     setResultMsg(`よくがんばったね！\n100 KP ＆ はなまるスタンプ +1 ゲット！`);

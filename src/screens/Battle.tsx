@@ -94,7 +94,7 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
     if (timerRef.current) window.clearInterval(timerRef.current);
     const m = Math.max(maxCombo, combo);
     LearningEngine.saveBattleResult(stage!.id, defeated, m);
-    setResult({ count: defeated, combo: m, kpGain: defeated * 50 + (Math.floor(defeated / 10) * 10000) });
+    setResult({ count: defeated, combo: m, kpGain: defeated * 50 + Math.floor(defeated / 10) * 10000 });
     setPhase('done');
     onComplete();
   };
@@ -141,9 +141,24 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
       <div className="screen">
         <h1 className="screen-title">⚔️ 九九バトル</h1>
         <p className="screen-desc">
-          30 秒のあいだ、敵の HP に合うように 2 枚のカードを選んで撃破しよう。
-          連続撃破でコンボがつながると、ますます熱くなる！
+          敵が <strong>HP（つくる数）</strong> を持って現れます。
+          5 枚のカードから <strong>2 まい</strong> を選び、その <strong>かけ算の答えが HP と同じ</strong> になったら撃破！
         </p>
+        <div className="battle-howto">
+          <div className="battle-howto-example">
+            <span>例：HP <strong>24</strong> のとき</span>
+            <span className="battle-howto-formula">
+              <span className="battle-howto-card">3</span> × <span className="battle-howto-card">8</span> = 24 ⚔️
+            </span>
+            <span className="battle-howto-or">または</span>
+            <span className="battle-howto-formula">
+              <span className="battle-howto-card">4</span> × <span className="battle-howto-card">6</span> = 24 ⚔️
+            </span>
+          </div>
+          <p className="battle-howto-tip">
+            30 秒以内にできるだけ多く倒そう。連続撃破でコンボがつながると、ますます熱くなる！
+          </p>
+        </div>
 
         <div className="battle-stages">
           {STAGES.map((s) => {
@@ -205,17 +220,40 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
 
       <div className={`battle-enemy ${feedback === 'correct' ? 'hit' : feedback === 'wrong' ? 'shake' : ''}`}>
         <div className="enemy-emoji" aria-hidden="true">👾</div>
-        <div className="enemy-hp">HP: {hp}</div>
+        <div className="enemy-hp">この数を作ろう：<strong>{hp}</strong></div>
       </div>
 
-      <div className="battle-formula">
-        {selected.length > 0 && (
-          <span>
-            {cards[selected[0]]}
-            {selected.length === 2 && <> × {cards[selected[1]]} = {cards[selected[0]] * cards[selected[1]]}</>}
+      <div className="battle-formula-line">
+        <span className={`battle-slot ${selected[0] != null ? 'filled' : ''}`}>
+          {selected[0] != null ? cards[selected[0]] : '?'}
+        </span>
+        <span className="battle-op">×</span>
+        <span className={`battle-slot ${selected[1] != null ? 'filled' : ''}`}>
+          {selected[1] != null ? cards[selected[1]] : '?'}
+        </span>
+        <span className="battle-op">=</span>
+        <span className={`battle-slot battle-target ${
+          selected.length === 2
+            ? (cards[selected[0]] * cards[selected[1]] === hp ? 'ok' : 'ng')
+            : ''
+        }`}>
+          {selected.length === 2 ? cards[selected[0]] * cards[selected[1]] : hp}
+        </span>
+        {selected.length === 2 && (
+          <span className="battle-check">
+            {cards[selected[0]] * cards[selected[1]] === hp ? '⚔️' : '✗'}
           </span>
         )}
       </div>
+      <p className="battle-hint">
+        {selected.length === 0 && '↓ カードを 2 まい選ぼう'}
+        {selected.length === 1 && 'もう 1 まい選ぼう（× するとどうなる？）'}
+        {selected.length === 2 && (
+          cards[selected[0]] * cards[selected[1]] === hp
+            ? '正解！'
+            : 'HP と合わない… 1 まい選び直そう'
+        )}
+      </p>
 
       <div className="battle-cards">
         {cards.map((c, i) => (

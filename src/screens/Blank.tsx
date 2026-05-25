@@ -61,6 +61,7 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
     setInput('');
     setPhase('countdown');
     setCountdown(3);
+    endedRef.current = false;
   };
 
   useEffect(() => {
@@ -85,28 +86,31 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
     return () => { if (timerRef.current) window.clearInterval(timerRef.current); };
   }, [phase]);
 
+  const endedRef = useRef(false);
+
   const handleKey = (key: string) => {
     if (phase !== 'playing' || !current) return;
     if (key === 'C') return setInput('');
-    if (key === '⌫') return setInput((p) => p.slice(0, -1));
-    setInput((prev) => {
-      const next = prev + key;
-      const maxLen = current.answer.toString().length;
-      if (next.length > maxLen) return prev;
-      if (parseInt(next) === current.answer) {
-        if (index >= problems.length - 1) {
-          finish();
-        } else {
-          setIndex((i) => i + 1);
-        }
-        return '';
+    if (key === '⌫') return setInput(input.slice(0, -1));
+    const next = input + key;
+    const maxLen = current.answer.toString().length;
+    if (next.length > maxLen) return;
+    if (parseInt(next) === current.answer) {
+      setInput('');
+      if (index >= problems.length - 1) {
+        finish();
+      } else {
+        setIndex(index + 1);
       }
-      return next;
-    });
+    } else {
+      setInput(next);
+    }
   };
 
   const finish = () => {
-    if (timerRef.current) window.clearInterval(timerRef.current);
+    if (endedRef.current) return;
+    endedRef.current = true;
+    if (timerRef.current) { window.clearInterval(timerRef.current); timerRef.current = null; }
     const final = Date.now() - (startRef.current || Date.now());
     const after = LearningEngine.saveBlankResult(stage!.id, final);
     const medal = after.blankMedalsPerDiff?.[stage!.id] ?? 'clear';

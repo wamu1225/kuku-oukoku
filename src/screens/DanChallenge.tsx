@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { navigate } from '../App';
 import { LearningEngine } from '../utils/LearningEngine';
 import { DAN_LEVELS, getNextDan } from '../data/danLevels';
@@ -33,20 +33,23 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
   const [index, setIndex] = useState(0);
   const [input, setInput] = useState('');
   const [elapsed, setElapsed] = useState(0);
+  const [problems, setProblems] = useState<{ a: number; b: number }[]>([]);
   const [result, setResult] = useState<{ timeMs: number; medal: string; newDan: boolean } | null>(null);
   const startRef = useRef<number | null>(null);
   const timerRef = useRef<number | null>(null);
-
-  const dan = useMemo(() => DAN_LEVELS.find((d) => d.rank === selected), [selected]);
-  const problems = useMemo(() => dan ? pickProblems(dan.source, dan.count) : [], [dan]);
+  const endedRef = useRef(false);
   const current = problems[index];
 
   const start = (rank: number) => {
+    const d = DAN_LEVELS.find((x) => x.rank === rank);
+    if (!d) return;
+    setProblems(pickProblems(d.source, d.count));
     setSelected(rank);
     setPhase('countdown');
     setCountdown(3);
     setIndex(0);
     setInput('');
+    endedRef.current = false;
   };
 
   useEffect(() => {
@@ -77,33 +80,36 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
   }, [phase]);
 
   const fail = () => {
+    if (endedRef.current) return;
+    endedRef.current = true;
+    if (timerRef.current) { window.clearInterval(timerRef.current); timerRef.current = null; }
     setPhase('failed');
-    if (timerRef.current) window.clearInterval(timerRef.current);
   };
 
   const handleKey = (key: string) => {
-    if (phase !== 'playing') return;
+    if (phase !== 'playing' || !current) return;
     if (key === 'C') return setInput('');
-    if (key === '⌫') return setInput((p) => p.slice(0, -1));
-    setInput((prev) => {
-      const next = prev + key;
-      const ans = current.a * current.b;
-      const maxLen = ans.toString().length;
-      if (next.length > maxLen) return prev;
-      if (parseInt(next) === ans) {
-        if (index >= problems.length - 1) {
-          finishOk();
-        } else {
-          setIndex((i) => i + 1);
-        }
-        return '';
+    if (key === '⌫') return setInput(input.slice(0, -1));
+    const next = input + key;
+    const ans = current.a * current.b;
+    const maxLen = ans.toString().length;
+    if (next.length > maxLen) return;
+    if (parseInt(next) === ans) {
+      setInput('');
+      if (index >= problems.length - 1) {
+        finishOk();
+      } else {
+        setIndex(index + 1);
       }
-      return next;
-    });
+    } else {
+      setInput(next);
+    }
   };
 
   const finishOk = () => {
-    if (timerRef.current) window.clearInterval(timerRef.current);
+    if (endedRef.current) return;
+    endedRef.current = true;
+    if (timerRef.current) { window.clearInterval(timerRef.current); timerRef.current = null; }
     const final = Date.now() - (startRef.current || Date.now());
     setElapsed(final);
     const rank = selected!;

@@ -479,7 +479,9 @@ export const LearningEngine = {
       state.stats.battleMaxDefeatedPerDiff[diffId] = count;
     }
     state.kp += count * 50;
-    if (count > 0 && count % 10 === 0) state.kp += 10000;
+    // 10体ごとのゴールデンエネミー累積ボーナス
+    const goldenEnemies = Math.floor(count / 10);
+    state.kp += goldenEnemies * 10000;
     _updateHabit(state, true);
     _checkAchievements(state);
     this.saveState(state);

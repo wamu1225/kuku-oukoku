@@ -32,6 +32,12 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
 
   useEffect(() => setState(initialState), [initialState]);
 
+  // Empire mount 時に offline KP を credit（タブ内ナビゲーションでも反映）
+  useEffect(() => {
+    const r = LearningEngine.applyOfflineEarnings();
+    setState(r.state);
+  }, []);
+
   useEffect(() => {
     const interval = window.setInterval(() => {
       const fresh = LearningEngine.loadState();
@@ -163,9 +169,10 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
         </div>
       )}
 
-      {state.kp >= 1000000 && (
+      {state.kp >= IdleManager.getPrestigeCost(state.prestigeCount || 0) && (
         <PrestigeBanner state={state} onPrestige={() => {
-          if (!confirm('王国をランクアップしますか？\n\n・KP がリセットされます\n・なかまは維持されます\n・全体の生産力が永続的に ×2 されます')) return;
+          const cost = IdleManager.getPrestigeCost(state.prestigeCount || 0);
+          if (!confirm(`王国をランクアップしますか？\n\n・現在 KP (${IdleManager.formatBigNumber(state.kp)}) がすべてリセットされます\n・必要 KP：${IdleManager.formatBigNumber(cost)}\n・なかまは維持されます\n・全体の生産力が永続的に ×2 されます`)) return;
           const after = LearningEngine.prestige();
           setState(after);
           onUpdate();

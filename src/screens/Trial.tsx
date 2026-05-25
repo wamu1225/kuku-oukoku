@@ -37,6 +37,7 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
   const [problems, setProblems] = useState<{ a: number; b: number }[]>([]);
   const startRef = useRef<number | null>(null);
   const timerRef = useRef<number | null>(null);
+  const endedRef = useRef(false);
   const current = problems[index];
 
   useEffect(() => {
@@ -69,40 +70,44 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
     setCountdown(3);
     setIndex(0);
     setInput('');
+    endedRef.current = false;
   };
 
   const fail = () => {
-    if (timerRef.current) window.clearInterval(timerRef.current);
+    if (endedRef.current) return;
+    endedRef.current = true;
+    if (timerRef.current) { window.clearInterval(timerRef.current); timerRef.current = null; }
     LearningEngine.completeTrial(false);
     setPhase('failed');
     onComplete();
   };
 
   const succeed = () => {
-    if (timerRef.current) window.clearInterval(timerRef.current);
+    if (endedRef.current) return;
+    endedRef.current = true;
+    if (timerRef.current) { window.clearInterval(timerRef.current); timerRef.current = null; }
     LearningEngine.completeTrial(true);
     setPhase('success');
     onComplete();
   };
 
   const handleKey = (key: string) => {
-    if (phase !== 'playing') return;
+    if (phase !== 'playing' || !current) return;
     if (key === 'C') return setInput('');
-    if (key === '⌫') return setInput((p) => p.slice(0, -1));
-    setInput((prev) => {
-      const next = prev + key;
-      const ans = current.a * current.b;
-      if (next.length > ans.toString().length) return prev;
-      if (parseInt(next) === ans) {
-        if (index >= problems.length - 1) {
-          succeed();
-        } else {
-          setIndex((i) => i + 1);
-        }
-        return '';
+    if (key === '⌫') return setInput(input.slice(0, -1));
+    const next = input + key;
+    const ans = current.a * current.b;
+    if (next.length > ans.toString().length) return;
+    if (parseInt(next) === ans) {
+      setInput('');
+      if (index >= problems.length - 1) {
+        succeed();
+      } else {
+        setIndex(index + 1);
       }
-      return next;
-    });
+    } else {
+      setInput(next);
+    }
   };
 
   if (phase === 'intro') {
