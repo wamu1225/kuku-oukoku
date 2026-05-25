@@ -1,0 +1,74 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Internal research notes (kept locally only)
+docs/
+
+# Internal site documentation (kept locally only)
+CONTENT_GUIDE.md
+
+# One-time migration / debug / analysis scripts and artifacts
+scripts/analyze-*
+scripts/audit_*
+scripts/check_*
+scripts/debug-*
+scripts/extract_*
+scripts/extracted_*
+scripts/find_*
+scripts/fix_*
+scripts/inject_*
+scripts/measure-*
+scripts/patch_*
+scripts/quality_*
+scripts/read_*
+scripts/rebuild_*
+scripts/reconstruct_*
+scripts/renumber-*
+scripts/reorder-*
+scripts/show_*
+scripts/sort-*
+scripts/split-*
+scripts/chunk*.txt
+scripts/modules_*.txt
+scripts/modules_array.txt
+scripts/modules_raw.txt
+
+# Backup files
+*.bak
+
+# Test/scratch files in data
+src/data/test.ts
+src/data/*_rebuilt.ts
+
+# Logs / debug output
+lint_out.json
+
+# Test outputs
+test-results/
+playwright-report/
+
+# Vite template default assets
+src/assets/react.svg
+src/assets/vite.svg
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
