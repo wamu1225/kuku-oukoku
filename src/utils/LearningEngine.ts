@@ -129,6 +129,17 @@ function _checkAchievements(state: KukuState) {
   );
   if (!hasAny('medal_3') && fastAttack) add('medal_3');
 
+  if (!hasAny('medal_2') && (state.stats?.battleTotalDefeated || 0) >= 20) add('medal_2');
+  if (!hasAny('medal_5') && (state.stats?.maxCombo || 0) >= 5) add('medal_5');
+  const towerBest300 = Object.values(state.stats?.towerBestHeightsPerDiff || {}).some((v) => v >= 300);
+  if (!hasAny('wisdom_gem') && towerBest300) add('wisdom_gem');
+  const towerBest1000 = Object.values(state.stats?.towerBestHeightsPerDiff || {}).some((v) => v >= 1000);
+  if (!hasAny('medal_8') && towerBest1000) add('medal_8');
+  if (!hasAny('medal_10') && (state.stats?.battleTotalDefeated || 0) >= 100) add('medal_10');
+  if (!hasAny('relic_4') && state.blankMedalsPerDiff?.['3'] === 'gold') add('relic_4');
+  if (!hasAny('relic_5') && state.blankMedalsPerDiff?.['6'] === 'gold') add('relic_5');
+  if (!hasAny('relic_7') && state.blankMedalsPerDiff?.['9'] === 'gold') add('relic_7');
+
   if (!hasAny('relic_1') && totalMastery >= 15) add('relic_1');
   if (!hasAny('relic_2') && (state.stats?.totalLearnPlays || 0) >= 10) add('relic_2');
   if (!hasAny('relic_3') && totalMastery >= 100) add('relic_3');
@@ -344,6 +355,76 @@ export const LearningEngine = {
     _checkAchievements(state);
     _updateRank(state);
     _syncUnlockedLevels(state);
+    this.saveState(state);
+    return state;
+  },
+
+  saveBattleResult(diffId: string, count: number, combo: number): KukuState {
+    const state = this.loadState();
+    if (!state.stats) state.stats = {};
+    state.stats.battleTotalDefeated = (state.stats.battleTotalDefeated || 0) + count;
+    if (combo > (state.stats.maxCombo || 0)) state.stats.maxCombo = combo;
+    if (!state.stats.battleMaxDefeatedPerDiff) state.stats.battleMaxDefeatedPerDiff = {};
+    if (count > (state.stats.battleMaxDefeatedPerDiff[diffId] || 0)) {
+      state.stats.battleMaxDefeatedPerDiff[diffId] = count;
+    }
+    state.kp += count * 50;
+    if (count > 0 && count % 10 === 0) state.kp += 10000;
+    _updateHabit(state, true);
+    _checkAchievements(state);
+    this.saveState(state);
+    return state;
+  },
+
+  saveTowerResult(diffId: string, score: number): KukuState {
+    const state = this.loadState();
+    if (!state.stats) state.stats = {};
+    if (!state.stats.towerBestHeightsPerDiff) state.stats.towerBestHeightsPerDiff = {};
+    if (score > (state.stats.towerBestHeightsPerDiff[diffId] || 0)) {
+      state.stats.towerBestHeightsPerDiff[diffId] = score;
+    }
+    if (!state.stats.towerMedalsPerDiff) state.stats.towerMedalsPerDiff = {};
+    const criteria: Record<string, { gold: number; silver: number; bronze: number }> = {
+      '3': { gold: 230, silver: 150, bronze: 80 },
+      '6': { gold: 460, silver: 300, bronze: 160 },
+      '9': { gold: 630, silver: 410, bronze: 220 },
+    };
+    const c = criteria[diffId] || criteria['9'];
+    let medal: 'gold' | 'silver' | 'bronze' | 'clear' = 'clear';
+    if (score >= c.gold) medal = 'gold';
+    else if (score >= c.silver) medal = 'silver';
+    else if (score >= c.bronze) medal = 'bronze';
+    const priority = { gold: 3, silver: 2, bronze: 1, clear: 0 };
+    const cur = state.stats.towerMedalsPerDiff[diffId] || 'clear';
+    if (priority[medal] > priority[cur as keyof typeof priority]) {
+      state.stats.towerMedalsPerDiff[diffId] = medal;
+    }
+    state.kp += Math.floor(score / 10);
+    _updateHabit(state, true);
+    _checkAchievements(state);
+    this.saveState(state);
+    return state;
+  },
+
+  saveBlankResult(diffId: string, timeMs: number): KukuState {
+    const state = this.loadState();
+    if (!state.challengeBestTimes) state.challengeBestTimes = {};
+    const currentBest = state.challengeBestTimes[diffId] || Infinity;
+    if (timeMs < currentBest) state.challengeBestTimes[diffId] = timeMs;
+
+    if (!state.blankMedalsPerDiff) state.blankMedalsPerDiff = {};
+    let medal: 'gold' | 'silver' | 'bronze' | 'clear' = 'clear';
+    if (timeMs < 10 * 1500) medal = 'gold';
+    else if (timeMs < 10 * 2250) medal = 'silver';
+    else medal = 'bronze';
+    const priority = { gold: 3, silver: 2, bronze: 1, clear: 0 };
+    const cur = state.blankMedalsPerDiff[diffId] || 'clear';
+    if (priority[medal] > priority[cur as keyof typeof priority]) {
+      state.blankMedalsPerDiff[diffId] = medal;
+    }
+    state.kp += 500;
+    _updateHabit(state, true);
+    _checkAchievements(state);
     this.saveState(state);
     return state;
   },

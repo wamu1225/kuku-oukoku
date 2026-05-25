@@ -623,6 +623,110 @@ main { padding: 20px 16px 40px; }
 .content-page strong { color: var(--primary-dark); }
 .updated { color: var(--text-muted); font-size: 13px; }
 
+/* === Battle / Tower / Blank common === */
+.battle-stages {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 16px 0;
+}
+.battle-stage {
+  background: var(--stage-color, var(--primary));
+  color: #fff;
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 4px;
+  box-shadow: var(--shadow);
+  transition: transform 0.1s;
+}
+.battle-stage:hover:not(.locked):not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+.battle-stage.locked {
+  background: #94a3b8;
+  color: #e2e8f0;
+}
+.stage-name { font-size: 18px; font-weight: 900; }
+.stage-meta { font-size: 13px; opacity: 0.92; }
+.stage-best { font-size: 13px; opacity: 0.95; margin-top: 4px; }
+.stage-locked { font-size: 12px; opacity: 0.92; margin-top: 4px; }
+
+/* Battle */
+.battle-screen { max-width: 480px; }
+.battle-enemy {
+  background: var(--surface);
+  border: 3px solid var(--danger);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  text-align: center;
+  margin: 16px 0;
+  transition: transform 0.2s;
+}
+.battle-enemy.hit { animation: hit 0.3s ease-out; }
+.battle-enemy.shake { animation: shake 0.4s; }
+@keyframes hit {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); background: #fee2e2; }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
+}
+.enemy-emoji { font-size: 60px; }
+.enemy-hp { font-size: 24px; font-weight: 900; color: var(--danger); margin-top: 8px; }
+.battle-formula {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--primary-dark);
+  min-height: 36px;
+  margin: 8px 0 16px;
+}
+.battle-cards {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+.battle-card {
+  background: linear-gradient(135deg, #fde68a 0%, #f59e0b 100%);
+  color: #78350f;
+  border-radius: 12px;
+  padding: 20px 0;
+  font-size: 32px;
+  font-weight: 900;
+  border: 3px solid transparent;
+  box-shadow: var(--shadow);
+}
+.battle-card.selected {
+  border-color: var(--primary);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+.battle-card:disabled { opacity: 0.7; }
+
+/* Tower */
+.tower-screen { max-width: 480px; padding: 16px; border-radius: var(--radius-lg); transition: background 0.5s; }
+.tower-overlay { background: rgba(255, 255, 255, 0.92); padding: 16px; border-radius: var(--radius-lg); }
+
+/* Blank */
+.quiz-blank {
+  display: inline-block;
+  min-width: 60px;
+  background: #fef3c7;
+  color: var(--accent);
+  padding: 4px 12px;
+  border-radius: 8px;
+  border-bottom: 3px dashed var(--accent);
+}
+
 /* === Responsive === */
 @media (max-width: 480px) {
   .site-header-inner { padding: 10px 12px; gap: 8px; }

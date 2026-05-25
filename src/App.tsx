@@ -12,6 +12,9 @@ import { Empire } from './screens/Empire';
 import { Collection } from './screens/Collection';
 import { Calendar } from './screens/Calendar';
 import { Settings } from './screens/Settings';
+import { Battle } from './screens/Battle';
+import { Tower } from './screens/Tower';
+import { Blank } from './screens/Blank';
 import { Guide } from './pages/Guide';
 import { About } from './pages/About';
 import { Privacy } from './pages/Privacy';
@@ -31,6 +34,9 @@ function parseRoute(pathname: string) {
       if (parts[1]) return { name: 'timeAttack', level: parseInt(parts[1]) } as const;
       return { name: 'levelSelect', mode: 'attack' } as const;
     case 'dan': return { name: 'dan' } as const;
+    case 'battle': return { name: 'battle' } as const;
+    case 'tower': return { name: 'tower' } as const;
+    case 'blank': return { name: 'blank' } as const;
     case 'empire': return { name: 'empire' } as const;
     case 'collection': return { name: 'collection' } as const;
     case 'calendar': return { name: 'calendar' } as const;
@@ -105,6 +111,9 @@ function App() {
         {route.name === 'learning' && <Learning level={route.level} onComplete={refresh} />}
         {route.name === 'timeAttack' && <TimeAttack level={route.level} onComplete={refresh} />}
         {route.name === 'dan' && <DanChallenge state={state} onComplete={refresh} />}
+        {route.name === 'battle' && <Battle state={state} onComplete={refresh} />}
+        {route.name === 'tower' && <Tower state={state} onComplete={refresh} />}
+        {route.name === 'blank' && <Blank state={state} onComplete={refresh} />}
         {route.name === 'empire' && <Empire state={state} onUpdate={refresh} />}
         {route.name === 'collection' && <Collection state={state} />}
         {route.name === 'calendar' && <Calendar state={state} />}

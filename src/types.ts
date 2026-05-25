@@ -58,7 +58,16 @@ export interface KukuState {
     totalAttackCorrect?: number;
     totalDanSolved?: number;
     maxCombo?: number;
+    battleTotalDefeated?: number;
+    battleMaxDefeatedPerDiff?: Record<string, number>;
+    battleWeeklyBestPerDiff?: Record<string, number>;
+    towerBestHeightsPerDiff?: Record<string, number>;
+    towerWeeklyBestHeightsPerDiff?: Record<string, number>;
+    towerMedalsPerDiff?: Record<string, 'gold' | 'silver' | 'bronze' | 'clear'>;
   };
+
+  challengeBestTimes?: Record<string, number>;
+  blankMedalsPerDiff?: Record<string, 'gold' | 'silver' | 'bronze' | 'clear'>;
 
   unlockedModes?: ('learn' | 'attack' | 'empire' | 'dan')[];
   unlockedLevels?: number[];
