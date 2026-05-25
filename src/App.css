@@ -420,6 +420,23 @@ main { padding: 20px 16px 40px; }
   font-weight: 700;
 }
 .dan-medal { color: #f59e0b; font-weight: 900; }
+.dan-pill-clickable {
+  cursor: pointer;
+  border: none;
+  transition: transform 0.1s, background 0.1s;
+}
+.dan-pill-clickable:hover { transform: translateY(-1px); background: #ede9fe; }
+.dan-pill-clickable.medal-gold { background: #fef3c7; border: 1px solid #fbbf24; }
+.dan-pill-clickable.medal-silver { background: #f1f5f9; border: 1px solid #cbd5e1; }
+.dan-pill-clickable.medal-bronze { background: #fed7aa; border: 1px solid #fb923c; }
+.dan-retry-hint {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 8px;
+  background: #fef9e7;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
 
 /* === Empire === */
 .empire-stats {

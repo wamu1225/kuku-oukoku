@@ -38,15 +38,13 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
     setState(r.state);
   }, []);
 
+  // 1 秒ごとの KP 加算は applyOfflineEarnings (時間差分から算出) で行う。
+  // これにより招待操作との race condition (タイミング被りで kp 上書き) を解消。
+  // applyOfflineEarnings は engine 内で atomically load → modify → save する。
   useEffect(() => {
     const interval = window.setInterval(() => {
-      const fresh = LearningEngine.loadState();
-      const kps = IdleManager.calculateKPS(fresh);
-      if (kps > 0) {
-        fresh.kp = Math.min(fresh.kp + kps, 1e36);
-        LearningEngine.saveState(fresh);
-      }
-      setState(fresh);
+      const r = LearningEngine.applyOfflineEarnings();
+      setState(r.state);
       setNow(Date.now());
     }, 1000);
     return () => window.clearInterval(interval);

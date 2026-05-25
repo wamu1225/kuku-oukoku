@@ -34,6 +34,10 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
   const [problemCount, setProblemCount] = useState(0);
   const startRef = useRef<number | null>(null);
   const timerRef = useRef<number | null>(null);
+  // setInterval 内 finish() の stale closure 対策
+  const scoreRef = useRef(0);
+  const stageRef = useRef<(typeof STAGES)[number] | null>(null);
+  const endedRef = useRef(false);
 
   const nextProblem = (max: number) => {
     setA(Math.floor(Math.random() * max) + 1);
@@ -43,10 +47,12 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
 
   const start = (s: (typeof STAGES)[number]) => {
     setStage(s);
+    stageRef.current = s;
     setPhase('countdown');
     setCountdown(3);
-    setScore(0);
+    setScore(0); scoreRef.current = 0;
     setProblemCount(0);
+    endedRef.current = false;
     nextProblem(s.max);
   };
 
@@ -75,8 +81,12 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
   }, [phase]);
 
   const finish = () => {
-    if (timerRef.current) window.clearInterval(timerRef.current);
-    LearningEngine.saveTowerResult(stage!.id, score);
+    if (endedRef.current) return;
+    endedRef.current = true;
+    if (timerRef.current) { window.clearInterval(timerRef.current); timerRef.current = null; }
+    const stg = stageRef.current;
+    const s = scoreRef.current;
+    if (stg) LearningEngine.saveTowerResult(stg.id, s);
     setPhase('done');
     onComplete();
   };
@@ -90,7 +100,9 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
     const maxLen = ans.toString().length;
     if (next.length > maxLen) return;
     if (parseInt(next) === ans) {
-      setScore(score + ans);
+      const newScore = score + ans;
+      scoreRef.current = newScore;
+      setScore(newScore);
       setProblemCount(problemCount + 1);
       nextProblem(stage!.max);
     } else {

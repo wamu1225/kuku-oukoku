@@ -154,15 +154,26 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
 
         {currentRank > 0 ? (
           <>
-            <h2 className="section-h">取得済みの段位</h2>
+            <h2 className="section-h">取得済みの段位（タップで再挑戦・メダル改善）</h2>
             <div className="dan-list">
-              {DAN_LEVELS.filter((d) => d.rank <= currentRank).map((d) => (
-                <div key={d.rank} className="dan-pill">
-                  {d.name}
-                  {state.danMedals?.[d.rank] && <span className="dan-medal"> {BADGE_LABEL[state.danMedals[d.rank]]}</span>}
-                </div>
-              ))}
+              {DAN_LEVELS.filter((d) => d.rank <= currentRank).map((d) => {
+                const medal = state.danMedals?.[d.rank];
+                return (
+                  <button
+                    key={d.rank}
+                    className={`dan-pill dan-pill-clickable medal-${medal || 'none'}`}
+                    onClick={() => start(d.rank)}
+                    aria-label={`${d.name} を再挑戦（現在のメダル: ${medal ? BADGE_LABEL[medal] : 'なし'}）`}
+                  >
+                    {d.name}
+                    {medal && <span className="dan-medal"> {BADGE_LABEL[medal]}</span>}
+                  </button>
+                );
+              })}
             </div>
+            <p className="dan-retry-hint">
+              💡 より良いメダル（金/銀）を狙って再挑戦できます。記録は上書きされます。
+            </p>
           </>
         ) : (
           <p className="dan-empty">まだ段位を取得していません。初挑戦で 10級 を取得しよう！</p>

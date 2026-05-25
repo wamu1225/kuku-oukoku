@@ -526,6 +526,8 @@ export const LearningEngine = {
       state.kp += 5000;
       if (!state.royalTreasures) state.royalTreasures = [];
       if (!state.wisdomSeals) state.wisdomSeals = [];
+    } else {
+      state.stats.totalTrialsFailed = (state.stats.totalTrialsFailed || 0) + 1;
     }
     _syncUnlockedLevels(state);
     _updateHabit(state, true);
