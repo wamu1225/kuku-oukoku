@@ -204,6 +204,80 @@ function _updateRank(state: KukuState) {
   state.rank = getDanRankName(state.danRank || 0);
 }
 
+function _replenishQuests(state: KukuState) {
+  if (!state.activeQuests) state.activeQuests = [];
+  // Cleanup duplicates
+  const seen = new Set<string>();
+  state.activeQuests = state.activeQuests.filter((q) => {
+    if (seen.has(q.title)) return false;
+    seen.add(q.title);
+    return true;
+  });
+
+  let attempts = 0;
+  while (state.activeQuests.length < 3 && attempts < 30) {
+    attempts++;
+    const useMastery = Math.random() < 0.66; // bias toward mastery quests
+    if (useMastery) {
+      const available = (state.unlockedLevels ?? [1]).filter((l) => l <= 9);
+      const level = available[Math.floor(Math.random() * available.length)];
+      const title = `${level}の段 特訓！`;
+      if (state.activeQuests.some((q) => q.title === title)) continue;
+      const current = state.mastery?.[level] || 0;
+      let target = 50;
+      if (current < 5) target = 5;
+      else if (current < 15) target = 15;
+      else if (current < 30) target = 30;
+      else target = (Math.floor(current / 50) + 1) * 50;
+      state.activeQuests.push({
+        id: `q_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+        title,
+        description: `${level}の段を 合計${target}回 とこう！`,
+        type: 'mastery_count',
+        target,
+        level,
+        progress: current,
+        reward: { type: 'kp', amount: target * 50 },
+        isCompleted: current >= target,
+        isClaimed: false,
+      });
+    } else {
+      const title = 'おうこくの広がり';
+      if (state.activeQuests.some((q) => q.title === title)) continue;
+      const total = Object.values(state.mastery || {}).reduce<number>((a, b) => a + (b as number), 0);
+      let target = 100;
+      if (total < 20) target = 20;
+      else if (total < 50) target = 50;
+      else target = (Math.floor(total / 100) + 1) * 100;
+      state.activeQuests.push({
+        id: `q_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+        title,
+        description: `九九を 合計で ${target}回 とこう！\n（どのモードでも OK）`,
+        type: 'total_correct',
+        target,
+        progress: total,
+        reward: { type: 'stamps', amount: 5 },
+        isCompleted: total >= target,
+        isClaimed: false,
+      });
+    }
+  }
+}
+
+function _updateQuestProgress(state: KukuState) {
+  if (!state.activeQuests) return;
+  const total = Object.values(state.mastery || {}).reduce<number>((a, b) => a + (b as number), 0);
+  state.activeQuests.forEach((q) => {
+    if (q.isClaimed) return;
+    if (q.type === 'mastery_count' && q.level != null) {
+      q.progress = state.mastery?.[q.level] || 0;
+    } else if (q.type === 'total_correct') {
+      q.progress = total;
+    }
+    if (q.progress >= q.target) q.isCompleted = true;
+  });
+}
+
 export const LearningEngine = {
   loadState(): KukuState {
     try {
@@ -211,11 +285,26 @@ export const LearningEngine = {
       const parsed = raw ? JSON.parse(raw) : null;
       const state = sanitize(parsed);
       _syncUnlockedLevels(state);
+      _replenishQuests(state);
+      _updateQuestProgress(state);
       return state;
     } catch (e) {
       console.error('LearningEngine.loadState failed', e);
       return getInitialState();
     }
+  },
+
+  claimQuest(questId: string): KukuState {
+    const state = this.loadState();
+    const q = state.activeQuests?.find((x) => x.id === questId);
+    if (!q || !q.isCompleted || q.isClaimed) return state;
+    if (q.reward.type === 'kp') state.kp += q.reward.amount;
+    else if (q.reward.type === 'stamps') state.totalStamps += q.reward.amount;
+    state.activeQuests = state.activeQuests?.filter((x) => x.id !== questId);
+    _replenishQuests(state);
+    _checkAchievements(state);
+    this.saveState(state);
+    return state;
   },
 
   saveState(state: KukuState): void {

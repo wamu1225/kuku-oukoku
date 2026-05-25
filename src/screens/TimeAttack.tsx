@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { navigate } from '../App';
 import { LearningEngine } from '../utils/LearningEngine';
+import { vibrate } from '../utils/haptics';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
 const BADGE_LABEL: Record<string, string> = { gold: '金', silver: '銀', bronze: '銅', clear: 'クリア' };
@@ -52,6 +53,7 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
       const maxLen = answer.toString().length;
       if (next.length > maxLen) return prev;
       if (parseInt(next) === answer) {
+        vibrate(15);
         if (index >= problems.length - 1) {
           finishChallenge();
         } else {

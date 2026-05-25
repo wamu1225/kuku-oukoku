@@ -2,13 +2,16 @@ import { useState } from 'react';
 import type { KukuState } from '../types';
 import { navigate } from '../App';
 import { LearningEngine } from '../utils/LearningEngine';
+import { refreshHapticsSetting } from '../utils/haptics';
 
 export function Settings({ state, onUpdate }: { state: KukuState; onUpdate: () => void }) {
   const [showHint, setShowHint] = useState(state.settings?.showAnswerHint ?? false);
+  const [haptics, setHaptics] = useState(state.settings?.hapticsEnabled !== false);
   const [confirmReset, setConfirmReset] = useState(false);
 
-  const toggle = (key: 'showAnswerHint', value: boolean) => {
+  const toggle = (key: 'showAnswerHint' | 'hapticsEnabled', value: boolean) => {
     if (key === 'showAnswerHint') setShowHint(value);
+    if (key === 'hapticsEnabled') { setHaptics(value); refreshHapticsSetting(); }
     LearningEngine.updateSettings({ ...state.settings, [key]: value });
     onUpdate();
   };
@@ -32,6 +35,14 @@ export function Settings({ state, onUpdate }: { state: KukuState; onUpdate: () =
             type="checkbox"
             checked={showHint}
             onChange={(e) => toggle('showAnswerHint', e.target.checked)}
+          />
+        </label>
+        <label className="settings-row">
+          <span>正解時にバイブで知らせる（スマホ・タブレットのみ）</span>
+          <input
+            type="checkbox"
+            checked={haptics}
+            onChange={(e) => toggle('hapticsEnabled', e.target.checked)}
           />
         </label>
       </section>

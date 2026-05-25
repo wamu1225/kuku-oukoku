@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { navigate } from '../App';
 import { LearningEngine } from '../utils/LearningEngine';
 import { KUKU_READINGS } from '../data/kukuReadings';
+import { DotGrid } from '../components/DotGrid';
+import { vibrate } from '../utils/haptics';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
 
@@ -38,6 +40,7 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
       const maxLen = answer.toString().length;
       if (next.length > maxLen) return prev;
       if (parseInt(next) === answer) {
+        vibrate(20);
         setShowSuccess(true);
         setTimeout(() => {
           setShowSuccess(false);
@@ -81,11 +84,18 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
         <div className="kuku-list">
           {problems.map((p) => (
             <div key={p.b} className="kuku-card">
-              <div className="kuku-formula">
-                {p.a} × {p.b} = <span className="kuku-answer">{p.a * p.b}</span>
+              <div className="kuku-formula-block">
+                <div className="kuku-formula">
+                  {p.a} × {p.b} = <span className="kuku-answer">{p.a * p.b}</span>
+                </div>
+                {level < 10 && (
+                  <div className="kuku-reading">{KUKU_READINGS[`${p.a}x${p.b}`] || ''}</div>
+                )}
               </div>
               {level < 10 && (
-                <div className="kuku-reading">{KUKU_READINGS[`${p.a}x${p.b}`] || ''}</div>
+                <div className="kuku-dotgrid">
+                  <DotGrid a={p.a} b={p.b} size={10} />
+                </div>
               )}
             </div>
           ))}

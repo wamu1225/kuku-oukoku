@@ -4,6 +4,7 @@ import type { KukuState } from '../types';
 import { LearningEngine } from '../utils/LearningEngine';
 import { IdleManager } from '../utils/IdleManager';
 import { COMPANIONS } from '../data/companions';
+import { getCurrentSeasonal } from '../utils/seasonal';
 
 function PrestigeBanner({ state, onPrestige }: { state: KukuState; onPrestige: () => void }) {
   const currentRank = IdleManager.getPrestigeRankName(state.prestigeCount || 0);
@@ -80,9 +81,14 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
   const showTrialGate =
     (state.companions[9] || 0) > 0 && !trialCleared;
 
+  const season = getCurrentSeasonal();
+
   return (
-    <div className="screen empire-screen">
+    <div className="screen empire-screen" style={{ background: season.bg, padding: '16px', borderRadius: 'var(--radius-lg)' }}>
       <h1 className="screen-title">🏰 おうこく</h1>
+      <p className="season-banner" style={{ borderLeftColor: season.accent }}>
+        <span aria-hidden="true">{season.emoji}</span> 今月のおうこく：<strong>{season.name}</strong>
+      </p>
 
       <div className="empire-stats">
         <div className="empire-stat">
@@ -107,6 +113,44 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
         なかまを招待しよう。なかまは1秒ごとに自動で KP を集めてくれるよ。
         さらに、その段の九九を「まなぶ」「アタック」で何度も解くと、なかまが進化して生産力がアップ！
       </p>
+
+      {(state.activeQuests?.length ?? 0) > 0 && (
+        <section className="quests-section">
+          <h2 className="section-h">📜 きょうの任務</h2>
+          <ul className="quests-list">
+            {state.activeQuests?.map((q) => {
+              const ratio = Math.min(q.progress / q.target, 1);
+              return (
+                <li key={q.id} className={`quest-card ${q.isCompleted ? 'completed' : ''}`}>
+                  <div className="quest-head">
+                    <span className="quest-title">{q.title}</span>
+                    <span className="quest-reward">
+                      {q.reward.type === 'kp' ? '+' + IdleManager.formatBigNumber(q.reward.amount) + ' KP' : '+' + q.reward.amount + ' スタンプ'}
+                    </span>
+                  </div>
+                  <p className="quest-desc">{q.description}</p>
+                  <div className="quest-progress">
+                    <div className="quest-progress-bar" style={{ width: `${ratio * 100}%` }} />
+                  </div>
+                  <div className="quest-foot">
+                    <span>{q.progress} / {q.target}</span>
+                    {q.isCompleted && (
+                      <button
+                        className="btn-primary quest-claim"
+                        onClick={() => {
+                          const updated = LearningEngine.claimQuest(q.id);
+                          setState(updated);
+                          onUpdate();
+                        }}
+                      >もらう</button>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
 
       {showTrialGate && (
         <div className="trial-gate">
@@ -136,10 +180,13 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
           const canBuy = state.kp >= cost;
           const production = IdleManager.getIndividualProduction(state, comp.level);
           const masteryInfo = IdleManager.getMasteryInfo(state, comp.level);
-          const festivalActive = (state.festivalUntil?.[comp.level] || 0) > now;
+          const festivalUntil = state.festivalUntil?.[comp.level] || 0;
+          const festivalActive = festivalUntil > now;
+          const festivalSecsLeft = festivalActive ? Math.ceil((festivalUntil - now) / 1000) : 0;
+          const festivalMinsLeft = Math.floor(festivalSecsLeft / 60);
 
           return (
-            <div key={comp.level} className="companion-card" style={{ borderColor: comp.color }}>
+            <div key={comp.level} className={`companion-card ${festivalActive ? 'festival-active' : ''}`} style={{ borderColor: festivalActive ? '#ec4899' : comp.color }}>
               <div className="companion-icon" aria-hidden="true" style={{ background: comp.color }}>
                 {comp.emoji}
               </div>
@@ -153,7 +200,9 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
                       熟練度 {masteryInfo.badge === 'gold' ? '金' : masteryInfo.badge === 'silver' ? '銀' : '銅'}（×{masteryInfo.multiplier.toFixed(1)}）
                     </span>
                   )}
-                  {festivalActive && <span className="festival-badge">🎉 祝祭中</span>}
+                  {festivalActive && (
+                    <span className="festival-badge">🎉 祝祭中 残{festivalMinsLeft > 0 ? `${festivalMinsLeft}分` : `${festivalSecsLeft}秒`}</span>
+                  )}
                 </div>
               </div>
               <div className="companion-actions">
