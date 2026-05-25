@@ -224,6 +224,8 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
             className={`battle-card ${selected.includes(i) ? 'selected' : ''}`}
             onClick={() => pickCard(i)}
             disabled={feedback !== null}
+            aria-pressed={selected.includes(i)}
+            aria-label={`カード ${c}${selected.includes(i) ? '（選択中）' : ''}`}
           >
             {c}
           </button>

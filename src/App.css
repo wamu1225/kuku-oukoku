@@ -438,6 +438,20 @@ main { padding: 20px 16px 40px; }
 }
 .empire-stat-label { color: var(--text-muted); font-size: 12px; }
 .empire-stat-value { font-size: 18px; font-weight: 900; color: var(--primary); }
+.empire-stat-rank .empire-stat-value { color: #8b5cf6; }
+.empire-stat-kp .empire-stat-value { color: #f59e0b; }
+.empire-stat-kps .empire-stat-value { color: #22c55e; }
+.empire-stat-comp .empire-stat-value { color: #ec4899; }
+
+.dan-empty {
+  background: #f9fafb;
+  border: 1px dashed var(--border);
+  padding: 16px;
+  text-align: center;
+  color: var(--text-muted);
+  border-radius: var(--radius);
+  margin: 16px 0;
+}
 
 .companion-list { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
 .companion-card {

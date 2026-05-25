@@ -24,7 +24,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" v
   <text x="80" y="220" font-family="'Hiragino Kaku Gothic ProN','Hiragino Sans','Yu Gothic',Meiryo,sans-serif" font-size="92" font-weight="900" fill="#fff">九九おうこく</text>
   <text x="80" y="310" font-family="'Hiragino Kaku Gothic ProN','Hiragino Sans','Yu Gothic',Meiryo,sans-serif" font-size="36" font-weight="700" fill="#fde047">九九を解くと、王国が広がる ✨</text>
   <text x="80" y="400" font-family="'Hiragino Kaku Gothic ProN','Hiragino Sans','Yu Gothic',Meiryo,sans-serif" font-size="22" fill="rgba(255,255,255,0.85)">小学2年生向けの九九学習ゲーム</text>
-  <text x="80" y="434" font-family="'Hiragino Kaku Gothic ProN','Hiragino Sans','Yu Gothic',Meiryo,sans-serif" font-size="22" fill="rgba(255,255,255,0.85)">広告なし・追加課金なし・登録不要</text>
+  <text x="80" y="434" font-family="'Hiragino Kaku Gothic ProN','Hiragino Sans','Yu Gothic',Meiryo,sans-serif" font-size="22" fill="rgba(255,255,255,0.85)">無料・登録不要・ブラウザだけで</text>
   <line x1="80" y1="510" x2="700" y2="510" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
   <text x="80" y="560" font-family="'Hiragino Kaku Gothic ProN','Hiragino Sans','Yu Gothic',Meiryo,sans-serif" font-size="22" fill="#fde047" font-weight="700">study-apps.com/kuku-oukoku/</text>
 </svg>`;

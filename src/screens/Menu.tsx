@@ -22,7 +22,7 @@ const TILES: Tile[] = [
   { id: 'blank', label: 'くもくも', emoji: '🌫', color: '#fd79a8', path: '/blank/', desc: '？×4=12 を解こう', danReq: 3 },
   { id: 'map', label: '九九の地図', emoji: '🗺️', color: '#0ea5e9', path: '/map/', desc: '九九の全体表' },
   { id: 'collection', label: 'ずかん', emoji: '📚', color: '#2ecc71', path: '/collection/', desc: '集めた印・宝物・メダル' },
-  { id: 'calendar', label: 'カレンダー', emoji: '📅', color: '#2d3436', path: '/calendar/', desc: '学習の記録' },
+  { id: 'calendar', label: 'カレンダー', emoji: '📅', color: '#14b8a6', path: '/calendar/', desc: '学習の記録' },
 ];
 
 export function Menu({ state }: { state: KukuState }) {
@@ -87,7 +87,7 @@ export function Menu({ state }: { state: KukuState }) {
         </p>
         <p>
           解いた問題はすべて<strong>知識ポイント(KP)</strong>になり、KPで「なかま」を招待すると、
-          そのなかまが自動的にもっとKPを集めてくれます。広告も追加課金もない、安心して遊べる作りです。
+          そのなかまが自動的にもっとKPを集めてくれます。無料・登録不要で、お子さんが安心して遊べる作りです。
         </p>
         <p>
           <a href="/kuku-oukoku/guide/" onClick={(e) => { e.preventDefault(); navigate('/guide/'); }}>

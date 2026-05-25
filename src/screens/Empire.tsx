@@ -91,19 +91,19 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
       </p>
 
       <div className="empire-stats">
-        <div className="empire-stat">
+        <div className="empire-stat empire-stat-rank">
           <span className="empire-stat-label">{empireName}</span>
           <span className="empire-stat-value">{empireLevel}</span>
         </div>
-        <div className="empire-stat">
+        <div className="empire-stat empire-stat-kp">
           <span className="empire-stat-label">KP</span>
           <span className="empire-stat-value">{IdleManager.formatBigNumber(state.kp)}</span>
         </div>
-        <div className="empire-stat">
+        <div className="empire-stat empire-stat-kps">
           <span className="empire-stat-label">1秒に</span>
           <span className="empire-stat-value">+{IdleManager.formatBigNumber(kps)}</span>
         </div>
-        <div className="empire-stat">
+        <div className="empire-stat empire-stat-comp">
           <span className="empire-stat-label">なかま合計</span>
           <span className="empire-stat-value">{totalCompanions}人</span>
         </div>
@@ -183,7 +183,8 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
           const festivalUntil = state.festivalUntil?.[comp.level] || 0;
           const festivalActive = festivalUntil > now;
           const festivalSecsLeft = festivalActive ? Math.ceil((festivalUntil - now) / 1000) : 0;
-          const festivalMinsLeft = Math.floor(festivalSecsLeft / 60);
+          const festivalMM = Math.floor(festivalSecsLeft / 60);
+          const festivalSS = festivalSecsLeft % 60;
 
           return (
             <div key={comp.level} className={`companion-card ${festivalActive ? 'festival-active' : ''}`} style={{ borderColor: festivalActive ? '#ec4899' : comp.color }}>
@@ -201,7 +202,7 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
                     </span>
                   )}
                   {festivalActive && (
-                    <span className="festival-badge">🎉 祝祭中 残{festivalMinsLeft > 0 ? `${festivalMinsLeft}分` : `${festivalSecsLeft}秒`}</span>
+                    <span className="festival-badge">🎉 祝祭中 残 {String(festivalMM).padStart(2, '0')}:{String(festivalSS).padStart(2, '0')}</span>
                   )}
                 </div>
               </div>

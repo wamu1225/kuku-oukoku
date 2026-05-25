@@ -1,10 +1,20 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { navigate } from '../App';
 import { LearningEngine } from '../utils/LearningEngine';
 import { vibrate } from '../utils/haptics';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
 const BADGE_LABEL: Record<string, string> = { gold: '金', silver: '銀', bronze: '銅', clear: 'クリア' };
+
+// Fisher-Yates shuffle (unbiased)
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 export function TimeAttack({ level, onComplete }: { level: number; onComplete: () => void }) {
   const [countdown, setCountdown] = useState(3);
@@ -18,7 +28,11 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
   const startRef = useRef<number | null>(null);
   const timerRef = useRef<number | null>(null);
 
-  const problems = Array.from({ length: 9 }, (_, i) => ({ a: level, b: i + 1 })).sort(() => Math.random() - 0.5);
+  // CRITICAL: problems must be stable for the duration of the attack. Generate once based on level.
+  const problems = useMemo(
+    () => shuffle(Array.from({ length: 9 }, (_, i) => ({ a: level, b: i + 1 }))),
+    [level]
+  );
   const current = problems[index];
 
   useEffect(() => {

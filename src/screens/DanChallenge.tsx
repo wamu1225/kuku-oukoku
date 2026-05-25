@@ -141,15 +141,21 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
           <p>すべての段位を取得しています。おめでとう！</p>
         )}
 
-        <h2 className="section-h">取得済みの段位</h2>
-        <div className="dan-list">
-          {DAN_LEVELS.filter((d) => d.rank <= currentRank).map((d) => (
-            <div key={d.rank} className="dan-pill">
-              {d.name}
-              {state.danMedals?.[d.rank] && <span className="dan-medal"> {BADGE_LABEL[state.danMedals[d.rank]]}</span>}
+        {currentRank > 0 ? (
+          <>
+            <h2 className="section-h">取得済みの段位</h2>
+            <div className="dan-list">
+              {DAN_LEVELS.filter((d) => d.rank <= currentRank).map((d) => (
+                <div key={d.rank} className="dan-pill">
+                  {d.name}
+                  {state.danMedals?.[d.rank] && <span className="dan-medal"> {BADGE_LABEL[state.danMedals[d.rank]]}</span>}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </>
+        ) : (
+          <p className="dan-empty">まだ段位を取得していません。初挑戦で 10級 を取得しよう！</p>
+        )}
 
         <button className="back-link" onClick={() => navigate('/')}>← ホームへ</button>
       </div>

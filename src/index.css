@@ -64,6 +64,9 @@ a:hover { text-decoration: underline; }
 }
 .skip-link:focus { left: 8px; }
 
+html { scroll-padding-top: 120px; }
+main { scroll-margin-top: 120px; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

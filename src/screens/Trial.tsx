@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { navigate } from '../App';
 import type { KukuState } from '../types';
 import { LearningEngine } from '../utils/LearningEngine';
@@ -34,10 +34,9 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
   const [index, setIndex] = useState(0);
   const [input, setInput] = useState('');
   const [elapsed, setElapsed] = useState(0);
+  const [problems, setProblems] = useState<{ a: number; b: number }[]>([]);
   const startRef = useRef<number | null>(null);
   const timerRef = useRef<number | null>(null);
-
-  const problems = useMemo(() => generate(), [phase === 'playing' && index === 0]);
   const current = problems[index];
 
   useEffect(() => {
@@ -65,6 +64,7 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
   }, [phase]);
 
   const start = () => {
+    setProblems(generate());
     setPhase('countdown');
     setCountdown(3);
     setIndex(0);
@@ -188,6 +188,8 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
       </div>
     );
   }
+
+  if (!current) return null;
 
   return (
     <div className="screen quiz-screen trial-screen">

@@ -135,16 +135,23 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
   }
 
   if (phase === 'countdown') {
-    return <div className="screen countdown-screen"><p className="countdown-ready">Ready...</p><p className="countdown-number">{countdown}</p></div>;
+    return (
+      <div className="screen tower-screen" style={{ background: BG_TIERS[BG_TIERS.length - 1].bg, minHeight: 300 }}>
+        <div className="tower-overlay countdown-screen">
+          <p className="countdown-ready">Ready...</p>
+          <p className="countdown-number">{countdown}</p>
+        </div>
+      </div>
+    );
   }
 
   if (phase === 'done') {
     const tier = getTier(score);
     return (
       <div className="screen result-screen">
-        <h1 className="result-title">🗼 到達！</h1>
+        <h1 className="result-title">🗼 {tier.name}に到達！</h1>
         <div className="result-stats">
-          <div><span className="result-label">到達高度</span><span className="result-value">{score} m</span></div>
+          <div><span className="result-label">到達高度</span><span className="result-value">{score}m</span></div>
           <div><span className="result-label">エリア</span><span className="result-value">{tier.name}</span></div>
           <div><span className="result-label">問題数</span><span className="result-value">{problemCount}問</span></div>
           <div><span className="result-label">獲得 KP</span><span className="result-value">+{Math.floor(score / 10)}</span></div>
