@@ -64,6 +64,10 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
   };
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [phase]);
+
+  useEffect(() => {
     if (phase !== 'countdown') return;
     if (countdown > 0) {
       const t = window.setTimeout(() => setCountdown((c) => c - 1), 1000);

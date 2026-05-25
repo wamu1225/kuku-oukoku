@@ -22,6 +22,10 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
   const current = problems[index];
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [started, finished]);
+
+  useEffect(() => {
     if (countdown > 0) {
       const t = window.setTimeout(() => setCountdown((c) => c - 1), 1000);
       return () => window.clearTimeout(t);

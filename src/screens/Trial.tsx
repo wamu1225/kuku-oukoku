@@ -41,6 +41,10 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
   const current = problems[index];
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [phase]);
+
+  useEffect(() => {
     if (phase !== 'countdown') return;
     if (countdown > 0) {
       const t = window.setTimeout(() => setCountdown((c) => c - 1), 1000);

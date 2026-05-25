@@ -23,6 +23,10 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
     setPhase('list');
   }, [level]);
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [phase]);
+
   const startQuiz = () => {
     setIndex(0);
     setInput('');
