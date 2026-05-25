@@ -15,6 +15,8 @@ import { Settings } from './screens/Settings';
 import { Battle } from './screens/Battle';
 import { Tower } from './screens/Tower';
 import { Blank } from './screens/Blank';
+import { Trial } from './screens/Trial';
+import { Map as KukuMap } from './screens/Map';
 import { Guide } from './pages/Guide';
 import { About } from './pages/About';
 import { Privacy } from './pages/Privacy';
@@ -37,6 +39,8 @@ function parseRoute(pathname: string) {
     case 'battle': return { name: 'battle' } as const;
     case 'tower': return { name: 'tower' } as const;
     case 'blank': return { name: 'blank' } as const;
+    case 'trial': return { name: 'trial' } as const;
+    case 'map': return { name: 'map' } as const;
     case 'empire': return { name: 'empire' } as const;
     case 'collection': return { name: 'collection' } as const;
     case 'calendar': return { name: 'calendar' } as const;
@@ -114,6 +118,8 @@ function App() {
         {route.name === 'battle' && <Battle state={state} onComplete={refresh} />}
         {route.name === 'tower' && <Tower state={state} onComplete={refresh} />}
         {route.name === 'blank' && <Blank state={state} onComplete={refresh} />}
+        {route.name === 'trial' && <Trial state={state} onComplete={refresh} />}
+        {route.name === 'map' && <KukuMap state={state} />}
         {route.name === 'empire' && <Empire state={state} onUpdate={refresh} />}
         {route.name === 'collection' && <Collection state={state} />}
         {route.name === 'calendar' && <Calendar state={state} />}

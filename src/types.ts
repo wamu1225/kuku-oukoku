@@ -57,6 +57,7 @@ export interface KukuState {
     totalAttackPlays?: number;
     totalAttackCorrect?: number;
     totalDanSolved?: number;
+    totalTrialsCleared?: number;
     maxCombo?: number;
     battleTotalDefeated?: number;
     battleMaxDefeatedPerDiff?: Record<string, number>;

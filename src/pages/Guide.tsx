@@ -82,7 +82,14 @@ export function Guide() {
         </li>
       </ul>
 
-      <h2>6. 「ずかん」で集めた証を確認</h2>
+      <h2>6. 「暗黒の試練」と二桁九九</h2>
+      <p>
+        9 の段のなかまを呼ぶと「おうこく」内に「暗黒の試練の門」が現れます。
+        30 秒で全問正解すると 5,000 KP と <strong>10 の段</strong> が解放され、二桁九九（11〜20 の段）への道が開けます。
+        だんいにんていで初段〜十段に合格すると、まなぶ・アタックでも 10〜20 の段が順次プレイ可能になります。
+      </p>
+
+      <h2>7. 「ずかん」で集めた証を確認</h2>
       <p>
         段位の印・王国の秘宝・挑戦のメダル・探索の証など、さまざまな項目を集める要素があります。
         条件を達成すると自動的に獲得され、ずかんに記録されます。
@@ -94,6 +101,35 @@ export function Guide() {
         カレンダー画面では学習した日が記録されるので、連続日数を伸ばしていきましょう。
         3日間続けると「時空の時計」のメダルもゲットできます。
       </p>
+
+      <h2>よくある質問 (FAQ)</h2>
+      <details className="faq-item">
+        <summary>料金はかかりますか？</summary>
+        <p>完全無料です。広告の表示はありますが、追加課金や登録は一切不要です。</p>
+      </details>
+      <details className="faq-item">
+        <summary>データはどこに保存されますか？</summary>
+        <p>すべてお使いのブラウザの localStorage に保存されます。サーバには送信されません。ブラウザのデータを削除すると進捗もリセットされる点にご注意ください。</p>
+      </details>
+      <details className="faq-item">
+        <summary>アプリのインストールは必要ですか？</summary>
+        <p>不要です。ブラウザでアクセスするだけで遊べます。Chrome / Safari / Edge / Firefox などのモダンブラウザで動作します。</p>
+      </details>
+      <details className="faq-item">
+        <summary>オフラインでも遊べますか？</summary>
+        <p>最初のロード後はオフラインでも一部のモードは遊べますが、完全なオフライン対応（PWA）にはまだ未対応です。</p>
+      </details>
+      <details className="faq-item">
+        <summary>小学2年生でも理解できますか？</summary>
+        <p>はい。文字はひらがな中心、操作はタップ・数字入力のみで、ふりがな付きの読みかたも表示されます。1の段から段階的に解放されるので、初学者でも迷わず進めます。</p>
+      </details>
+
+      <h2>次におすすめ</h2>
+      <ul>
+        <li><a href="/kuku-oukoku/" onClick={(e) => { e.preventDefault(); navigate('/'); }}>ホームでまず「まなぶ」をはじめる</a></li>
+        <li><a href="/kuku-oukoku/about/" onClick={(e) => { e.preventDefault(); navigate('/about/'); }}>このサイトのコンセプトを読む</a></li>
+        <li><a href="/kuku-oukoku/privacy/" onClick={(e) => { e.preventDefault(); navigate('/privacy/'); }}>プライバシーポリシー</a></li>
+      </ul>
 
       <div className="cta-row">
         <button className="btn-primary" onClick={() => navigate('/')}>ホームへ戻る</button>

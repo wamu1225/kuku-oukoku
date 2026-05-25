@@ -23,7 +23,9 @@ export function LevelSelect({ mode, state }: { mode: 'learn' | 'attack'; state: 
     : 'タイムを競って、金メダルをめざそう';
 
   const unlocked = state.unlockedLevels ?? [1];
-  const allLevels = Array.from({ length: 9 }, (_, i) => i + 1);
+  const showLegendary = unlocked.some((l) => l >= 10);
+  const maxLevel = showLegendary ? 20 : 9;
+  const allLevels = Array.from({ length: maxLevel }, (_, i) => i + 1);
 
   return (
     <div className="screen">

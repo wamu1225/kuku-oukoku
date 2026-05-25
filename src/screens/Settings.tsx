@@ -37,6 +37,33 @@ export function Settings({ state, onUpdate }: { state: KukuState; onUpdate: () =
       </section>
 
       <section className="settings-section">
+        <h2 className="section-h">称号 (タイトル)</h2>
+        <p className="screen-desc" style={{ marginTop: 0 }}>
+          九九を解いた合計数に応じて称号が解放されます。今の称号：<strong>{state.currentTitle ?? '九九のみならい'}</strong>
+        </p>
+        <div className="title-list">
+          {(state.unlockedTitles ?? ['九九のみならい']).map((title) => (
+            <button
+              key={title}
+              className={`title-pill ${(state.currentTitle ?? '九九のみならい') === title ? 'active' : ''}`}
+              onClick={() => { LearningEngine.setCurrentTitle(title); onUpdate(); }}
+            >
+              {title}
+            </button>
+          ))}
+        </div>
+        {(state.unlockedTitles ?? []).length < 5 && (
+          <p className="title-hint">
+            次の称号は…<br/>
+            ・九九の騎士（合計 100 問）<br/>
+            ・おうこくの勇者（合計 500 問）<br/>
+            ・九九マスター（合計 1000 問）<br/>
+            ・伝説の賢者（合計 5000 問）
+          </p>
+        )}
+      </section>
+
+      <section className="settings-section">
         <h2 className="section-h">統計</h2>
         <dl className="stats-list">
           <div><dt>総スタンプ</dt><dd>{state.totalStamps} 個</dd></div>

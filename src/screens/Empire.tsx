@@ -5,6 +5,26 @@ import { LearningEngine } from '../utils/LearningEngine';
 import { IdleManager } from '../utils/IdleManager';
 import { COMPANIONS } from '../data/companions';
 
+function PrestigeBanner({ state, onPrestige }: { state: KukuState; onPrestige: () => void }) {
+  const currentRank = IdleManager.getPrestigeRankName(state.prestigeCount || 0);
+  const nextRank = IdleManager.getPrestigeRankName((state.prestigeCount || 0) + 1);
+  const nextMultiplier = Math.pow(2, (state.prestigeCount || 0) + 1);
+  return (
+    <div className="prestige-banner">
+      <div className="prestige-emoji" aria-hidden="true">👑</div>
+      <div>
+        <h2>おうこくランクアップ可能！</h2>
+        <p>
+          現在：{currentRank}（×{Math.pow(2, state.prestigeCount || 0)}）<br />
+          次：{nextRank}（×{nextMultiplier}）
+        </p>
+        <p className="prestige-warn">※ KP は 0 にリセットされますが、なかまは維持されます</p>
+        <button className="btn-primary" onClick={onPrestige}>王国をランクアップする</button>
+      </div>
+    </div>
+  );
+}
+
 export function Empire({ state: initialState, onUpdate }: { state: KukuState; onUpdate: () => void }) {
   const [state, setState] = useState(initialState);
   const [now, setNow] = useState(Date.now());
@@ -48,11 +68,17 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
     onUpdate();
   };
 
+  const trialCleared = (state.stats?.totalTrialsCleared || 0) > 0;
   const visibleLevels = COMPANIONS.filter((c) => {
     if (c.level === 1) return true;
     const prevOwned = (state.companions[c.level - 1] || 0) > 0;
-    return prevOwned;
-  }).filter((c) => c.level <= 9);
+    if (c.level <= 9) return prevOwned;
+    // Legendary companions (10+) require Trial cleared AND previous owned
+    if (c.level === 10) return trialCleared;
+    return trialCleared && prevOwned;
+  });
+  const showTrialGate =
+    (state.companions[9] || 0) > 0 && !trialCleared;
 
   return (
     <div className="screen empire-screen">
@@ -81,6 +107,27 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
         なかまを招待しよう。なかまは1秒ごとに自動で KP を集めてくれるよ。
         さらに、その段の九九を「まなぶ」「アタック」で何度も解くと、なかまが進化して生産力がアップ！
       </p>
+
+      {showTrialGate && (
+        <div className="trial-gate">
+          <div className="trial-gate-emoji" aria-hidden="true">🌑</div>
+          <div className="trial-gate-body">
+            <h2>暗黒の試練の門</h2>
+            <p>9 の段のなかまの加護を得たあなたに、新たな扉が現れた。挑むと 10 の段とその先への道が開く。</p>
+            <button className="btn-primary" onClick={() => navigate('/trial/')}>門に挑む</button>
+          </div>
+        </div>
+      )}
+
+      {state.kp >= 1000000 && (
+        <PrestigeBanner state={state} onPrestige={() => {
+          if (!confirm('王国をランクアップしますか？\n\n・KP がリセットされます\n・なかまは維持されます\n・全体の生産力が永続的に ×2 されます')) return;
+          const after = LearningEngine.prestige();
+          setState(after);
+          onUpdate();
+          alert('🎉 王国がランクアップした！全体の生産力が永続的にアップしたよ。');
+        }} />
+      )}
 
       <div className="companion-list">
         {visibleLevels.map((comp) => {

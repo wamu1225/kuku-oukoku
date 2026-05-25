@@ -75,9 +75,15 @@ const sanitize = (raw: unknown): KukuState => {
 
 function _syncUnlockedLevels(state: KukuState) {
   const danRank = state.danRank || 0;
+  const trialCleared = (state.stats?.totalTrialsCleared || 0) > 0;
   const newUnlockedLevels = new Set<number>([1, 2, 3]);
   if (danRank >= 3) [4, 5, 6].forEach((l) => newUnlockedLevels.add(l));
   if (danRank >= 6) [7, 8, 9].forEach((l) => newUnlockedLevels.add(l));
+  if (trialCleared) newUnlockedLevels.add(10);
+  if (danRank >= 11) [11, 12, 13].forEach((l) => newUnlockedLevels.add(l));
+  if (danRank >= 14) [14, 15, 16].forEach((l) => newUnlockedLevels.add(l));
+  if (danRank >= 17) [17, 18, 19].forEach((l) => newUnlockedLevels.add(l));
+  if (danRank >= 20) newUnlockedLevels.add(20);
   Object.keys(state.companions).forEach((levelStr) => {
     const lvl = parseInt(levelStr);
     if ((state.companions[lvl] || 0) > 0) newUnlockedLevels.add(lvl);
@@ -139,6 +145,21 @@ function _checkAchievements(state: KukuState) {
   if (!hasAny('relic_4') && state.blankMedalsPerDiff?.['3'] === 'gold') add('relic_4');
   if (!hasAny('relic_5') && state.blankMedalsPerDiff?.['6'] === 'gold') add('relic_5');
   if (!hasAny('relic_7') && state.blankMedalsPerDiff?.['9'] === 'gold') add('relic_7');
+  if (!hasAny('medal_7') && (state.stats?.totalTrialsCleared || 0) > 0) add('medal_7');
+
+  // Title auto-award based on totalMastery
+  if (!state.unlockedTitles) state.unlockedTitles = ['九九のみならい'];
+  const titleThresholds = [
+    { name: '九九の騎士', target: 100 },
+    { name: 'おうこくの勇者', target: 500 },
+    { name: '九九マスター', target: 1000 },
+    { name: '伝説の賢者', target: 5000 },
+  ];
+  for (const t of titleThresholds) {
+    if (totalMastery >= t.target && !state.unlockedTitles.includes(t.name)) {
+      state.unlockedTitles.push(t.name);
+    }
+  }
 
   if (!hasAny('relic_1') && totalMastery >= 15) add('relic_1');
   if (!hasAny('relic_2') && (state.stats?.totalLearnPlays || 0) >= 10) add('relic_2');
@@ -406,6 +427,22 @@ export const LearningEngine = {
     return state;
   },
 
+  completeTrial(success: boolean): KukuState {
+    const state = this.loadState();
+    if (!state.stats) state.stats = {};
+    if (success) {
+      state.stats.totalTrialsCleared = (state.stats.totalTrialsCleared || 0) + 1;
+      state.kp += 5000;
+      if (!state.royalTreasures) state.royalTreasures = [];
+      if (!state.wisdomSeals) state.wisdomSeals = [];
+    }
+    _syncUnlockedLevels(state);
+    _updateHabit(state, true);
+    _checkAchievements(state);
+    this.saveState(state);
+    return state;
+  },
+
   saveBlankResult(diffId: string, timeMs: number): KukuState {
     const state = this.loadState();
     if (!state.challengeBestTimes) state.challengeBestTimes = {};
@@ -435,6 +472,15 @@ export const LearningEngine = {
     state.kp = 0;
     _checkAchievements(state);
     this.saveState(state);
+    return state;
+  },
+
+  setCurrentTitle(title: string): KukuState {
+    const state = this.loadState();
+    if (state.unlockedTitles?.includes(title)) {
+      state.currentTitle = title;
+      this.saveState(state);
+    }
     return state;
   },
 

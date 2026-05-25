@@ -56,6 +56,13 @@ export function About() {
         ご意見・ご要望はサイト下部の問い合わせ先まで。
       </p>
 
+      <h2>次におすすめ</h2>
+      <ul>
+        <li><a href="/kuku-oukoku/guide/" onClick={(e) => { e.preventDefault(); navigate('/guide/'); }}>あそびかたガイドを読む</a></li>
+        <li><a href="/kuku-oukoku/" onClick={(e) => { e.preventDefault(); navigate('/'); }}>「まなぶ」モードをはじめる</a></li>
+        <li><a href="/kuku-oukoku/privacy/" onClick={(e) => { e.preventDefault(); navigate('/privacy/'); }}>プライバシーポリシー</a></li>
+      </ul>
+
       <div className="cta-row">
         <button className="btn-primary" onClick={() => navigate('/')}>ホームへ戻る</button>
         <button className="btn-secondary" onClick={() => navigate('/privacy/')}>プライバシーポリシー</button>

@@ -20,13 +20,14 @@ const TILES: Tile[] = [
   { id: 'battle', label: 'バトル', emoji: '⚔️', color: '#d63031', path: '/battle/', desc: '2枚カードで敵を撃破', danReq: 1 },
   { id: 'tower', label: 'タワー', emoji: '🗼', color: '#f1c40f', path: '/tower/', desc: '30秒でどこまで高く積める？', danReq: 2 },
   { id: 'blank', label: 'くもくも', emoji: '🌫', color: '#fd79a8', path: '/blank/', desc: '？×4=12 を解こう', danReq: 3 },
+  { id: 'map', label: '九九の地図', emoji: '🗺️', color: '#0ea5e9', path: '/map/', desc: '九九の全体表' },
   { id: 'collection', label: 'ずかん', emoji: '📚', color: '#2ecc71', path: '/collection/', desc: '集めた印・宝物・メダル' },
   { id: 'calendar', label: 'カレンダー', emoji: '📅', color: '#2d3436', path: '/calendar/', desc: '学習の記録' },
 ];
 
 export function Menu({ state }: { state: KukuState }) {
   const isUnlocked = (tile: Tile) => {
-    if (tile.id === 'learn' || tile.id === 'collection' || tile.id === 'calendar') return true;
+    if (['learn', 'collection', 'calendar', 'map'].includes(tile.id)) return true;
     if (tile.danReq !== undefined) return (state.danRank || 0) >= tile.danReq;
     return state.unlockedModes?.includes(tile.id as never) ?? false;
   };
