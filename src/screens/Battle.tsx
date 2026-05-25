@@ -100,39 +100,38 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
   };
 
   const pickCard = (idx: number) => {
-    if (phase !== 'playing') return;
+    if (phase !== 'playing' || feedback !== null) return;
     if (selected.includes(idx)) {
       setSelected((s) => s.filter((i) => i !== idx));
       return;
     }
     const next = [...selected, idx];
+    // 2 枚目も即座に式に反映（演出中もスロットに残す）
+    setSelected(next);
     if (next.length === 2) {
       const product = cards[next[0]] * cards[next[1]];
       if (product === hp) {
         setDefeated((d) => d + 1);
-        setCombo((c) => {
-          const nc = c + 1;
-          setMaxCombo((m) => Math.max(m, nc));
-          return nc;
-        });
+        const newCombo = combo + 1;
+        setCombo(newCombo);
+        setMaxCombo(Math.max(maxCombo, newCombo));
         setFeedback('correct');
+        // 正解は 700ms に延長：式 + ⚔️ 表示をプレイヤーが視認できる時間を確保
         window.setTimeout(() => {
           setFeedback(null);
           setSelected([]);
           const newHp = generateHP(stage!.max);
           setHp(newHp);
           setCards(generateCards(newHp, stage!.max, 5));
-        }, 350);
+        }, 700);
       } else {
         setFeedback('wrong');
         setCombo(0);
         window.setTimeout(() => {
           setFeedback(null);
           setSelected([]);
-        }, 500);
+        }, 700);
       }
-    } else {
-      setSelected(next);
     }
   };
 
