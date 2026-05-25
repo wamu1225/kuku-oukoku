@@ -51,16 +51,24 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
   const startRef = useRef<number | null>(null);
   const timerRef = useRef<number | null>(null);
+  // setInterval 内 finish() の stale closure 対策：常に最新値を ref で保持
+  const defeatedRef = useRef(0);
+  const comboRef = useRef(0);
+  const maxComboRef = useRef(0);
+  const stageRef = useRef<(typeof STAGES)[number] | null>(null);
+  const endedRef = useRef(false);
   const [result, setResult] = useState<{ count: number; combo: number; kpGain: number } | null>(null);
 
   const start = (s: (typeof STAGES)[number]) => {
     setStage(s);
+    stageRef.current = s;
     setPhase('countdown');
     setCountdown(3);
-    setDefeated(0);
-    setCombo(0);
-    setMaxCombo(0);
+    setDefeated(0); defeatedRef.current = 0;
+    setCombo(0); comboRef.current = 0;
+    setMaxCombo(0); maxComboRef.current = 0;
     setSelected([]);
+    endedRef.current = false;
     const newHp = generateHP(s.max);
     setHp(newHp);
     setCards(generateCards(newHp, s.max, 5));
@@ -91,10 +99,15 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
   }, [phase]);
 
   const finish = () => {
-    if (timerRef.current) window.clearInterval(timerRef.current);
-    const m = Math.max(maxCombo, combo);
-    LearningEngine.saveBattleResult(stage!.id, defeated, m);
-    setResult({ count: defeated, combo: m, kpGain: defeated * 50 + Math.floor(defeated / 10) * 10000 });
+    if (endedRef.current) return;
+    endedRef.current = true;
+    if (timerRef.current) { window.clearInterval(timerRef.current); timerRef.current = null; }
+    // ref から最新値を読む（setInterval 内 closure の stale を回避）
+    const d = defeatedRef.current;
+    const m = Math.max(maxComboRef.current, comboRef.current);
+    const stg = stageRef.current;
+    if (stg) LearningEngine.saveBattleResult(stg.id, d, m);
+    setResult({ count: d, combo: m, kpGain: d * 50 + Math.floor(d / 10) * 10000 });
     setPhase('done');
     onComplete();
   };
@@ -111,10 +124,15 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
     if (next.length === 2) {
       const product = cards[next[0]] * cards[next[1]];
       if (product === hp) {
-        setDefeated((d) => d + 1);
+        const newDefeated = defeated + 1;
         const newCombo = combo + 1;
+        const newMaxCombo = Math.max(maxCombo, newCombo);
+        defeatedRef.current = newDefeated;
+        comboRef.current = newCombo;
+        maxComboRef.current = newMaxCombo;
+        setDefeated(newDefeated);
         setCombo(newCombo);
-        setMaxCombo(Math.max(maxCombo, newCombo));
+        setMaxCombo(newMaxCombo);
         setFeedback('correct');
         // 正解は 700ms に延長：式 + ⚔️ 表示をプレイヤーが視認できる時間を確保
         window.setTimeout(() => {
@@ -126,6 +144,7 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
         }, 700);
       } else {
         setFeedback('wrong');
+        comboRef.current = 0;
         setCombo(0);
         window.setTimeout(() => {
           setFeedback(null);

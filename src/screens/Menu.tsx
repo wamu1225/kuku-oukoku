@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { KukuState } from '../types';
 import { navigate } from '../App';
 import { IdleManager } from '../utils/IdleManager';
@@ -12,20 +13,41 @@ interface Tile {
   danReq?: number;
 }
 
-const TILES: Tile[] = [
-  { id: 'learn', label: 'まなぶ', emoji: '📖', color: '#3498db', path: '/learn/', desc: '九九を1の段から練習' },
-  { id: 'attack', label: 'アタック', emoji: '⚡', color: '#e67e22', path: '/attack/', desc: '時間との勝負' },
-  { id: 'dan', label: 'だんいにんてい', emoji: '🛡️', color: '#6c5ce7', path: '/dan/', desc: '段位認定試験' },
-  { id: 'empire', label: 'おうこく', emoji: '🏰', color: '#00b894', path: '/empire/', desc: 'なかまを呼んで王国を育てよう' },
-  { id: 'battle', label: 'バトル', emoji: '⚔️', color: '#d63031', path: '/battle/', desc: '2枚カードで敵を撃破', danReq: 1 },
-  { id: 'tower', label: 'タワー', emoji: '🗼', color: '#f1c40f', path: '/tower/', desc: '30秒でどこまで高く積める？', danReq: 2 },
-  { id: 'blank', label: 'くもくも', emoji: '🌫', color: '#fd79a8', path: '/blank/', desc: '？×4=12 を解こう', danReq: 3 },
-  { id: 'map', label: '九九の地図', emoji: '🗺️', color: '#0ea5e9', path: '/map/', desc: '九九の全体表' },
-  { id: 'collection', label: 'ずかん', emoji: '📚', color: '#2ecc71', path: '/collection/', desc: '集めた印・宝物・メダル' },
-  { id: 'calendar', label: 'カレンダー', emoji: '📅', color: '#14b8a6', path: '/calendar/', desc: '学習の記録' },
+const GROUPS: { title: string; tiles: Tile[] }[] = [
+  {
+    title: '📚 まなぶ・きそ',
+    tiles: [
+      { id: 'learn', label: 'まなぶ', emoji: '📖', color: '#3498db', path: '/learn/', desc: '九九を1の段から練習' },
+      { id: 'map', label: '九九の地図', emoji: '🗺️', color: '#0ea5e9', path: '/map/', desc: '九九の全体表' },
+    ],
+  },
+  {
+    title: '⚡ ちょうせん',
+    tiles: [
+      { id: 'attack', label: 'アタック', emoji: '⚡', color: '#e67e22', path: '/attack/', desc: '9問のタイム勝負' },
+      { id: 'dan', label: 'だんいにんてい', emoji: '🛡️', color: '#6c5ce7', path: '/dan/', desc: '15問で段位を上げる' },
+      { id: 'battle', label: 'バトル', emoji: '⚔️', color: '#d63031', path: '/battle/', desc: '2枚カードで敵を撃破', danReq: 1 },
+      { id: 'tower', label: 'タワー', emoji: '🗼', color: '#f1c40f', path: '/tower/', desc: '30秒でどこまで高く', danReq: 2 },
+      { id: 'blank', label: 'くもくも', emoji: '🌫', color: '#fd79a8', path: '/blank/', desc: '？×4=12 のあなあき', danReq: 3 },
+    ],
+  },
+  {
+    title: '🏰 おうこく',
+    tiles: [
+      { id: 'empire', label: 'おうこく', emoji: '🏰', color: '#00b894', path: '/empire/', desc: 'なかまを呼んで育てる' },
+    ],
+  },
+  {
+    title: '📊 きろく',
+    tiles: [
+      { id: 'collection', label: 'ずかん', emoji: '📚', color: '#2ecc71', path: '/collection/', desc: '集めたメダル' },
+      { id: 'calendar', label: 'カレンダー', emoji: '📅', color: '#14b8a6', path: '/calendar/', desc: '学習の記録' },
+    ],
+  },
 ];
 
 export function Menu({ state }: { state: KukuState }) {
+  const [lockMsg, setLockMsg] = useState<string | null>(null);
   const isUnlocked = (tile: Tile) => {
     if (['learn', 'collection', 'calendar', 'map'].includes(tile.id)) return true;
     if (tile.danReq !== undefined) return (state.danRank || 0) >= tile.danReq;
@@ -57,27 +79,42 @@ export function Menu({ state }: { state: KukuState }) {
         </div>
       )}
 
-      <div className="menu-grid">
-        {TILES.map((t) => {
-          const unlocked = isUnlocked(t);
-          return (
-            <button
-              key={t.id}
-              className={`menu-tile ${unlocked ? '' : 'locked'}`}
-              style={{ '--tile-color': unlocked ? t.color : '#94a3b8' } as React.CSSProperties}
-              onClick={() => {
-                if (!unlocked) { alert(lockMessage(t)); return; }
-                navigate(t.path);
-              }}
-              aria-label={`${t.label}${unlocked ? '' : '（ロック中）'}`}
-            >
-              <span className="menu-tile-emoji" aria-hidden="true">{unlocked ? t.emoji : '🔒'}</span>
-              <span className="menu-tile-label">{t.label}</span>
-              <span className="menu-tile-desc">{t.desc}</span>
-            </button>
-          );
-        })}
-      </div>
+      {lockMsg && (
+        <div className="lock-toast" role="alert" onClick={() => setLockMsg(null)}>
+          🔒 {lockMsg}
+        </div>
+      )}
+
+      {GROUPS.map((g) => (
+        <section key={g.title} className="menu-group">
+          <h2 className="menu-group-title">{g.title}</h2>
+          <div className="menu-grid">
+            {g.tiles.map((t) => {
+              const unlocked = isUnlocked(t);
+              return (
+                <button
+                  key={t.id}
+                  className={`menu-tile ${unlocked ? '' : 'locked'}`}
+                  style={{ '--tile-color': unlocked ? t.color : '#94a3b8' } as React.CSSProperties}
+                  onClick={() => {
+                    if (!unlocked) {
+                      setLockMsg(lockMessage(t));
+                      window.setTimeout(() => setLockMsg(null), 4000);
+                      return;
+                    }
+                    navigate(t.path);
+                  }}
+                  aria-label={`${t.label}${unlocked ? '' : '（ロック中）'}`}
+                >
+                  <span className="menu-tile-emoji" aria-hidden="true">{unlocked ? t.emoji : '🔒'}</span>
+                  <span className="menu-tile-label">{t.label}</span>
+                  <span className="menu-tile-desc">{t.desc}</span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      ))}
 
       <section className="menu-intro" aria-labelledby="menu-intro-h">
         <h2 id="menu-intro-h">はじめての人へ</h2>

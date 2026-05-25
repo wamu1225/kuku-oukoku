@@ -140,7 +140,12 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
           <div className="dan-card">
             <h2>{nextDan.name} に挑戦</h2>
             <p>出題範囲：{nextDan.source.length === 1 ? `${nextDan.source[0]}の段` : `${Math.min(...nextDan.source)}〜${Math.max(...nextDan.source)}の段ランダム`}</p>
-            <p>問題数：{nextDan.count}問　／　目標タイム（金）：{(nextDan.goldTimeMs / 1000).toFixed(1)}秒</p>
+            <p>問題数：{nextDan.count}問　／　制限時間：90秒</p>
+            <div className="dan-medal-targets">
+              <span className="dan-medal-target dan-medal-gold">🥇 金：{(nextDan.goldTimeMs / 1000).toFixed(1)}秒以内</span>
+              <span className="dan-medal-target dan-medal-silver">🥈 銀：{(nextDan.silverTimeMs / 1000).toFixed(1)}秒以内</span>
+              <span className="dan-medal-target dan-medal-bronze">🥉 銅：90秒以内クリア</span>
+            </div>
             <button className="btn-primary big" onClick={() => start(nextDan.rank)}>挑戦する</button>
           </div>
         ) : (
@@ -194,12 +199,20 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
   }
 
   if (phase === 'failed') {
+    const failedDan = DAN_LEVELS.find((d) => d.rank === selected);
+    const reviewLevel = failedDan?.source[0];
     return (
       <div className="screen result-screen">
         <h1 className="result-title">時間切れ！</h1>
-        <p>もう一度ちょうせんしてみよう。「まなぶ」で復習するのもおすすめだよ。</p>
+        <p>あと {Math.max(0, (failedDan?.count ?? 15) - index)} 問のところで時間切れ。</p>
+        <p>苦手な段を <strong>まなぶ</strong> で復習してから挑戦すると一気に楽になるよ。</p>
         <div className="result-actions">
           <button className="btn-primary" onClick={() => { setPhase('select'); }}>もう一度</button>
+          {reviewLevel && reviewLevel <= 9 && (
+            <button className="btn-secondary" onClick={() => navigate(`/learn/${reviewLevel}/`)}>
+              {reviewLevel}の段を復習
+            </button>
+          )}
           <button className="btn-secondary" onClick={() => navigate('/')}>ホームへ</button>
         </div>
       </div>

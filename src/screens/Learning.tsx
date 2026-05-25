@@ -8,6 +8,7 @@ import { vibrate } from '../utils/haptics';
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
 
 export function Learning({ level, onComplete }: { level: number; onComplete: () => void }) {
+  const showHint = LearningEngine.loadState().settings?.showAnswerHint === true;
   const [phase, setPhase] = useState<'list' | 'quiz' | 'done'>('list');
   const [index, setIndex] = useState(0);
   const [input, setInput] = useState('');
@@ -100,7 +101,10 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
     return (
       <div className="screen">
         <h1 className="screen-title">{level}の段を まなぼう！</h1>
-        <p className="screen-desc">まずは九九を読んで覚えよう。答えは青く書いてあるよ。</p>
+        <p className="screen-desc">
+          まずは九九を <strong>声に出して</strong> 読んで覚えよう。答えは青く書いてあるよ。
+          おぼえたら下のボタンで <strong>クイズ</strong>（数字を入力するもんだい）に進もう。
+        </p>
         <div className="kuku-list">
           {problems.map((p) => (
             <div key={p.b} className="kuku-card">
@@ -137,7 +141,7 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
       <div className="quiz-problem">
         <span className="quiz-equation">{current.a} × {current.b} =</span>
         <span className={`quiz-input ${showSuccess ? 'success' : ''}`}>
-          {showSuccess ? '✓' : input || '?'}
+          {showSuccess ? '✓' : input || (showHint ? <span className="answer-hint">{current.a * current.b}</span> : '?')}
         </span>
       </div>
       <div className="keypad">

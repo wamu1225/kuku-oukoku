@@ -107,14 +107,24 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
   }
 
   if (finished && result) {
+    const secs = result.timeMs / 1000;
+    let next: { medal: string; gap: number } | null = null;
+    if (secs >= 15 && secs < 25) next = { medal: '🥇 金', gap: secs - 15 };
+    else if (secs >= 25 && secs < 40) next = { medal: '🥈 銀', gap: secs - 25 };
+    else if (secs >= 40) next = { medal: '🥉 銅', gap: secs - 40 };
     return (
       <div className="screen result-screen">
         <h1 className="result-title">{result.isNewBest ? '✨ 自己ベスト更新！ ✨' : 'クリア！🎉'}</h1>
         <div className="result-stats">
-          <div><span className="result-label">タイム</span><span className="result-value">{(result.timeMs / 1000).toFixed(2)}秒</span></div>
+          <div><span className="result-label">タイム</span><span className="result-value">{secs.toFixed(2)}秒</span></div>
           <div><span className="result-label">メダル</span><span className="result-value">{result.badge}</span></div>
           <div><span className="result-label">報酬</span><span className="result-value">+100 KP</span></div>
         </div>
+        {next ? (
+          <p className="result-hint">あと <strong>{next.gap.toFixed(2)}秒</strong> で {next.medal} メダル！</p>
+        ) : (
+          <p className="result-hint">🥇 金メダル獲得！最速ペース達成！</p>
+        )}
         <div className="result-actions">
           <button className="btn-primary" onClick={() => navigate('/attack/')}>つぎにちょうせん</button>
           <button className="btn-secondary" onClick={() => navigate('/')}>ホームへ</button>
@@ -140,6 +150,9 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
           </button>
         ))}
       </div>
+      <button className="btn-secondary quit-btn" onClick={() => { if (confirm('やめてホームに戻りますか？（タイムは記録されません）')) navigate('/'); }}>
+        やめる
+      </button>
     </div>
   );
 }

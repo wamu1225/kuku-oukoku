@@ -5,9 +5,9 @@ import { LearningEngine } from '../utils/LearningEngine';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
 const STAGES = [
-  { id: '3', name: 'そよ風の塔', max: 3, unlockRank: 2 },
-  { id: '6', name: '雲海の見張り塔', max: 6, unlockRank: 5 },
-  { id: '9', name: '迅雷の尖塔', max: 9, unlockRank: 8 },
+  { id: '3', name: 'そよ風の塔', max: 3, unlockRank: 2, gold: 230, silver: 150, bronze: 80 },
+  { id: '6', name: '雲海の見張り塔', max: 6, unlockRank: 5, gold: 460, silver: 300, bronze: 160 },
+  { id: '9', name: '迅雷の尖塔', max: 9, unlockRank: 8, gold: 630, silver: 410, bronze: 220 },
 ];
 const BG_TIERS = [
   { from: 2000, name: '深宇宙', bg: 'linear-gradient(180deg, #020617 0%, #1e1b4b 100%)' },
@@ -111,6 +111,7 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
           {STAGES.map((s) => {
             const unlocked = danRank >= s.unlockRank;
             const best = state.stats?.towerBestHeightsPerDiff?.[s.id] || 0;
+            const medal = state.stats?.towerMedalsPerDiff?.[s.id];
             return (
               <button
                 key={s.id}
@@ -121,7 +122,16 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
               >
                 <span className="stage-name">{s.name}</span>
                 <span className="stage-meta">1〜{s.max}の段</span>
-                {unlocked ? <span className="stage-best">自己ベスト: {best}m</span> : <span className="stage-locked">🔒 段位試験を進めて解禁</span>}
+                {unlocked ? (
+                  <>
+                    <span className="stage-best">
+                      自己ベスト: {best}m {medal && `(${medal === 'gold' ? '🥇金' : medal === 'silver' ? '🥈銀' : '🥉銅'})`}
+                    </span>
+                    <span className="stage-targets">
+                      🥇 {s.gold}m / 🥈 {s.silver}m / 🥉 {s.bronze}m
+                    </span>
+                  </>
+                ) : <span className="stage-locked">🔒 だんいにんてい {s.unlockRank === 2 ? '9級' : s.unlockRank === 5 ? '6級' : '3級'}合格で解禁</span>}
               </button>
             );
           })}
@@ -163,6 +173,11 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
   }
 
   const tier = getTier(score);
+  // 次ティアまでの距離
+  const tierIdx = BG_TIERS.findIndex((t) => t.from === tier.from);
+  const nextTier = tierIdx > 0 ? BG_TIERS[tierIdx - 1] : null;
+  const toNext = nextTier ? nextTier.from - score : 0;
+
   return (
     <div className="screen tower-screen" style={{ background: tier.bg }}>
       <div className="tower-overlay">
@@ -171,6 +186,11 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
           <span className="quiz-counter">🗼 {score}m</span>
           <span className="quiz-counter">📍 {tier.name}</span>
         </div>
+        {nextTier && (
+          <p className="tower-next-tier">
+            あと <strong>{toNext}m</strong> で <strong>{nextTier.name}</strong> ！
+          </p>
+        )}
 
         <div className="quiz-problem attack-problem">
           <span className="quiz-equation">{a} × {b} =</span>

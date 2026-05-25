@@ -35,6 +35,18 @@ export function Calendar({ state }: { state: KukuState }) {
       <h1 className="screen-title">📅 がくしゅうカレンダー</h1>
       <p className="screen-desc">
         まいにち少しずつでも続けるのが上達のコツ。今のれんぞく日数：<strong>{streak}日</strong>
+        {streak < 3 && (
+          <span className="streak-hint"> — あと <strong>{3 - streak}日</strong> で「時空の時計」メダル！</span>
+        )}
+        {streak >= 3 && streak < 7 && (
+          <span className="streak-hint"> — あと <strong>{7 - streak}日</strong> で 1 週間達成！</span>
+        )}
+        {streak >= 7 && streak < 30 && (
+          <span className="streak-hint"> — あと <strong>{30 - streak}日</strong> で 1 ヶ月連続！</span>
+        )}
+        {streak >= 30 && (
+          <span className="streak-hint"> — すごい！1 ヶ月以上の連続学習達成 🎉</span>
+        )}
       </p>
 
       <div className="calendar-controls">

@@ -96,29 +96,35 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
         <span aria-hidden="true">{season.emoji}</span> 今月のおうこく：<strong>{season.name}</strong>
       </p>
 
-      <div className="empire-stats">
-        <div className="empire-stat empire-stat-rank">
-          <span className="empire-stat-label">{empireName}</span>
-          <span className="empire-stat-value">{empireLevel}</span>
+      <div className="empire-stats-v2">
+        <div className="empire-stat-primary">
+          <span className="empire-stat-primary-label">所持 KP</span>
+          <span className="empire-stat-primary-value">{IdleManager.formatBigNumber(state.kp)}</span>
+          <span className="empire-stat-primary-sub">+ {IdleManager.formatBigNumber(kps)} / 秒</span>
         </div>
-        <div className="empire-stat empire-stat-kp">
-          <span className="empire-stat-label">KP</span>
-          <span className="empire-stat-value">{IdleManager.formatBigNumber(state.kp)}</span>
-        </div>
-        <div className="empire-stat empire-stat-kps">
-          <span className="empire-stat-label">1秒に</span>
-          <span className="empire-stat-value">+{IdleManager.formatBigNumber(kps)}</span>
-        </div>
-        <div className="empire-stat empire-stat-comp">
-          <span className="empire-stat-label">なかま合計</span>
-          <span className="empire-stat-value">{totalCompanions}人</span>
+        <div className="empire-stat-secondary">
+          <div className="empire-stat empire-stat-rank">
+            <span className="empire-stat-label">{empireName}</span>
+            <span className="empire-stat-value">{empireLevel}</span>
+          </div>
+          <div className="empire-stat empire-stat-comp">
+            <span className="empire-stat-label">なかま合計</span>
+            <span className="empire-stat-value">{totalCompanions}人</span>
+          </div>
         </div>
       </div>
 
-      <p className="screen-desc">
-        なかまを招待しよう。なかまは1秒ごとに自動で KP を集めてくれるよ。
-        さらに、その段の九九を「まなぶ」「アタック」で何度も解くと、なかまが進化して生産力がアップ！
-      </p>
+      <details className="empire-help">
+        <summary>📖 おうこくのしくみ（タップで開く）</summary>
+        <ul>
+          <li><strong>招待 X KP</strong>：そのなかまを 1 人呼ぶ。コストは段ごと・所持数で増加</li>
+          <li><strong>まとめて招待</strong>：今の KP で買えるだけまとめて呼ぶ（最大 100 まで）</li>
+          <li><strong>熟練度バッジ</strong>：その段の九九を解いた数で銅→銀→金。生産力に倍率（最大 ×2.5）</li>
+          <li><strong>🎉 祝祭</strong>：アタックをクリアするとその段の生産が <strong>30 分間 1.5〜5×</strong>（メダル色で倍率変化）</li>
+          <li><strong>段位ボーナス</strong>：だんいにんていに合格した段は ×2 ボーナス</li>
+          <li>オフライン中も最大 <strong>12 時間</strong> KP がたまる</li>
+        </ul>
+      </details>
 
       {(state.activeQuests?.length ?? 0) > 0 && (
         <section className="quests-section">

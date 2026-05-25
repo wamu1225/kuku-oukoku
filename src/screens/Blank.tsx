@@ -124,7 +124,11 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
       <div className="screen">
         <h1 className="screen-title">🌫 くもくも（あなあき九九）</h1>
         <p className="screen-desc">
-          九九の答えからもう一方を求める逆引きクイズ。「？ × 4 = 12」のような問題を 10 問解こう。
+          式の中に <strong>あなあき（？）</strong> がある九九問題に答えるモード。
+          <br />
+          例：<span className="blank-example">？ × 4 = 12</span> →「？」に入る数（この場合 <strong>3</strong>）をキーパッドで入力。
+          <br />
+          10 問の合計タイムで金/銀/銅メダル。
         </p>
 
         <div className="battle-stages">
@@ -187,14 +191,15 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
         <span className="quiz-counter">⏱ {(elapsed / 1000).toFixed(2)}秒</span>
         <span className="quiz-counter">{index + 1} / {problems.length}</span>
       </div>
+      <p className="blank-instruction">↓ <strong>あなあき（黄色のマス）</strong> に入る数をキーパッドで入力</p>
       <div className="quiz-problem">
         {current.hole === 'a' ? (
           <span className="quiz-equation">
-            <span className="quiz-blank">{input || '?'}</span> × {current.b} = {current.c}
+            <span className={`quiz-blank ${input ? 'filled' : ''}`}>{input || '?'}</span> × {current.b} = {current.c}
           </span>
         ) : (
           <span className="quiz-equation">
-            {current.a} × <span className="quiz-blank">{input || '?'}</span> = {current.c}
+            {current.a} × <span className={`quiz-blank ${input ? 'filled' : ''}`}>{input || '?'}</span> = {current.c}
           </span>
         )}
       </div>

@@ -152,7 +152,7 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
 
         <div className="cta-row">
           <button className="btn-primary big" onClick={start}>
-            {trialCleared ? '再挑戦する' : '門を叩く'}
+            ⚔️ 挑戦する
           </button>
           <button className="btn-secondary" onClick={() => navigate('/empire/')}>おうこくへ戻る</button>
         </div>
@@ -185,9 +185,11 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
     return (
       <div className="screen result-screen">
         <h1 className="result-title">🌑 時間切れ</h1>
-        <p>九九の力をもっと磨いて、再挑戦しよう。</p>
+        <p>あと {Math.max(0, PROBLEMS_COUNT - index)} 問のところで時間切れ。九九の瞬発力が試されるよ。</p>
+        <p><strong>アタック</strong> や <strong>だんいにんてい</strong> で速度を磨いてから再挑戦するのがおすすめ。</p>
         <div className="result-actions">
-          <button className="btn-primary" onClick={() => { setPhase('intro'); }}>再挑戦</button>
+          <button className="btn-primary" onClick={() => { setPhase('intro'); }}>もう一度</button>
+          <button className="btn-secondary" onClick={() => navigate('/attack/')}>アタックで練習</button>
           <button className="btn-secondary" onClick={() => navigate('/empire/')}>おうこくへ</button>
         </div>
       </div>
