@@ -102,6 +102,22 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
   };
 
   if (phase === 'intro') {
+    if (!hasNineCompanion) {
+      return (
+        <div className="screen trial-intro">
+          <h1 className="screen-title">🌑 暗黒の試練</h1>
+          <p className="screen-desc">
+            おうこくの奥にひっそりと立つ、いにしえの門。九九の真の力が試される、特別な挑戦の場です。
+          </p>
+          <div className="trial-locked">
+            🔒 まずはおうこくでなかまをじっくり集めましょう。条件が整ったときに、自然と道が開きます。
+          </div>
+          <div className="cta-row">
+            <button className="btn-secondary" onClick={() => navigate('/empire/')}>おうこくへ戻る</button>
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="screen trial-intro">
         <h1 className="screen-title">🌑 暗黒の試練</h1>
@@ -120,24 +136,17 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
           <h2 className="section-h">報酬</h2>
           <ul>
             <li>クリアで <strong>5,000 KP</strong></li>
-            <li><strong>10 の段</strong> が「まなぶ」「アタック」「おうこく」で解禁</li>
+            <li>新たな段がいくつも解禁され、王国が大きく広がる</li>
             <li>「暗黒の盾」のメダル獲得</li>
-            <li>11 〜 20 の段の伝説のなかま招待への道が開く</li>
           </ul>
         </div>
 
-        {!hasNineCompanion ? (
-          <div className="trial-locked">
-            🔒 9 の段のなかまを 1 人以上「おうこく」で招待すると挑戦できるようになります
-          </div>
-        ) : (
-          <div className="cta-row">
-            <button className="btn-primary big" onClick={start}>
-              {trialCleared ? '再挑戦する' : '門を叩く'}
-            </button>
-            <button className="btn-secondary" onClick={() => navigate('/empire/')}>おうこくへ戻る</button>
-          </div>
-        )}
+        <div className="cta-row">
+          <button className="btn-primary big" onClick={start}>
+            {trialCleared ? '再挑戦する' : '門を叩く'}
+          </button>
+          <button className="btn-secondary" onClick={() => navigate('/empire/')}>おうこくへ戻る</button>
+        </div>
       </div>
     );
   }

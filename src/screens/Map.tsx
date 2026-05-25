@@ -63,12 +63,6 @@ export function Map({ state }: { state: KukuState }) {
         })}
       </div>
 
-      {!trialCleared && (
-        <p className="map-hint">
-          ※「暗黒の試練」をクリアすると 20×20 のでんせつの地図に拡張できます
-        </p>
-      )}
-
       <button className="back-link" onClick={() => navigate('/')}>← ホームへ</button>
     </div>
   );

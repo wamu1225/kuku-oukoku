@@ -41,14 +41,23 @@ export const COLLECTION_ITEMS: CollectionItem[] = [
   { id: 'treasure_10', name: '究極の玉座', desc: '王国の全てを手に入れた証', category: 'treasure', emoji: '👑', color: '#64748b' },
 
   { id: 'medal_1', name: 'かけだしのバッジ', desc: 'はなまるスタンプを 10個 集めた', category: 'medal', emoji: '🎯', color: '#67e8f9' },
+  { id: 'medal_2', name: '勇気の大剣', desc: 'バトルで 累計20体 撃破した', category: 'medal', emoji: '⚔️', color: '#22c55e' },
   { id: 'medal_3', name: 'スピードスター', desc: 'アタックを 15秒以内 でクリア', category: 'medal', emoji: '⚡', color: '#fde047' },
   { id: 'medal_4', name: '鉄人のバッジ', desc: 'はなまるスタンプを 100個 集めた', category: 'medal', emoji: '🛡️', color: '#fda4af' },
+  { id: 'medal_5', name: 'コンボマスター', desc: 'バトルで 5コンボ 以上を達成', category: 'medal', emoji: '🔥', color: '#f97316' },
+  { id: 'wisdom_gem', name: '知恵の原石', desc: 'タワーで 300m に到達', category: 'medal', emoji: '💠', color: '#64748b' },
+  { id: 'medal_7', name: '暗黒の盾', desc: '暗黒の試練を打ち破った勇者の証', category: 'medal', emoji: '🛡', color: '#1f2937' },
+  { id: 'medal_8', name: '光の剣', desc: 'タワーで 1000m に到達', category: 'medal', emoji: '⚔', color: '#fde047' },
   { id: 'medal_9', name: '月の雫', desc: 'はなまるスタンプを 500個 集めた', category: 'medal', emoji: '🌙', color: '#a78bfa' },
+  { id: 'medal_10', name: '伝説の王者', desc: 'バトルで 累計100体 撃破した', category: 'medal', emoji: '👑', color: '#facc15' },
 
   { id: 'relic_1', name: '古びた教科書', desc: '合計で 15問 とき終えた', category: 'relic', emoji: '📖', color: '#67e8f9' },
   { id: 'relic_2', name: '知恵のルーペ', desc: 'まなぶモードを 10回 プレイした', category: 'relic', emoji: '🔍', color: '#22c55e' },
   { id: 'relic_3', name: 'インクの小瓶', desc: '合計で 100問 とき終えた', category: 'relic', emoji: '🖋️', color: '#3b82f6' },
+  { id: 'relic_4', name: '魔法の筆', desc: 'くもくも「しんキロウの森」で金メダル', category: 'relic', emoji: '🖌', color: '#a78bfa' },
+  { id: 'relic_5', name: '真実の鏡', desc: 'くもくも「そらの雲海」で金メダル', category: 'relic', emoji: '🪞', color: '#22d3ee' },
   { id: 'relic_6', name: '時空の時計', desc: '毎日学習を 3日 続けた', category: 'relic', emoji: '⏰', color: '#fb923c' },
+  { id: 'relic_7', name: '知の羅針盤', desc: 'くもくも「かみなりの山」で金メダル', category: 'relic', emoji: '🧭', color: '#06b6d4' },
   { id: 'relic_8', name: '光り輝く地図', desc: '合計で 500問 とき終えた', category: 'relic', emoji: '🗺️', color: '#fcd34d' },
   { id: 'relic_9', name: '導きの杖', desc: '合計で 5000問 とき終えた', category: 'relic', emoji: '🪄', color: '#a78bfa' },
 ];
