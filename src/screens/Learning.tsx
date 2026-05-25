@@ -80,7 +80,7 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
     return (
       <div className="screen">
         <h1 className="screen-title">{level}の段を まなぼう！</h1>
-        <p className="screen-desc">まずは九九を読んで覚えよう。答えはあおく書いてあるよ。</p>
+        <p className="screen-desc">まずは九九を読んで覚えよう。答えは青く書いてあるよ。</p>
         <div className="kuku-list">
           {problems.map((p) => (
             <div key={p.b} className="kuku-card">
