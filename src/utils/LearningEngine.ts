@@ -1,0 +1,393 @@
+import type { KukuState } from '../types';
+import { DateUtils } from './DateUtils';
+import { IdleManager } from './IdleManager';
+import { getDanRankName } from '../data/danLevels';
+import { KUKU_READINGS } from '../data/kukuReadings';
+
+const STORAGE_KEY = 'kuku-oukoku:state';
+
+const getInitialState = (): KukuState => ({
+  results: {},
+  tableBests: {},
+  totalStamps: 0,
+  rank: 'みならい',
+  kp: 0,
+  companions: {},
+  prestigeCount: 0,
+  lastSeenDate: new Date().toISOString(),
+  mastery: {},
+  festivalUntil: {},
+  activeQuests: [],
+  unlockedTitles: ['九九のみならい'],
+  currentTitle: '九九のみならい',
+  unlockedModes: ['learn'],
+  unlockedLevels: [1],
+  settings: { showAnswerHint: false, bgColor: '#ffffff', hapticsEnabled: true },
+  danRank: 0,
+  wisdomSeals: [],
+  royalTreasures: [],
+  dailyStreak: { lastDate: DateUtils.getLocalDateString(), count: 0 },
+  stats: {
+    totalLearnPlays: 0,
+    totalAttackPlays: 0,
+    totalAttackCorrect: 0,
+    totalDanSolved: 0,
+    maxCombo: 0,
+  },
+  danMedals: {},
+  studyHistory: [],
+});
+
+const sanitize = (raw: unknown): KukuState => {
+  const init = getInitialState();
+  if (!raw || typeof raw !== 'object') return init;
+  const p = raw as Partial<KukuState>;
+  const merged: KukuState = { ...init, ...p };
+  if (!merged.results) merged.results = {};
+  if (!merged.tableBests) merged.tableBests = {};
+  if (typeof merged.kp !== 'number' || isNaN(merged.kp)) merged.kp = 0;
+  if (typeof merged.totalStamps !== 'number') merged.totalStamps = 0;
+  if (!merged.rank) merged.rank = 'みならい';
+  if (!merged.companions) merged.companions = {};
+  Object.keys(merged.companions).forEach((k) => {
+    const v = (merged.companions as Record<string, number>)[k];
+    if (typeof v !== 'number' || isNaN(v)) (merged.companions as Record<string, number>)[k] = 0;
+  });
+  if (!merged.mastery) merged.mastery = {};
+  Object.keys(merged.mastery).forEach((k) => {
+    const v = (merged.mastery as Record<string, number>)[k];
+    if (typeof v !== 'number' || isNaN(v)) (merged.mastery as Record<string, number>)[k] = 0;
+  });
+  if (!merged.festivalUntil) merged.festivalUntil = {};
+  if (!merged.unlockedModes) merged.unlockedModes = ['learn'];
+  if (!merged.unlockedLevels) merged.unlockedLevels = [1];
+  if (!merged.settings) merged.settings = { showAnswerHint: false, bgColor: '#ffffff', hapticsEnabled: true };
+  if (!merged.stats) merged.stats = {};
+  if (!merged.wisdomSeals) merged.wisdomSeals = [];
+  if (!merged.royalTreasures) merged.royalTreasures = [];
+  if (!merged.studyHistory) merged.studyHistory = [];
+  if (!merged.danMedals) merged.danMedals = {};
+  if (!merged.danBestTimes) merged.danBestTimes = {};
+  if (typeof merged.danRank !== 'number') merged.danRank = 0;
+  if (!merged.dailyStreak) merged.dailyStreak = { lastDate: DateUtils.getLocalDateString(), count: 0 };
+  return merged;
+};
+
+function _syncUnlockedLevels(state: KukuState) {
+  const danRank = state.danRank || 0;
+  const newUnlockedLevels = new Set<number>([1, 2, 3]);
+  if (danRank >= 3) [4, 5, 6].forEach((l) => newUnlockedLevels.add(l));
+  if (danRank >= 6) [7, 8, 9].forEach((l) => newUnlockedLevels.add(l));
+  Object.keys(state.companions).forEach((levelStr) => {
+    const lvl = parseInt(levelStr);
+    if ((state.companions[lvl] || 0) > 0) newUnlockedLevels.add(lvl);
+  });
+  state.unlockedLevels = Array.from(newUnlockedLevels).sort((a, b) => a - b);
+}
+
+function _checkAchievements(state: KukuState) {
+  if (!state.wisdomSeals) state.wisdomSeals = [];
+  if (!state.royalTreasures) state.royalTreasures = [];
+  if (!state.stats) state.stats = {};
+
+  const hasAny = (id: string) => state.wisdomSeals!.includes(id) || state.royalTreasures!.includes(id);
+  const add = (id: string) => {
+    if (id.startsWith('seal_')) {
+      if (!state.wisdomSeals!.includes(id)) state.wisdomSeals!.push(id);
+    } else {
+      if (!state.royalTreasures!.includes(id)) state.royalTreasures!.push(id);
+    }
+  };
+
+  for (let l = 1; l <= 20; l++) {
+    const id = `seal_${l}`;
+    if (!hasAny(id) && state.tableBests?.[l]?.isCompleted) add(id);
+  }
+
+  const totalCompanions = Object.values(state.companions || {}).reduce((a, b) => a + b, 0);
+  if (!hasAny('treasure_1') && totalCompanions >= 10) add('treasure_1');
+  if (!hasAny('treasure_2') && state.kp >= 10000) add('treasure_2');
+  if (!hasAny('treasure_3') && totalCompanions >= 50) add('treasure_3');
+  if (!hasAny('treasure_4') && state.kp >= 1000000) add('treasure_4');
+  if (!hasAny('treasure_5') && totalCompanions >= 100) add('treasure_5');
+  if (!hasAny('treasure_6') && state.kp >= 1e8) add('treasure_6');
+  const hasLegendary = Object.keys(state.companions || {}).some(
+    (k) => parseInt(k) >= 10 && (state.companions[parseInt(k)] || 0) > 0
+  );
+  if (!hasAny('treasure_7') && hasLegendary) add('treasure_7');
+  if (!hasAny('treasure_8') && (state.prestigeCount || 0) >= 2) add('treasure_8');
+  if (!hasAny('treasure_9') && state.kp >= 1e12) add('treasure_9');
+  if (!hasAny('treasure_10') && state.kp >= 1e15) add('treasure_10');
+
+  const totalMastery = Object.values(state.mastery || {}).reduce((a, b) => a + (b as number), 0);
+  if (!hasAny('medal_1') && state.totalStamps >= 10) add('medal_1');
+  if (!hasAny('medal_4') && state.totalStamps >= 100) add('medal_4');
+  if (!hasAny('medal_9') && state.totalStamps >= 500) add('medal_9');
+
+  const fastAttack = Object.values(state.tableBests || {}).some(
+    (b) => b.bestTimeMs > 0 && b.bestTimeMs <= 15000
+  );
+  if (!hasAny('medal_3') && fastAttack) add('medal_3');
+
+  if (!hasAny('relic_1') && totalMastery >= 15) add('relic_1');
+  if (!hasAny('relic_2') && (state.stats?.totalLearnPlays || 0) >= 10) add('relic_2');
+  if (!hasAny('relic_3') && totalMastery >= 100) add('relic_3');
+  if (!hasAny('relic_6') && (state.dailyStreak?.count || 0) >= 3) add('relic_6');
+  if (!hasAny('relic_8') && totalMastery >= 500) add('relic_8');
+  if (!hasAny('relic_9') && totalMastery >= 5000) add('relic_9');
+}
+
+function _updateHabit(state: KukuState, isActivity: boolean) {
+  const today = DateUtils.getLocalDateString();
+  if (!state.studyHistory) state.studyHistory = [];
+  if (isActivity && !state.studyHistory.includes(today)) {
+    state.studyHistory.push(today);
+  }
+  const history = [...new Set(state.studyHistory)].sort().reverse();
+  if (history.length === 0) {
+    state.dailyStreak = { lastDate: today, count: 0 };
+    return;
+  }
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = DateUtils.getLocalDateString(yesterday);
+  const lastHistoryDay = history[0];
+  const isContinuous = lastHistoryDay === today || lastHistoryDay === yesterdayStr;
+  if (!isContinuous) {
+    state.dailyStreak = { lastDate: today, count: 1 };
+  } else {
+    let count = 0;
+    const checkDate = new Date(lastHistoryDay);
+    for (const dateStr of history) {
+      if (dateStr === DateUtils.getLocalDateString(checkDate)) {
+        count++;
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else break;
+    }
+    state.dailyStreak = { lastDate: lastHistoryDay, count };
+  }
+}
+
+function _updateRank(state: KukuState) {
+  state.rank = getDanRankName(state.danRank || 0);
+}
+
+export const LearningEngine = {
+  loadState(): KukuState {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      const parsed = raw ? JSON.parse(raw) : null;
+      const state = sanitize(parsed);
+      _syncUnlockedLevels(state);
+      return state;
+    } catch (e) {
+      console.error('LearningEngine.loadState failed', e);
+      return getInitialState();
+    }
+  },
+
+  saveState(state: KukuState): void {
+    try {
+      state.lastSeenDate = new Date().toISOString();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      console.error('LearningEngine.saveState failed', e);
+    }
+  },
+
+  addKP(amount: number): KukuState {
+    const state = this.loadState();
+    state.kp += Math.floor(amount);
+    _checkAchievements(state);
+    this.saveState(state);
+    return state;
+  },
+
+  inviteCompanion(level: number, cost: number): KukuState {
+    const state = this.loadState();
+    if (state.kp < cost) return state;
+    state.kp -= cost;
+    state.companions[level] = (state.companions[level] || 0) + 1;
+    _syncUnlockedLevels(state);
+    _checkAchievements(state);
+    this.saveState(state);
+    return state;
+  },
+
+  inviteCompanionsBulk(updates: Record<number, number>, totalCost: number): KukuState {
+    const state = this.loadState();
+    if (state.kp < totalCost) return state;
+    state.kp -= totalCost;
+    state.companions = { ...state.companions, ...updates };
+    _syncUnlockedLevels(state);
+    _checkAchievements(state);
+    this.saveState(state);
+    return state;
+  },
+
+  triggerFestival(level: number): KukuState {
+    const state = this.loadState();
+    state.festivalUntil[level] = Date.now() + 30 * 60 * 1000;
+    this.saveState(state);
+    return state;
+  },
+
+  setLearningCompleted(level: number): KukuState {
+    const state = this.loadState();
+    if (!state.stats) state.stats = {};
+    state.stats.totalLearnPlays = (state.stats.totalLearnPlays || 0) + 1;
+
+    const current = state.tableBests[level] || { level, bestTimeMs: 0, badge: null, isCompleted: false };
+    current.isCompleted = true;
+    state.tableBests[level] = current;
+
+    state.mastery[level] = (state.mastery[level] || 0) + 9;
+    state.kp += 100;
+    state.totalStamps += 1;
+
+    if (level === 1) {
+      if (!state.unlockedModes) state.unlockedModes = ['learn'];
+      if (!state.unlockedModes.includes('attack')) state.unlockedModes.push('attack');
+    }
+
+    _updateHabit(state, true);
+    _checkAchievements(state);
+    this.saveState(state);
+    return state;
+  },
+
+  saveTimeAttackResult(level: number, timeMs: number): { state: KukuState; isNewBest: boolean } {
+    const state = this.loadState();
+    if (!state.stats) state.stats = {};
+    state.stats.totalAttackPlays = (state.stats.totalAttackPlays || 0) + 1;
+    state.stats.totalAttackCorrect = (state.stats.totalAttackCorrect || 0) + 9;
+
+    if (timeMs < 1000) return { state, isNewBest: false };
+
+    const currentBest = state.tableBests[level] || {
+      level, bestTimeMs: 0, badge: null, isCompleted: false,
+    };
+    const badge: 'gold' | 'silver' | 'bronze' | 'clear' =
+      timeMs < 15000 ? 'gold' : timeMs < 25000 ? 'silver' : timeMs < 40000 ? 'bronze' : 'clear';
+
+    let isNewBest = false;
+    if (currentBest.bestTimeMs === 0 || timeMs < currentBest.bestTimeMs) {
+      currentBest.bestTimeMs = timeMs;
+      currentBest.badge = badge;
+      isNewBest = true;
+    }
+    currentBest.isCompleted = true;
+    state.tableBests[level] = currentBest;
+    state.totalStamps += 5;
+
+    state.mastery[level] = (state.mastery[level] || 0) + 9;
+    for (let i = 1; i <= 9; i++) {
+      const key = `${level}x${i}`;
+      if (!state.results[key]) {
+        state.results[key] = {
+          a: level, b: i, correctCount: 0, lastCorrectDate: null, nextReviewDate: null, averageTimeMs: 0,
+        };
+      }
+      state.results[key].correctCount += 1;
+      state.results[key].lastCorrectDate = new Date().toISOString();
+    }
+
+    state.kp += 100;
+    state.festivalUntil[level] = Date.now() + 30 * 60 * 1000;
+
+    if (level === 1) {
+      if (!state.unlockedModes) state.unlockedModes = ['learn'];
+      if (!state.unlockedModes.includes('empire')) state.unlockedModes.push('empire');
+      if (!state.unlockedModes.includes('dan')) state.unlockedModes.push('dan');
+    }
+
+    _updateHabit(state, true);
+    _checkAchievements(state);
+    _updateRank(state);
+    this.saveState(state);
+    return { state, isNewBest };
+  },
+
+  completeDanTest(rank: number, timeTakenMs: number): KukuState {
+    const state = this.loadState();
+    if (!state.danBestTimes) state.danBestTimes = {};
+    const currentBest = state.danBestTimes[rank] || Infinity;
+    if (timeTakenMs < currentBest) {
+      state.danBestTimes[rank] = timeTakenMs;
+    }
+
+    if (!state.danMedals) state.danMedals = {};
+    let medal: 'gold' | 'silver' | 'bronze' | 'clear' = 'bronze';
+    const GOLD_PACE = 1500;
+    const SILVER_PACE = 2250;
+    const problems = rank === 22 ? 50 : rank === 23 ? 100 : 15;
+    if (timeTakenMs < problems * GOLD_PACE) medal = 'gold';
+    else if (timeTakenMs < problems * SILVER_PACE) medal = 'silver';
+    const medalPriority = { gold: 3, silver: 2, bronze: 1, clear: 0 };
+    const currentMedal = state.danMedals[rank] || 'clear';
+    if (medalPriority[medal] > medalPriority[currentMedal as keyof typeof medalPriority]) {
+      state.danMedals[rank] = medal;
+    }
+
+    if ((state.danRank || 0) < rank) {
+      state.danRank = rank;
+      state.kp += rank * 1000;
+      const sealId = `seal_${rank}`;
+      if (!state.wisdomSeals) state.wisdomSeals = [];
+      if (!state.wisdomSeals.includes(sealId)) state.wisdomSeals.push(sealId);
+    }
+
+    if (!state.stats) state.stats = {};
+    state.stats.totalDanSolved = (state.stats.totalDanSolved || 0) + problems;
+
+    _updateHabit(state, true);
+    _checkAchievements(state);
+    _updateRank(state);
+    _syncUnlockedLevels(state);
+    this.saveState(state);
+    return state;
+  },
+
+  prestige(): KukuState {
+    const state = this.loadState();
+    state.prestigeCount = (state.prestigeCount || 0) + 1;
+    state.kp = 0;
+    _checkAchievements(state);
+    this.saveState(state);
+    return state;
+  },
+
+  updateSettings(settings: KukuState['settings']): KukuState {
+    const state = this.loadState();
+    state.settings = { ...state.settings, ...settings };
+    this.saveState(state);
+    return state;
+  },
+
+  resetAllData(): KukuState {
+    const init = getInitialState();
+    this.saveState(init);
+    return init;
+  },
+
+  updateLastSeen(): void {
+    const state = this.loadState();
+    this.saveState(state);
+  },
+
+  applyOfflineEarnings(): { state: KukuState; offlineKp: number; shouldNotify: boolean } {
+    const state = this.loadState();
+    const offline = IdleManager.calculateOfflineEarnings(state, 600);
+    if (offline.kp > 0) {
+      state.kp += offline.kp;
+      this.saveState(state);
+    }
+    return { state, offlineKp: offline.kp, shouldNotify: offline.shouldNotify };
+  },
+
+  getReading(level: number, b: number): string {
+    return KUKU_READINGS[`${level}x${b}`] || '';
+  },
+};
+
+export { getInitialState };
