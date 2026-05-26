@@ -88,14 +88,19 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
 
   const endedRef = useRef(false);
   const [flashCorrect, setFlashCorrect] = useState(false);
+  const [flashWrong, setFlashWrong] = useState(false);
   const advanceTimerRef = useRef<number | null>(null);
+  const wrongTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
-    return () => { if (advanceTimerRef.current) window.clearTimeout(advanceTimerRef.current); };
+    return () => {
+      if (advanceTimerRef.current) window.clearTimeout(advanceTimerRef.current);
+      if (wrongTimerRef.current) window.clearTimeout(wrongTimerRef.current);
+    };
   }, []);
 
   const handleKey = (key: string) => {
-    if (phase !== 'playing' || !current || flashCorrect) return;
+    if (phase !== 'playing' || !current || flashCorrect || flashWrong) return;
     if (key === 'C') return setInput('');
     if (key === '⌫') return setInput(input.slice(0, -1));
     const next = input + key;
@@ -113,6 +118,14 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
           setIndex(index + 1);
         }
       }, 250);
+    } else if (next.length === maxLen) {
+      if (typeof navigator !== 'undefined' && navigator.vibrate) try { navigator.vibrate([60, 40, 60]); } catch { /* ignore */ }
+      setInput(next);
+      setFlashWrong(true);
+      wrongTimerRef.current = window.setTimeout(() => {
+        setFlashWrong(false);
+        setInput('');
+      }, 500);
     } else {
       setInput(next);
     }
@@ -174,7 +187,7 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
   }
 
   if (phase === 'countdown') {
-    return <div className="screen countdown-screen"><p className="countdown-ready">Ready...</p><p className="countdown-number">{countdown}</p></div>;
+    return <div className="screen countdown-screen"><p className="countdown-ready">Ready...</p><p key={countdown} className="countdown-number pop">{countdown}</p></div>;
   }
 
   if (phase === 'done' && result) {
@@ -203,17 +216,17 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
         <span className="quiz-counter">{index + 1} / {problems.length}</span>
       </div>
       <p className="blank-instruction">↓ <strong>あなあき（黄色のマス）</strong> に入る数をキーパッドで入力</p>
-      <div className={`quiz-problem ${flashCorrect ? 'flash-correct' : ''}`}>
+      <div className={`quiz-problem ${flashCorrect ? 'flash-correct' : ''} ${flashWrong ? 'flash-wrong' : ''}`}>
         {current.hole === 'a' ? (
           <span className="quiz-equation">
-            <span className={`quiz-blank ${input ? 'filled' : ''} ${flashCorrect ? 'success' : ''}`}>
-              {flashCorrect ? '✓' : (input || '?')}
+            <span className={`quiz-blank ${input ? 'filled' : ''} ${flashCorrect ? 'success' : ''} ${flashWrong ? 'wrong' : ''}`}>
+              {flashCorrect ? '✓' : flashWrong ? '✗' : (input || '?')}
             </span> × {current.b} = {current.c}
           </span>
         ) : (
           <span className="quiz-equation">
-            {current.a} × <span className={`quiz-blank ${input ? 'filled' : ''} ${flashCorrect ? 'success' : ''}`}>
-              {flashCorrect ? '✓' : (input || '?')}
+            {current.a} × <span className={`quiz-blank ${input ? 'filled' : ''} ${flashCorrect ? 'success' : ''} ${flashWrong ? 'wrong' : ''}`}>
+              {flashCorrect ? '✓' : flashWrong ? '✗' : (input || '?')}
             </span> = {current.c}
           </span>
         )}

@@ -39,11 +39,16 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
   const timerRef = useRef<number | null>(null);
   const endedRef = useRef(false);
   const [flashCorrect, setFlashCorrect] = useState(false);
+  const [flashWrong, setFlashWrong] = useState(false);
   const advanceTimerRef = useRef<number | null>(null);
+  const wrongTimerRef = useRef<number | null>(null);
   const current = problems[index];
 
   useEffect(() => {
-    return () => { if (advanceTimerRef.current) window.clearTimeout(advanceTimerRef.current); };
+    return () => {
+      if (advanceTimerRef.current) window.clearTimeout(advanceTimerRef.current);
+      if (wrongTimerRef.current) window.clearTimeout(wrongTimerRef.current);
+    };
   }, []);
 
   useEffect(() => {
@@ -98,12 +103,13 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
   };
 
   const handleKey = (key: string) => {
-    if (phase !== 'playing' || !current || flashCorrect) return;
+    if (phase !== 'playing' || !current || flashCorrect || flashWrong) return;
     if (key === 'C') return setInput('');
     if (key === '⌫') return setInput(input.slice(0, -1));
     const next = input + key;
     const ans = current.a * current.b;
-    if (next.length > ans.toString().length) return;
+    const maxLen = ans.toString().length;
+    if (next.length > maxLen) return;
     if (parseInt(next) === ans) {
       setInput(next);
       setFlashCorrect(true);
@@ -116,6 +122,14 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
           setIndex(index + 1);
         }
       }, 150);
+    } else if (next.length === maxLen) {
+      if (typeof navigator !== 'undefined' && navigator.vibrate) try { navigator.vibrate([60, 40, 60]); } catch { /* ignore */ }
+      setInput(next);
+      setFlashWrong(true);
+      wrongTimerRef.current = window.setTimeout(() => {
+        setFlashWrong(false);
+        setInput('');
+      }, 350);
     } else {
       setInput(next);
     }
@@ -172,7 +186,7 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
   }
 
   if (phase === 'countdown') {
-    return <div className="screen countdown-screen"><p className="countdown-ready">心を整えて…</p><p className="countdown-number">{countdown}</p></div>;
+    return <div className="screen countdown-screen"><p className="countdown-ready">心を整えて…</p><p key={countdown} className="countdown-number pop">{countdown}</p></div>;
   }
 
   if (phase === 'success') {
@@ -215,10 +229,10 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
         <span className="quiz-counter trial-timer">⏱ {((TIME_LIMIT_MS - elapsed) / 1000).toFixed(1)}秒</span>
         <span className="quiz-counter">{index + 1} / {problems.length}</span>
       </div>
-      <div className={`quiz-problem attack-problem ${flashCorrect ? 'flash-correct' : ''}`}>
+      <div className={`quiz-problem attack-problem ${flashCorrect ? 'flash-correct' : ''} ${flashWrong ? 'flash-wrong' : ''}`}>
         <span className="quiz-equation">{current.a} × {current.b} =</span>
-        <span className={`quiz-input attack-input ${flashCorrect ? 'success' : ''}`}>
-          {flashCorrect ? '✓' : (input || '?')}
+        <span className={`quiz-input attack-input ${flashCorrect ? 'success' : ''} ${flashWrong ? 'wrong' : ''}`}>
+          {flashCorrect ? '✓' : flashWrong ? '✗' : (input || '?')}
         </span>
       </div>
       <div className="keypad">

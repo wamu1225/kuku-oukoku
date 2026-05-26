@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { navigate } from '../App';
 import { LearningEngine } from '../utils/LearningEngine';
 import { vibrate } from '../utils/haptics';
+import { CountUp } from '../components/CountUp';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
 const BADGE_LABEL: Record<string, string> = { gold: '金', silver: '銀', bronze: '銅', clear: 'クリア' };
@@ -63,14 +64,19 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
 
   const endedRef = useRef(false);
   const [flashCorrect, setFlashCorrect] = useState(false);
+  const [flashWrong, setFlashWrong] = useState(false);
   const advanceTimerRef = useRef<number | null>(null);
+  const wrongTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
-    return () => { if (advanceTimerRef.current) window.clearTimeout(advanceTimerRef.current); };
+    return () => {
+      if (advanceTimerRef.current) window.clearTimeout(advanceTimerRef.current);
+      if (wrongTimerRef.current) window.clearTimeout(wrongTimerRef.current);
+    };
   }, []);
 
   const handleKey = (key: string) => {
-    if (finished || !started || flashCorrect) return;
+    if (finished || !started || flashCorrect || flashWrong) return;
     if (key === 'C') return setInput('');
     if (key === '⌫') return setInput(input.slice(0, -1));
     const next = input + key;
@@ -90,6 +96,14 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
           setIndex(index + 1);
         }
       }, 250);
+    } else if (next.length === maxLen) {
+      if (typeof navigator !== 'undefined' && navigator.vibrate) try { navigator.vibrate([60, 40, 60]); } catch { /* ignore */ }
+      setInput(next);
+      setFlashWrong(true);
+      wrongTimerRef.current = window.setTimeout(() => {
+        setFlashWrong(false);
+        setInput('');
+      }, 500);
     } else {
       setInput(next);
     }
@@ -112,7 +126,7 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
     return (
       <div className="screen countdown-screen">
         <p className="countdown-ready">Ready...</p>
-        <p className="countdown-number">{countdown}</p>
+        <p key={countdown} className="countdown-number pop">{countdown}</p>
       </div>
     );
   }
@@ -129,13 +143,14 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
         <div className="result-stats">
           <div><span className="result-label">タイム</span><span className="result-value">{secs.toFixed(2)}秒</span></div>
           <div><span className="result-label">メダル</span><span className="result-value">{result.badge}</span></div>
-          <div><span className="result-label">報酬</span><span className="result-value">+100 KP</span></div>
+          <div><span className="result-label">報酬</span><span className="result-value">+<CountUp to={100} duration={900} format="plain" /> KP</span></div>
         </div>
         {next ? (
           <p className="result-hint">あと <strong>{next.gap.toFixed(2)}秒</strong> で {next.medal} メダル！</p>
         ) : (
           <p className="result-hint">🥇 金メダル獲得！最速ペース達成！</p>
         )}
+        <p className="festival-notice">🎉 おうこくで「{level}の段の祝祭」が <strong>30 分間</strong> 発動！生産が大幅アップ</p>
         <div className="result-actions">
           <button className="btn-primary" onClick={() => navigate('/attack/')}>つぎにちょうせん</button>
           <button className="btn-secondary" onClick={() => navigate('/')}>ホームへ</button>
@@ -150,10 +165,10 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
         <span className="quiz-counter">⏱ {(elapsed / 1000).toFixed(2)}秒</span>
         <span className="quiz-counter">のこり {problems.length - index}</span>
       </div>
-      <div className={`quiz-problem attack-problem ${flashCorrect ? 'flash-correct' : ''}`}>
+      <div className={`quiz-problem attack-problem ${flashCorrect ? 'flash-correct' : ''} ${flashWrong ? 'flash-wrong' : ''}`}>
         <span className="quiz-equation">{current.a} × {current.b} =</span>
-        <span className={`quiz-input attack-input ${flashCorrect ? 'success' : ''}`}>
-          {flashCorrect ? '✓' : (input || '?')}
+        <span className={`quiz-input attack-input ${flashCorrect ? 'success' : ''} ${flashWrong ? 'wrong' : ''}`}>
+          {flashCorrect ? '✓' : flashWrong ? '✗' : (input || '?')}
         </span>
       </div>
       <div className="keypad">

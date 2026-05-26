@@ -338,6 +338,209 @@ main { padding: 20px 16px 40px; }
   color: var(--success) !important;
   border-bottom-color: var(--success) !important;
 }
+
+/* === 不正解フィードバック === */
+.quiz-problem.flash-wrong {
+  animation: wrong-shake 0.4s ease-out;
+  border-color: var(--danger) !important;
+}
+.quiz-input.wrong {
+  background: #fee2e2 !important;
+  color: var(--danger) !important;
+}
+.quiz-blank.wrong {
+  background: #fee2e2 !important;
+  color: var(--danger) !important;
+  border-bottom-color: var(--danger) !important;
+}
+@keyframes wrong-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-10px); background: #fef2f2; }
+  40% { transform: translateX(10px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
+}
+
+/* === Countdown ポップ === */
+.countdown-number.pop {
+  animation: countdown-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes countdown-pop {
+  0% { transform: scale(0.2); opacity: 0; }
+  40% { opacity: 1; }
+  60% { transform: scale(1.3); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* === 段位昇格 celebrate === */
+.result-title.celebrate {
+  animation: celebrate-bounce 1s ease-in-out infinite alternate;
+  color: #f59e0b;
+}
+@keyframes celebrate-bounce {
+  0% { transform: scale(1) rotate(-2deg); }
+  100% { transform: scale(1.08) rotate(2deg); }
+}
+
+/* === 解禁通知ブロック === */
+.result-unlock {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 2px solid var(--accent);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  margin: 20px auto;
+  max-width: 480px;
+  text-align: left;
+}
+.result-unlock h3 {
+  margin: 0 0 8px;
+  color: #78350f;
+  font-size: 16px;
+}
+.result-unlock ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #78350f;
+}
+.result-unlock li {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+/* === 祝祭通知 === */
+.festival-notice {
+  background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+  border: 2px solid #ec4899;
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  margin: 16px auto;
+  max-width: 480px;
+  color: #831843;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* === Companion 招待 pop-in === */
+.companion-card.pop-in {
+  animation: pop-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes pop-in {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.08); box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.3); }
+  100% { transform: scale(1); }
+}
+
+/* === Tower 可視化 v2 === */
+.tower-overlay-v2 {
+  display: flex;
+  flex-direction: column;
+}
+.tower-main {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 12px;
+  margin-top: 8px;
+}
+.tower-bar-col {
+  display: flex;
+  justify-content: center;
+}
+.tower-bar {
+  position: relative;
+  width: 60px;
+  height: 360px;
+  background: linear-gradient(180deg, #312e81 0%, #1e3a8a 25%, #6366f1 50%, #93c5fd 75%, #fde68a 100%);
+  border-radius: 30px 30px 0 0;
+  border: 2px solid #fff;
+  box-shadow: var(--shadow-lg);
+}
+.tower-tier-mark {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+}
+.tower-tier-mark-line {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.5);
+}
+.tower-tier-mark-label {
+  position: absolute;
+  left: 64px;
+  top: -10px;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(0, 0, 0, 0.4);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+.tower-player {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, 50%);
+  font-size: 28px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+  transition: bottom 0.3s ease-out;
+  z-index: 2;
+}
+.tower-floating-gain {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  background: var(--accent);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-weight: 900;
+  font-size: 14px;
+  box-shadow: var(--shadow);
+  animation: tower-gain-float 0.9s ease-out forwards;
+  z-index: 3;
+}
+@keyframes tower-gain-float {
+  0% { opacity: 0; transform: translate(-50%, 30px); }
+  20% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, -40px); }
+}
+.tower-score-big {
+  text-align: center;
+  background: rgba(255,255,255,0.95);
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+.tower-score-big strong { font-size: 32px; color: var(--primary-dark); }
+.tower-score-big span { font-size: 16px; color: var(--text-muted); margin-left: 2px; }
+.tower-score-big.pulse-up { animation: tower-score-pulse 0.4s ease-out; }
+@keyframes tower-score-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); color: var(--success); }
+}
+.tower-next-tier-v2 {
+  text-align: center;
+  background: rgba(255,255,255,0.85);
+  padding: 4px 12px;
+  border-radius: 999px;
+  margin: 0 auto 12px;
+  font-size: 13px;
+  font-weight: 700;
+  display: block;
+}
+.tower-time { background: rgba(255,255,255,0.95) !important; }
+.tower-tier-label { background: rgba(255,255,255,0.95) !important; }
+
+@media (max-width: 480px) {
+  .tower-main { grid-template-columns: 70px 1fr; gap: 8px; }
+  .tower-bar { width: 44px; height: 280px; }
+  .tower-tier-mark-label { font-size: 10px; left: 48px; }
+  .tower-player { font-size: 22px; }
+  .tower-score-big strong { font-size: 26px; }
+}
 .attack-input { color: var(--danger); }
 
 .keypad {

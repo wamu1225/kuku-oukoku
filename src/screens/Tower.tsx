@@ -39,10 +39,17 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
   const stageRef = useRef<(typeof STAGES)[number] | null>(null);
   const endedRef = useRef(false);
   const [flashCorrect, setFlashCorrect] = useState(false);
+  const [flashWrong, setFlashWrong] = useState(false);
+  const [floatingGain, setFloatingGain] = useState<{ value: number; key: number } | null>(null);
   const advanceTimerRef = useRef<number | null>(null);
+  const wrongTimerRef = useRef<number | null>(null);
+  const floatTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
-    return () => { if (advanceTimerRef.current) window.clearTimeout(advanceTimerRef.current); };
+    return () => {
+      if (advanceTimerRef.current) window.clearTimeout(advanceTimerRef.current);
+      if (wrongTimerRef.current) window.clearTimeout(wrongTimerRef.current);
+    };
   }, []);
 
   const nextProblem = (max: number) => {
@@ -98,24 +105,36 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
   };
 
   const handleKey = (key: string) => {
-    if (phase !== 'playing' || flashCorrect) return;
+    if (phase !== 'playing' || flashCorrect || flashWrong) return;
     if (key === 'C') return setInput('');
     if (key === '⌫') return setInput(input.slice(0, -1));
     const next = input + key;
-    const ans = a * b;
-    const maxLen = ans.toString().length;
+    const ansLocal = a * b;
+    const maxLen = ansLocal.toString().length;
     if (next.length > maxLen) return;
-    if (parseInt(next) === ans) {
-      const newScore = score + ans;
+    if (parseInt(next) === ansLocal) {
+      const newScore = score + ansLocal;
       scoreRef.current = newScore;
       setScore(newScore);
       setProblemCount(problemCount + 1);
       setInput(next);
       setFlashCorrect(true);
+      // 浮遊「+ans」アニメ
+      setFloatingGain({ value: ansLocal, key: Date.now() });
+      if (floatTimerRef.current) window.clearTimeout(floatTimerRef.current);
+      floatTimerRef.current = window.setTimeout(() => setFloatingGain(null), 900);
       advanceTimerRef.current = window.setTimeout(() => {
         setFlashCorrect(false);
         nextProblem(stage!.max);
       }, 150);
+    } else if (next.length === maxLen) {
+      if (typeof navigator !== 'undefined' && navigator.vibrate) try { navigator.vibrate([60, 40, 60]); } catch { /* ignore */ }
+      setInput(next);
+      setFlashWrong(true);
+      wrongTimerRef.current = window.setTimeout(() => {
+        setFlashWrong(false);
+        setInput('');
+      }, 350);
     } else {
       setInput(next);
     }
@@ -170,7 +189,7 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
       <div className="screen tower-screen" style={{ background: BG_TIERS[BG_TIERS.length - 1].bg, minHeight: 300 }}>
         <div className="tower-overlay countdown-screen">
           <p className="countdown-ready">Ready...</p>
-          <p className="countdown-number">{countdown}</p>
+          <p key={countdown} className="countdown-number pop">{countdown}</p>
         </div>
       </div>
     );
@@ -202,31 +221,76 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
   const nextTier = tierIdx > 0 ? BG_TIERS[tierIdx - 1] : null;
   const toNext = nextTier ? nextTier.from - score : 0;
 
+  // タワー可視化用 - 各 tier の位置を 0-100% で固定配置（地上=0%、深宇宙=100%）
+  // log スケールで対数的な階層表現にする (1m=0, 100m=25, 300m=50, 1000m=75, 2000m=100)
+  const positionForScore = (m: number) => {
+    if (m <= 0) return 0;
+    if (m <= 100) return (m / 100) * 25;
+    if (m <= 300) return 25 + ((m - 100) / 200) * 25;
+    if (m <= 1000) return 50 + ((m - 300) / 700) * 25;
+    if (m <= 2000) return 75 + ((m - 1000) / 1000) * 25;
+    return 100;
+  };
+  const playerPos = positionForScore(score);
+
   return (
     <div className="screen tower-screen" style={{ background: tier.bg }}>
-      <div className="tower-overlay">
+      <div className="tower-overlay tower-overlay-v2">
         <div className="quiz-header">
-          <span className="quiz-counter">⏱ {((30000 - elapsed) / 1000).toFixed(1)}秒</span>
-          <span className="quiz-counter">🗼 {score}m</span>
-          <span className="quiz-counter">📍 {tier.name}</span>
-        </div>
-        {nextTier && (
-          <p className="tower-next-tier">
-            あと <strong>{toNext}m</strong> で <strong>{nextTier.name}</strong> ！
-          </p>
-        )}
-
-        <div className={`quiz-problem attack-problem ${flashCorrect ? 'flash-correct' : ''}`}>
-          <span className="quiz-equation">{a} × {b} =</span>
-          <span className={`quiz-input attack-input ${flashCorrect ? 'success' : ''}`}>
-            {flashCorrect ? `${ans} ✓` : (input || '?')}
-          </span>
+          <span className="quiz-counter tower-time">⏱ {((30000 - elapsed) / 1000).toFixed(1)}秒</span>
+          <span className="quiz-counter tower-tier-label">📍 {tier.name}</span>
         </div>
 
-        <div className="keypad">
-          {KEYS.map((key) => (
-            <button key={key} className="keypad-btn" onClick={() => handleKey(key)}>{key}</button>
-          ))}
+        <div className="tower-main">
+          <div className="tower-bar-col" aria-hidden="true">
+            <div className="tower-bar">
+              {/* 階層マーカー */}
+              {BG_TIERS.slice().reverse().map((t) => (
+                <div key={t.name} className="tower-tier-mark" style={{ bottom: `${positionForScore(t.from)}%` }}>
+                  <span className="tower-tier-mark-label">{t.from}m {t.name}</span>
+                  <span className="tower-tier-mark-line" />
+                </div>
+              ))}
+              {/* プレイヤー位置 */}
+              <div className="tower-player" style={{ bottom: `${playerPos}%` }}>
+                🚀
+              </div>
+              {/* 浮遊「+ans」 */}
+              {floatingGain && (
+                <div
+                  key={floatingGain.key}
+                  className="tower-floating-gain"
+                  style={{ bottom: `${playerPos}%` }}
+                >
+                  +{floatingGain.value}m
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="tower-game-col">
+            <div className={`tower-score-big ${flashCorrect ? 'pulse-up' : ''}`}>
+              <strong>{score}</strong><span>m</span>
+            </div>
+            {nextTier && (
+              <p className="tower-next-tier-v2">
+                あと <strong>{toNext}m</strong> で <strong>{nextTier.name}</strong> ！
+              </p>
+            )}
+
+            <div className={`quiz-problem attack-problem ${flashCorrect ? 'flash-correct' : ''} ${flashWrong ? 'flash-wrong' : ''}`}>
+              <span className="quiz-equation">{a} × {b} =</span>
+              <span className={`quiz-input attack-input ${flashCorrect ? 'success' : ''} ${flashWrong ? 'wrong' : ''}`}>
+                {flashCorrect ? `${ans} ✓` : flashWrong ? '✗' : (input || '?')}
+              </span>
+            </div>
+
+            <div className="keypad">
+              {KEYS.map((key) => (
+                <button key={key} className="keypad-btn" onClick={() => handleKey(key)}>{key}</button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>

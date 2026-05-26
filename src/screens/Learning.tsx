@@ -15,7 +15,9 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
   const [showSuccess, setShowSuccess] = useState(false);
   const [resultMsg, setResultMsg] = useState('');
   const successTimerRef = useRef<number | null>(null);
+  const wrongTimerRef = useRef<number | null>(null);
   const endedRef = useRef(false);
+  const [flashWrong, setFlashWrong] = useState(false);
   const phaseRef = useRef(phase);
   useEffect(() => { phaseRef.current = phase; }, [phase]);
 
@@ -47,7 +49,7 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
   };
 
   const handleKey = (key: string) => {
-    if (phase !== 'quiz' || showSuccess) return;
+    if (phase !== 'quiz' || showSuccess || flashWrong) return;
     if (key === 'C') return setInput('');
     if (key === '⌫') return setInput(input.slice(0, -1));
     const next = input + key;
@@ -60,7 +62,6 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
       setInput(next);
       successTimerRef.current = window.setTimeout(() => {
         successTimerRef.current = null;
-        // phase が変わっていたら何もしない（戻る押下後の保留分など）
         if (phaseRef.current !== 'quiz' || endedRef.current) return;
         setShowSuccess(false);
         setInput('');
@@ -70,6 +71,17 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
           setIndex(index + 1);
         }
       }, 400);
+    } else if (next.length === maxLen) {
+      // 桁数に達したのに正解と一致しない → 不正解
+      if (typeof navigator !== 'undefined' && navigator.vibrate) try { navigator.vibrate([60, 40, 60]); } catch { /* ignore */ }
+      setInput(next);
+      setFlashWrong(true);
+      wrongTimerRef.current = window.setTimeout(() => {
+        wrongTimerRef.current = null;
+        if (phaseRef.current !== 'quiz') return;
+        setFlashWrong(false);
+        setInput('');
+      }, 600);
     } else {
       setInput(next);
     }
@@ -138,9 +150,9 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
         <span className="quiz-counter">{index + 1} / {problems.length}</span>
         {level < 10 && <span className="quiz-reading">{KUKU_READINGS[`${current.a}x${current.b}`] || ''}</span>}
       </div>
-      <div className="quiz-problem">
+      <div className={`quiz-problem ${flashWrong ? 'flash-wrong' : ''}`}>
         <span className="quiz-equation">{current.a} × {current.b} =</span>
-        <span className={`quiz-input ${showSuccess ? 'success' : ''}`}>
+        <span className={`quiz-input ${showSuccess ? 'success' : ''} ${flashWrong ? 'wrong' : ''}`}>
           {showSuccess ? '✓' : input || (showHint ? <span className="answer-hint">{current.a * current.b}</span> : '?')}
         </span>
       </div>

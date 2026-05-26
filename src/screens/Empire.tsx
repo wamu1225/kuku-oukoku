@@ -29,6 +29,12 @@ function PrestigeBanner({ state, onPrestige }: { state: KukuState; onPrestige: (
 export function Empire({ state: initialState, onUpdate }: { state: KukuState; onUpdate: () => void }) {
   const [state, setState] = useState(initialState);
   const [now, setNow] = useState(Date.now());
+  const [popLevel, setPopLevel] = useState<number | null>(null);
+
+  const triggerPop = (level: number) => {
+    setPopLevel(level);
+    window.setTimeout(() => setPopLevel((p) => (p === level ? null : p)), 700);
+  };
 
   useEffect(() => setState(initialState), [initialState]);
 
@@ -61,6 +67,7 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
     if (state.kp < cost) return;
     const updated = LearningEngine.inviteCompanion(level, cost);
     setState(updated);
+    triggerPop(level);
     onUpdate();
   };
 
@@ -70,6 +77,7 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
     if (count === 0) return;
     const updated = LearningEngine.inviteCompanionsBulk({ [level]: owned + count }, totalCost);
     setState(updated);
+    triggerPop(level);
     onUpdate();
   };
 
@@ -198,7 +206,7 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
           const festivalSS = festivalSecsLeft % 60;
 
           return (
-            <div key={comp.level} className={`companion-card ${festivalActive ? 'festival-active' : ''}`} style={{ borderColor: festivalActive ? '#ec4899' : comp.color }}>
+            <div key={comp.level} className={`companion-card ${festivalActive ? 'festival-active' : ''} ${popLevel === comp.level ? 'pop-in' : ''}`} style={{ borderColor: festivalActive ? '#ec4899' : comp.color }}>
               <div className="companion-icon" aria-hidden="true" style={{ background: comp.color }}>
                 {comp.emoji}
               </div>

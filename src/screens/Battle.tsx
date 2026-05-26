@@ -208,7 +208,7 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
   }
 
   if (phase === 'countdown') {
-    return <div className="screen countdown-screen"><p className="countdown-ready">Ready...</p><p className="countdown-number">{countdown}</p></div>;
+    return <div className="screen countdown-screen"><p className="countdown-ready">Ready...</p><p key={countdown} className="countdown-number pop">{countdown}</p></div>;
   }
 
   if (phase === 'done' && result) {

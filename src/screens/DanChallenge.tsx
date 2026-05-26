@@ -2,6 +2,22 @@ import { useEffect, useRef, useState } from 'react';
 import { navigate } from '../App';
 import { LearningEngine } from '../utils/LearningEngine';
 import { DAN_LEVELS, getNextDan } from '../data/danLevels';
+import { CountUp } from '../components/CountUp';
+
+// 段位ランク到達で新たに解禁されるコンテンツ
+function unlocksOnRank(rank: number): string[] {
+  const u: string[] = [];
+  if (rank === 1) u.push('⚔️ 九九バトル（はじまりの草原）');
+  if (rank === 2) u.push('🗼 九九のタワー（そよ風の塔）');
+  if (rank === 3) { u.push('🌫 くもくも（しんキロウの森）'); u.push('📖 まなぶ・アタック：4〜6 の段'); }
+  if (rank === 4) u.push('⚔️ 九九バトル（しずかな森）');
+  if (rank === 5) u.push('🗼 九九のタワー（雲海の見張り塔）');
+  if (rank === 6) { u.push('🌫 くもくも（そらの雲海）'); u.push('📖 まなぶ・アタック：7〜9 の段'); }
+  if (rank === 7) u.push('⚔️ 九九バトル（ゴツゴツ洞窟）');
+  if (rank === 8) u.push('🗼 九九のタワー（迅雷の尖塔）');
+  if (rank === 9) u.push('🌫 くもくも（かみなりの山）');
+  return u;
+}
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
 const BADGE_LABEL: Record<string, string> = { gold: '金', silver: '銀', bronze: '銅' };
@@ -39,11 +55,16 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
   const timerRef = useRef<number | null>(null);
   const endedRef = useRef(false);
   const [flashCorrect, setFlashCorrect] = useState(false);
+  const [flashWrong, setFlashWrong] = useState(false);
   const advanceTimerRef = useRef<number | null>(null);
+  const wrongTimerRef = useRef<number | null>(null);
   const current = problems[index];
 
   useEffect(() => {
-    return () => { if (advanceTimerRef.current) window.clearTimeout(advanceTimerRef.current); };
+    return () => {
+      if (advanceTimerRef.current) window.clearTimeout(advanceTimerRef.current);
+      if (wrongTimerRef.current) window.clearTimeout(wrongTimerRef.current);
+    };
   }, []);
 
   const start = (rank: number) => {
@@ -93,7 +114,7 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
   };
 
   const handleKey = (key: string) => {
-    if (phase !== 'playing' || !current || flashCorrect) return;
+    if (phase !== 'playing' || !current || flashCorrect || flashWrong) return;
     if (key === 'C') return setInput('');
     if (key === '⌫') return setInput(input.slice(0, -1));
     const next = input + key;
@@ -112,6 +133,14 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
           setIndex(index + 1);
         }
       }, 250);
+    } else if (next.length === maxLen) {
+      if (typeof navigator !== 'undefined' && navigator.vibrate) try { navigator.vibrate([60, 40, 60]); } catch { /* ignore */ }
+      setInput(next);
+      setFlashWrong(true);
+      wrongTimerRef.current = window.setTimeout(() => {
+        setFlashWrong(false);
+        setInput('');
+      }, 500);
     } else {
       setInput(next);
     }
@@ -199,19 +228,35 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
     return (
       <div className="screen countdown-screen">
         <p className="countdown-ready">Ready...</p>
-        <p className="countdown-number">{countdown}</p>
+        <p key={countdown} className="countdown-number pop">{countdown}</p>
       </div>
     );
   }
 
   if (phase === 'done' && result) {
+    const newUnlocks = result.newDan && selected ? unlocksOnRank(selected) : [];
+    const kpReward = result.newDan && selected ? selected * 1000 : 0;
     return (
       <div className="screen result-screen">
-        <h1 className="result-title">{result.newDan ? '🎉 昇段おめでとう！' : 'クリア！'}</h1>
+        <h1 className={`result-title ${result.newDan ? 'celebrate' : ''}`}>
+          {result.newDan ? '🎉 昇段おめでとう！' : 'クリア！'}
+        </h1>
         <div className="result-stats">
           <div><span className="result-label">タイム</span><span className="result-value">{(result.timeMs / 1000).toFixed(2)}秒</span></div>
           <div><span className="result-label">メダル</span><span className="result-value">{result.medal}</span></div>
+          {kpReward > 0 && (
+            <div>
+              <span className="result-label">昇段ボーナス</span>
+              <span className="result-value">+<CountUp to={kpReward} duration={1200} format="plain" /> KP</span>
+            </div>
+          )}
         </div>
+        {newUnlocks.length > 0 && (
+          <div className="result-unlock">
+            <h3>🔓 新しく解禁されたよ！</h3>
+            <ul>{newUnlocks.map((u) => <li key={u}>{u}</li>)}</ul>
+          </div>
+        )}
         <div className="result-actions">
           <button className="btn-primary" onClick={() => { setPhase('select'); setResult(null); }}>つづける</button>
           <button className="btn-secondary" onClick={() => navigate('/')}>ホームへ</button>
@@ -247,10 +292,10 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
         <span className="quiz-counter">⏱ {(elapsed / 1000).toFixed(2)}秒 / 90秒</span>
         <span className="quiz-counter">{index + 1} / {problems.length}</span>
       </div>
-      <div className={`quiz-problem ${flashCorrect ? 'flash-correct' : ''}`}>
+      <div className={`quiz-problem ${flashCorrect ? 'flash-correct' : ''} ${flashWrong ? 'flash-wrong' : ''}`}>
         <span className="quiz-equation">{current.a} × {current.b} =</span>
-        <span className={`quiz-input ${flashCorrect ? 'success' : ''}`}>
-          {flashCorrect ? '✓' : (input || '?')}
+        <span className={`quiz-input ${flashCorrect ? 'success' : ''} ${flashWrong ? 'wrong' : ''}`}>
+          {flashCorrect ? '✓' : flashWrong ? '✗' : (input || '?')}
         </span>
       </div>
       <div className="keypad">
