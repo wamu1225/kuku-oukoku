@@ -62,9 +62,15 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
   }, [started, finished]);
 
   const endedRef = useRef(false);
+  const [flashCorrect, setFlashCorrect] = useState(false);
+  const advanceTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => { if (advanceTimerRef.current) window.clearTimeout(advanceTimerRef.current); };
+  }, []);
 
   const handleKey = (key: string) => {
-    if (finished || !started) return;
+    if (finished || !started || flashCorrect) return;
     if (key === 'C') return setInput('');
     if (key === '⌫') return setInput(input.slice(0, -1));
     const next = input + key;
@@ -73,12 +79,17 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
     if (next.length > maxLen) return;
     if (parseInt(next) === answer) {
       vibrate(15);
-      setInput('');
-      if (index >= problems.length - 1) {
-        finishChallenge();
-      } else {
-        setIndex(index + 1);
-      }
+      setInput(next);
+      setFlashCorrect(true);
+      advanceTimerRef.current = window.setTimeout(() => {
+        setFlashCorrect(false);
+        setInput('');
+        if (index >= problems.length - 1) {
+          finishChallenge();
+        } else {
+          setIndex(index + 1);
+        }
+      }, 250);
     } else {
       setInput(next);
     }
@@ -139,9 +150,11 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
         <span className="quiz-counter">⏱ {(elapsed / 1000).toFixed(2)}秒</span>
         <span className="quiz-counter">のこり {problems.length - index}</span>
       </div>
-      <div className="quiz-problem attack-problem">
+      <div className={`quiz-problem attack-problem ${flashCorrect ? 'flash-correct' : ''}`}>
         <span className="quiz-equation">{current.a} × {current.b} =</span>
-        <span className="quiz-input attack-input">{input || '?'}</span>
+        <span className={`quiz-input attack-input ${flashCorrect ? 'success' : ''}`}>
+          {flashCorrect ? '✓' : (input || '?')}
+        </span>
       </div>
       <div className="keypad">
         {KEYS.map((key) => (

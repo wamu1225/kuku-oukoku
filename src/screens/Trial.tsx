@@ -38,7 +38,13 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
   const startRef = useRef<number | null>(null);
   const timerRef = useRef<number | null>(null);
   const endedRef = useRef(false);
+  const [flashCorrect, setFlashCorrect] = useState(false);
+  const advanceTimerRef = useRef<number | null>(null);
   const current = problems[index];
+
+  useEffect(() => {
+    return () => { if (advanceTimerRef.current) window.clearTimeout(advanceTimerRef.current); };
+  }, []);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
@@ -92,19 +98,24 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
   };
 
   const handleKey = (key: string) => {
-    if (phase !== 'playing' || !current) return;
+    if (phase !== 'playing' || !current || flashCorrect) return;
     if (key === 'C') return setInput('');
     if (key === '⌫') return setInput(input.slice(0, -1));
     const next = input + key;
     const ans = current.a * current.b;
     if (next.length > ans.toString().length) return;
     if (parseInt(next) === ans) {
-      setInput('');
-      if (index >= problems.length - 1) {
-        succeed();
-      } else {
-        setIndex(index + 1);
-      }
+      setInput(next);
+      setFlashCorrect(true);
+      advanceTimerRef.current = window.setTimeout(() => {
+        setFlashCorrect(false);
+        setInput('');
+        if (index >= problems.length - 1) {
+          succeed();
+        } else {
+          setIndex(index + 1);
+        }
+      }, 150);
     } else {
       setInput(next);
     }
@@ -204,9 +215,11 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
         <span className="quiz-counter trial-timer">⏱ {((TIME_LIMIT_MS - elapsed) / 1000).toFixed(1)}秒</span>
         <span className="quiz-counter">{index + 1} / {problems.length}</span>
       </div>
-      <div className="quiz-problem attack-problem">
+      <div className={`quiz-problem attack-problem ${flashCorrect ? 'flash-correct' : ''}`}>
         <span className="quiz-equation">{current.a} × {current.b} =</span>
-        <span className="quiz-input attack-input">{input || '?'}</span>
+        <span className={`quiz-input attack-input ${flashCorrect ? 'success' : ''}`}>
+          {flashCorrect ? '✓' : (input || '?')}
+        </span>
       </div>
       <div className="keypad">
         {KEYS.map((key) => (

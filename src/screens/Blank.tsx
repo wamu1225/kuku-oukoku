@@ -87,21 +87,32 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
   }, [phase]);
 
   const endedRef = useRef(false);
+  const [flashCorrect, setFlashCorrect] = useState(false);
+  const advanceTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => { if (advanceTimerRef.current) window.clearTimeout(advanceTimerRef.current); };
+  }, []);
 
   const handleKey = (key: string) => {
-    if (phase !== 'playing' || !current) return;
+    if (phase !== 'playing' || !current || flashCorrect) return;
     if (key === 'C') return setInput('');
     if (key === '⌫') return setInput(input.slice(0, -1));
     const next = input + key;
     const maxLen = current.answer.toString().length;
     if (next.length > maxLen) return;
     if (parseInt(next) === current.answer) {
-      setInput('');
-      if (index >= problems.length - 1) {
-        finish();
-      } else {
-        setIndex(index + 1);
-      }
+      setInput(next);
+      setFlashCorrect(true);
+      advanceTimerRef.current = window.setTimeout(() => {
+        setFlashCorrect(false);
+        setInput('');
+        if (index >= problems.length - 1) {
+          finish();
+        } else {
+          setIndex(index + 1);
+        }
+      }, 250);
     } else {
       setInput(next);
     }
@@ -192,14 +203,18 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
         <span className="quiz-counter">{index + 1} / {problems.length}</span>
       </div>
       <p className="blank-instruction">↓ <strong>あなあき（黄色のマス）</strong> に入る数をキーパッドで入力</p>
-      <div className="quiz-problem">
+      <div className={`quiz-problem ${flashCorrect ? 'flash-correct' : ''}`}>
         {current.hole === 'a' ? (
           <span className="quiz-equation">
-            <span className={`quiz-blank ${input ? 'filled' : ''}`}>{input || '?'}</span> × {current.b} = {current.c}
+            <span className={`quiz-blank ${input ? 'filled' : ''} ${flashCorrect ? 'success' : ''}`}>
+              {flashCorrect ? '✓' : (input || '?')}
+            </span> × {current.b} = {current.c}
           </span>
         ) : (
           <span className="quiz-equation">
-            {current.a} × <span className={`quiz-blank ${input ? 'filled' : ''}`}>{input || '?'}</span> = {current.c}
+            {current.a} × <span className={`quiz-blank ${input ? 'filled' : ''} ${flashCorrect ? 'success' : ''}`}>
+              {flashCorrect ? '✓' : (input || '?')}
+            </span> = {current.c}
           </span>
         )}
       </div>

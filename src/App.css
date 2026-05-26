@@ -322,6 +322,22 @@ main { padding: 20px 16px 40px; }
   text-align: center;
 }
 .quiz-input.success { background: #dcfce7; color: var(--success); }
+
+/* === 正解演出（共通フラッシュ） === */
+.quiz-problem.flash-correct {
+  animation: correct-pulse 0.25s ease-out;
+  border-color: var(--success) !important;
+}
+@keyframes correct-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.04); background: #f0fdf4; }
+  100% { transform: scale(1); }
+}
+.quiz-blank.success {
+  background: #dcfce7 !important;
+  color: var(--success) !important;
+  border-bottom-color: var(--success) !important;
+}
 .attack-input { color: var(--danger); }
 
 .keypad {
