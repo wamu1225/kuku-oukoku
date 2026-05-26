@@ -3,6 +3,7 @@ import { navigate } from '../App';
 import { LearningEngine } from '../utils/LearningEngine';
 import { DAN_LEVELS, getNextDan } from '../data/danLevels';
 import { CountUp } from '../components/CountUp';
+import { Confetti } from '../components/Confetti';
 
 // 段位ランク到達で新たに解禁されるコンテンツ
 function unlocksOnRank(rank: number): string[] {
@@ -194,26 +195,25 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
 
         {currentRank > 0 ? (
           <>
-            <h2 className="section-h">取得済みの段位（タップで再挑戦・メダル改善）</h2>
-            <div className="dan-list">
+            <h2 className="section-h">📜 段位パスポート</h2>
+            <p className="dan-retry-hint">タップで再挑戦・メダル改善。記録は上書きされます。</p>
+            <div className="dan-passport">
               {DAN_LEVELS.filter((d) => d.rank <= currentRank).map((d) => {
                 const medal = state.danMedals?.[d.rank];
+                const medalIcon = medal === 'gold' ? '🥇' : medal === 'silver' ? '🥈' : medal === 'bronze' ? '🥉' : '✅';
                 return (
                   <button
                     key={d.rank}
-                    className={`dan-pill dan-pill-clickable medal-${medal || 'none'}`}
+                    className={`dan-stamp dan-stamp-${medal || 'none'}`}
                     onClick={() => start(d.rank)}
-                    aria-label={`${d.name} を再挑戦（現在のメダル: ${medal ? BADGE_LABEL[medal] : 'なし'}）`}
+                    aria-label={`${d.name} を再挑戦（現在のメダル: ${medal ? BADGE_LABEL[medal] : 'クリア'}）`}
                   >
-                    {d.name}
-                    {medal && <span className="dan-medal"> {BADGE_LABEL[medal]}</span>}
+                    <span className="dan-stamp-medal" aria-hidden="true">{medalIcon}</span>
+                    <span className="dan-stamp-name">{d.name}</span>
                   </button>
                 );
               })}
             </div>
-            <p className="dan-retry-hint">
-              💡 より良いメダル（金/銀）を狙って再挑戦できます。記録は上書きされます。
-            </p>
           </>
         ) : (
           <p className="dan-empty">まだ段位を取得していません。初挑戦で 10級 を取得しよう！</p>
@@ -238,6 +238,8 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
     const kpReward = result.newDan && selected ? selected * 1000 : 0;
     return (
       <div className="screen result-screen">
+        {result.newDan && <Confetti count={50} />}
+        <div className="result-symbol" aria-hidden="true">{result.newDan ? '🛡' : result.medal === '金' ? '🥇' : result.medal === '銀' ? '🥈' : '🥉'}</div>
         <h1 className={`result-title ${result.newDan ? 'celebrate' : ''}`}>
           {result.newDan ? '🎉 昇段おめでとう！' : 'クリア！'}
         </h1>

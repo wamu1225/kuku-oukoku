@@ -32,12 +32,16 @@ export function Collection({ state }: { state: KukuState }) {
 
       {Object.entries(grouped).map(([cat, items]) => {
         const catOwned = items.filter((i) => owned.has(i.id)).length;
+        const ratio = catOwned / items.length;
         return (
           <section key={cat} className="collection-section">
             <h2 className="section-h collection-section-h">
               <span>{CATEGORY_LABEL[cat] ?? cat}</span>
               <span className="collection-section-count">{catOwned} / {items.length}</span>
             </h2>
+            <div className="collection-section-progress" aria-hidden="true">
+              <div className="collection-section-progress-bar" style={{ width: `${ratio * 100}%` }} />
+            </div>
             <div className="collection-grid">
               {items.map((item) => {
                 const has = owned.has(item.id);
@@ -48,6 +52,7 @@ export function Collection({ state }: { state: KukuState }) {
                     title={has ? item.desc : `${CATEGORY_LABEL[cat]}（未獲得）`}
                     style={has ? { borderColor: item.color } : { borderColor: item.color + '33' }}
                   >
+                    {has && <span className="collection-shine" aria-hidden="true" />}
                     <span className="collection-emoji" aria-hidden="true">{has ? item.emoji : '🔒'}</span>
                     <span className="collection-name">{has ? item.name : '？？？'}</span>
                     <span className="collection-desc">{has ? item.desc : 'まだ未獲得'}</span>

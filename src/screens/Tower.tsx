@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { navigate } from '../App';
 import type { KukuState } from '../types';
 import { LearningEngine } from '../utils/LearningEngine';
+import { Confetti } from '../components/Confetti';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
 const STAGES = [
@@ -196,8 +197,11 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
 
   if (phase === 'done') {
     const tier = getTier(score);
+    const showConfetti = score >= 300;
     return (
       <div className="screen result-screen">
+        {showConfetti && <Confetti count={45} />}
+        <div className="result-symbol" aria-hidden="true">🚀</div>
         <h1 className="result-title">🗼 {tier.name}に到達！</h1>
         <div className="result-stats">
           <div><span className="result-label">到達高度</span><span className="result-value">{score}m</span></div>

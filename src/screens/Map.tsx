@@ -42,6 +42,14 @@ export function Map({ state }: { state: KukuState }) {
         </div>
       )}
 
+      <div className="map-legend" aria-hidden="true">
+        <span className="map-legend-item map-region-basic">1〜3 はじまりの里</span>
+        <span className="map-legend-item map-region-mid">4〜6 みどりの森</span>
+        <span className="map-legend-item map-region-adv">7〜9 雷の山</span>
+        {size === 20 && <span className="map-legend-item map-region-legend">10〜20 でんせつの地</span>}
+        <span className="map-legend-mastered">🌼 マスタ済</span>
+      </div>
+
       <div className={`kuku-map kuku-map-${size}`}>
         <div className="kuku-map-row kuku-map-header">
           <div className="kuku-map-cell kuku-map-corner">×</div>
@@ -52,9 +60,13 @@ export function Map({ state }: { state: KukuState }) {
         {Array.from({ length: size }, (_, a) => {
           const row = a + 1;
           const isMastered = masteredRows.has(row);
+          const region = row <= 3 ? 'basic' : row <= 6 ? 'mid' : row <= 9 ? 'adv' : 'legend';
           return (
-            <div key={row} className={`kuku-map-row ${isMastered ? 'mastered' : ''}`}>
-              <div className="kuku-map-cell kuku-map-head">{row}</div>
+            <div key={row} className={`kuku-map-row map-row-${region} ${isMastered ? 'mastered' : ''}`}>
+              <div className="kuku-map-cell kuku-map-head">
+                {row}
+                {isMastered && <span className="map-row-flag" aria-hidden="true">🌼</span>}
+              </div>
               {Array.from({ length: size }, (_, b) => (
                 <div key={b} className="kuku-map-cell" title={`${row} × ${b + 1} = ${row * (b + 1)}`}>
                   {row * (b + 1)}

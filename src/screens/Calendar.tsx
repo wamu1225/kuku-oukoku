@@ -30,24 +30,31 @@ export function Calendar({ state }: { state: KukuState }) {
   const streak = state.dailyStreak?.count ?? 0;
   const studyDaysInMonth = cells.filter((c) => c.studied).length;
 
+  // 炎サイズ・色：streak に応じて段階化
+  const flameTier = streak === 0 ? 0 : streak < 3 ? 1 : streak < 7 ? 2 : streak < 14 ? 3 : streak < 30 ? 4 : 5;
+  const flameEmoji = streak === 0 ? '🕯️' : streak < 3 ? '🔥' : streak < 30 ? '🔥' : '🌟';
+  const flameSize = [28, 36, 48, 60, 72, 88][flameTier];
+
   return (
     <div className="screen">
       <h1 className="screen-title">📅 がくしゅうカレンダー</h1>
-      <p className="screen-desc">
-        まいにち少しずつでも続けるのが上達のコツ。今のれんぞく日数：<strong>{streak}日</strong>
-        {streak < 3 && (
-          <span className="streak-hint"> — あと <strong>{3 - streak}日</strong> で「時空の時計」メダル！</span>
-        )}
-        {streak >= 3 && streak < 7 && (
-          <span className="streak-hint"> — あと <strong>{7 - streak}日</strong> で 1 週間達成！</span>
-        )}
-        {streak >= 7 && streak < 30 && (
-          <span className="streak-hint"> — あと <strong>{30 - streak}日</strong> で 1 ヶ月連続！</span>
-        )}
-        {streak >= 30 && (
-          <span className="streak-hint"> — すごい！1 ヶ月以上の連続学習達成 🎉</span>
-        )}
-      </p>
+
+      <div className="streak-hero">
+        <div className={`streak-flame streak-flame-${flameTier}`} style={{ fontSize: flameSize }} aria-hidden="true">
+          {flameEmoji}
+        </div>
+        <div className="streak-hero-text">
+          <div className="streak-hero-count"><strong>{streak}</strong> 日 れんぞく</div>
+          <div className="streak-hero-hint">
+            {streak < 3 && <>あと <strong>{3 - streak}日</strong> で「時空の時計」メダル！</>}
+            {streak >= 3 && streak < 7 && <>あと <strong>{7 - streak}日</strong> で 1 週間達成！</>}
+            {streak >= 7 && streak < 30 && <>あと <strong>{30 - streak}日</strong> で 1 ヶ月連続！</>}
+            {streak >= 30 && <>すごい！1 ヶ月以上の連続学習達成 🎉</>}
+          </div>
+        </div>
+      </div>
+
+      <p className="screen-desc">まいにち少しずつでも続けるのが上達のコツ。</p>
 
       <div className="calendar-controls">
         <button onClick={() => setOffset((o) => o - 1)} aria-label="前の月">← 前</button>

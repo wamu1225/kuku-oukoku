@@ -101,9 +101,32 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
 
   const season = getCurrentSeasonal();
 
+  // 王国イラスト要素：城のサイズ・なかまアバター
+  const castleSize = (state.prestigeCount || 0) >= 5 ? '🏯' : (state.prestigeCount || 0) >= 2 ? '🏰' : '🏘️';
+  const ownedCompanions = COMPANIONS.filter((c) => (state.companions[c.level] || 0) > 0);
+
   return (
     <div className="screen empire-screen" style={{ background: season.bg, padding: '16px', borderRadius: 'var(--radius-lg)' }}>
       <h1 className="screen-title">🏰 おうこく</h1>
+
+      <div className="kingdom-banner" aria-hidden="true">
+        <div className="kingdom-sky" />
+        <div className="kingdom-ground">
+          <div className="kingdom-castle">{castleSize}</div>
+          <div className="kingdom-companions">
+            {ownedCompanions.slice(0, 12).map((c) => (
+              <span key={c.level} className="kingdom-mate" title={c.name}>{c.emoji}</span>
+            ))}
+            {ownedCompanions.length === 0 && (
+              <span className="kingdom-empty-hint">なかまを呼んでにぎわせよう</span>
+            )}
+          </div>
+        </div>
+        <p className="kingdom-banner-name">
+          <strong>{empireName}</strong> <span className="kingdom-banner-level">{empireLevel}</span>
+        </p>
+      </div>
+
       <p className="season-banner" style={{ borderLeftColor: season.accent }}>
         <span aria-hidden="true">{season.emoji}</span> 今月のおうこく：<strong>{season.name}</strong>
       </p>

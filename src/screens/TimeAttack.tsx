@@ -3,6 +3,7 @@ import { navigate } from '../App';
 import { LearningEngine } from '../utils/LearningEngine';
 import { vibrate } from '../utils/haptics';
 import { CountUp } from '../components/CountUp';
+import { Confetti } from '../components/Confetti';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
 const BADGE_LABEL: Record<string, string> = { gold: '金', silver: '銀', bronze: '銅', clear: 'クリア' };
@@ -137,9 +138,12 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
     if (secs >= 15 && secs < 25) next = { medal: '🥇 金', gap: secs - 15 };
     else if (secs >= 25 && secs < 40) next = { medal: '🥈 銀', gap: secs - 25 };
     else if (secs >= 40) next = { medal: '🥉 銅', gap: secs - 40 };
+    const showConfetti = result.isNewBest || result.badge === '金';
     return (
       <div className="screen result-screen">
-        <h1 className="result-title">{result.isNewBest ? '✨ 自己ベスト更新！ ✨' : 'クリア！🎉'}</h1>
+        {showConfetti && <Confetti count={45} />}
+        <div className="result-symbol" aria-hidden="true">{result.badge === '金' ? '🥇' : result.badge === '銀' ? '🥈' : result.badge === '銅' ? '🥉' : '✨'}</div>
+        <h1 className="result-title">{result.isNewBest ? '自己ベスト更新！' : 'クリア！'}</h1>
         <div className="result-stats">
           <div><span className="result-label">タイム</span><span className="result-value">{secs.toFixed(2)}秒</span></div>
           <div><span className="result-label">メダル</span><span className="result-value">{result.badge}</span></div>

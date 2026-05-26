@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { navigate } from '../App';
 import type { KukuState } from '../types';
 import { LearningEngine } from '../utils/LearningEngine';
+import { Confetti } from '../components/Confetti';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
 const PROBLEMS_COUNT = 20;
@@ -192,7 +193,9 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
   if (phase === 'success') {
     return (
       <div className="screen result-screen">
-        <h1 className="result-title">🌟 試練の門が開いた！</h1>
+        <Confetti count={60} />
+        <div className="result-symbol" aria-hidden="true">🌟</div>
+        <h1 className="result-title celebrate">🌟 試練の門が開いた！</h1>
         <p>新たな道が見えた。10 の段が解禁されたよ。</p>
         <div className="result-stats">
           <div><span className="result-label">報酬</span><span className="result-value">+5,000 KP</span></div>

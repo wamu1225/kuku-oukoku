@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { navigate } from '../App';
 import type { KukuState } from '../types';
 import { LearningEngine } from '../utils/LearningEngine';
+import { Confetti } from '../components/Confetti';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
 const STAGES = [
@@ -191,9 +192,12 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
   }
 
   if (phase === 'done' && result) {
+    const showConfetti = result.medal === '金';
     return (
       <div className="screen result-screen">
-        <h1 className="result-title">クリア！🎉</h1>
+        {showConfetti && <Confetti count={40} />}
+        <div className="result-symbol" aria-hidden="true">🌫</div>
+        <h1 className="result-title">クリア！</h1>
         <div className="result-stats">
           <div><span className="result-label">タイム</span><span className="result-value">{(result.timeMs / 1000).toFixed(2)}秒</span></div>
           <div><span className="result-label">メダル</span><span className="result-value">{result.medal}</span></div>

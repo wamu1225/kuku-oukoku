@@ -3,6 +3,7 @@ import { navigate } from '../App';
 import type { KukuState } from '../types';
 import { LearningEngine } from '../utils/LearningEngine';
 import { IdleManager } from '../utils/IdleManager';
+import { Confetti } from '../components/Confetti';
 
 const STAGES = [
   { id: '3', name: 'はじまりの草原', max: 3, unlockRank: 1, color: '#22c55e' },
@@ -222,8 +223,11 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
   }
 
   if (phase === 'done' && result) {
+    const showConfetti = result.count >= 10 || result.combo >= 5;
     return (
       <div className="screen result-screen">
+        {showConfetti && <Confetti count={40} />}
+        <div className="result-symbol" aria-hidden="true">⚔️</div>
         <h1 className="result-title">{stage!.name} 終了！</h1>
         <div className="result-stats">
           <div><span className="result-label">撃破数</span><span className="result-value">{result.count}体</span></div>
@@ -242,13 +246,21 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
     <div className="screen battle-screen">
       <div className="quiz-header">
         <span className="quiz-counter">⏱ {((30000 - elapsed) / 1000).toFixed(1)}秒</span>
-        <span className="quiz-counter">⚔️ {defeated}体撃破</span>
-        <span className="quiz-counter">🔥 {combo}コンボ</span>
+        <span className="quiz-counter">⚔️ {defeated}体</span>
+        <span className={`quiz-counter combo-counter combo-${combo >= 5 ? 'hot' : combo >= 3 ? 'warm' : ''}`}>
+          🔥 {combo}コンボ
+        </span>
       </div>
 
       <div className={`battle-enemy ${feedback === 'correct' ? 'hit' : feedback === 'wrong' ? 'shake' : ''}`}>
         <div className="enemy-emoji" aria-hidden="true">👾</div>
         <div className="enemy-hp">この数を作ろう：<strong>{hp}</strong></div>
+        <div className="enemy-hp-bar" aria-hidden="true">
+          {/* HP visualization: 横並び block 表現（HP / stage.max で 0-9 段階） */}
+          {Array.from({ length: Math.max(1, Math.ceil(hp / 9)) }, (_, i) => (
+            <span key={i} className="enemy-hp-block" />
+          ))}
+        </div>
       </div>
 
       <div className="battle-formula-line">
