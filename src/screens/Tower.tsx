@@ -247,7 +247,7 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
               {/* 階層マーカー */}
               {BG_TIERS.slice().reverse().map((t) => (
                 <div key={t.name} className="tower-tier-mark" style={{ bottom: `${positionForScore(t.from)}%` }}>
-                  <span className="tower-tier-mark-label">{t.from}m {t.name}</span>
+                  <span className="tower-tier-mark-label">{t.from}m</span>
                   <span className="tower-tier-mark-line" />
                 </div>
               ))}
