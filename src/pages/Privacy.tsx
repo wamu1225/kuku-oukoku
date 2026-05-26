@@ -66,13 +66,13 @@ export function Privacy() {
 
       <h2>次におすすめ</h2>
       <ul>
-        <li><a href="/kuku-oukoku/" onClick={(e) => { e.preventDefault(); navigate('/'); }}>ホームへ戻る</a></li>
+        <li><a href="/kuku-oukoku/" onClick={(e) => { e.preventDefault(); navigate('/'); }}>ホームへ</a></li>
         <li><a href="/kuku-oukoku/guide/" onClick={(e) => { e.preventDefault(); navigate('/guide/'); }}>あそびかたガイド</a></li>
         <li><a href="/kuku-oukoku/about/" onClick={(e) => { e.preventDefault(); navigate('/about/'); }}>このサイトについて</a></li>
       </ul>
 
       <div className="cta-row">
-        <button className="btn-primary" onClick={() => navigate('/')}>ホームへ戻る</button>
+        <button className="btn-primary" onClick={() => navigate('/')}>ホームへ</button>
       </div>
     </div>
   );

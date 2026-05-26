@@ -15,8 +15,10 @@ export function Map({ state }: { state: KukuState }) {
     if (medal) {
       const r = parseInt(rank);
       // map dan rank to row (e.g. 10級=rank1 → row1, 初段=rank11 → row10)
-      if (r >= 1 && r <= 9) masteredRows.add(r); // 10〜2級
+      if (r >= 1 && r <= 9) masteredRows.add(r); // 10〜2級 → 1〜9 の段
+      else if (r === 10) [1, 2, 3, 4, 5, 6, 7, 8, 9].forEach((x) => masteredRows.add(x)); // 1級 = 1〜9 段ランダムマスタ → 全段ハイライト
       else if (r >= 11 && r <= 21) masteredRows.add(r - 1); // 初段(11)→10, 二段(12)→11 ... 皆伝(21)→20
+      // 名人(22), 伝説(23) は mixed-source なので個別段マッピングなし
     }
   });
 

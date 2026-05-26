@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { navigate } from '../App';
 import type { KukuState } from '../types';
 import { LearningEngine } from '../utils/LearningEngine';
+import { IdleManager } from '../utils/IdleManager';
 
 const STAGES = [
   { id: '3', name: 'はじまりの草原', max: 3, unlockRank: 1, color: '#22c55e' },
@@ -57,7 +58,12 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
   const maxComboRef = useRef(0);
   const stageRef = useRef<(typeof STAGES)[number] | null>(null);
   const endedRef = useRef(false);
+  const feedbackTimerRef = useRef<number | null>(null);
   const [result, setResult] = useState<{ count: number; combo: number; kpGain: number } | null>(null);
+
+  useEffect(() => {
+    return () => { if (feedbackTimerRef.current) window.clearTimeout(feedbackTimerRef.current); };
+  }, []);
 
   const start = (s: (typeof STAGES)[number]) => {
     setStage(s);
@@ -135,7 +141,9 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
         setMaxCombo(newMaxCombo);
         setFeedback('correct');
         // 正解は 700ms に延長：式 + ⚔️ 表示をプレイヤーが視認できる時間を確保
-        window.setTimeout(() => {
+        if (feedbackTimerRef.current) window.clearTimeout(feedbackTimerRef.current);
+        feedbackTimerRef.current = window.setTimeout(() => {
+          feedbackTimerRef.current = null;
           setFeedback(null);
           setSelected([]);
           const newHp = generateHP(stage!.max);
@@ -146,7 +154,9 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
         setFeedback('wrong');
         comboRef.current = 0;
         setCombo(0);
-        window.setTimeout(() => {
+        if (feedbackTimerRef.current) window.clearTimeout(feedbackTimerRef.current);
+        feedbackTimerRef.current = window.setTimeout(() => {
+          feedbackTimerRef.current = null;
           setFeedback(null);
           setSelected([]);
         }, 700);
@@ -218,7 +228,7 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
         <div className="result-stats">
           <div><span className="result-label">撃破数</span><span className="result-value">{result.count}体</span></div>
           <div><span className="result-label">最大コンボ</span><span className="result-value">{result.combo}</span></div>
-          <div><span className="result-label">獲得 KP</span><span className="result-value">+{result.kpGain}</span></div>
+          <div><span className="result-label">獲得 KP</span><span className="result-value">+{IdleManager.formatBigNumber(result.kpGain)}</span></div>
         </div>
         <div className="result-actions">
           <button className="btn-primary" onClick={() => { setPhase('select'); setResult(null); }}>もう一度</button>

@@ -147,7 +147,7 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
             🔒 まずはおうこくでなかまをじっくり集めましょう。条件が整ったときに、自然と道が開きます。
           </div>
           <div className="cta-row">
-            <button className="btn-secondary" onClick={() => navigate('/empire/')}>おうこくへ戻る</button>
+            <button className="btn-secondary" onClick={() => navigate('/empire/')}>← おうこくへ</button>
           </div>
         </div>
       );
@@ -179,7 +179,7 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
           <button className="btn-primary big" onClick={start}>
             ⚔️ 挑戦する
           </button>
-          <button className="btn-secondary" onClick={() => navigate('/empire/')}>おうこくへ戻る</button>
+          <button className="btn-secondary" onClick={() => navigate('/empire/')}>← おうこくへ</button>
         </div>
       </div>
     );

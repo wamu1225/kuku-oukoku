@@ -49,6 +49,7 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
     return () => {
       if (advanceTimerRef.current) window.clearTimeout(advanceTimerRef.current);
       if (wrongTimerRef.current) window.clearTimeout(wrongTimerRef.current);
+      if (floatTimerRef.current) window.clearTimeout(floatTimerRef.current);
     };
   }, []);
 
@@ -186,11 +187,9 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
 
   if (phase === 'countdown') {
     return (
-      <div className="screen tower-screen" style={{ background: BG_TIERS[BG_TIERS.length - 1].bg, minHeight: 300 }}>
-        <div className="tower-overlay countdown-screen">
-          <p className="countdown-ready">Ready...</p>
-          <p key={countdown} className="countdown-number pop">{countdown}</p>
-        </div>
+      <div className="screen tower-screen tower-countdown-screen" style={{ background: BG_TIERS[BG_TIERS.length - 1].bg }}>
+        <p className="countdown-ready" style={{ color: '#fff' }}>Ready...</p>
+        <p key={countdown} className="countdown-number pop" style={{ color: '#fff' }}>{countdown}</p>
       </div>
     );
   }

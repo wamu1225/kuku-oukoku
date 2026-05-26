@@ -65,7 +65,7 @@ export function About() {
       </ul>
 
       <div className="cta-row">
-        <button className="btn-primary" onClick={() => navigate('/')}>ホームへ戻る</button>
+        <button className="btn-primary" onClick={() => navigate('/')}>ホームへ</button>
         <button className="btn-secondary" onClick={() => navigate('/privacy/')}>プライバシーポリシー</button>
       </div>
     </div>

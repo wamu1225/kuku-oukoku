@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { navigate } from '../App';
 import type { KukuState } from '../types';
 import { LearningEngine } from '../utils/LearningEngine';
@@ -30,11 +30,17 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
   const [state, setState] = useState(initialState);
   const [now, setNow] = useState(Date.now());
   const [popLevel, setPopLevel] = useState<number | null>(null);
+  const popTimerRef = useRef<number | null>(null);
 
   const triggerPop = (level: number) => {
     setPopLevel(level);
-    window.setTimeout(() => setPopLevel((p) => (p === level ? null : p)), 700);
+    if (popTimerRef.current) window.clearTimeout(popTimerRef.current);
+    popTimerRef.current = window.setTimeout(() => setPopLevel((p) => (p === level ? null : p)), 700);
   };
+
+  useEffect(() => {
+    return () => { if (popTimerRef.current) window.clearTimeout(popTimerRef.current); };
+  }, []);
 
   useEffect(() => setState(initialState), [initialState]);
 
@@ -175,7 +181,7 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
           <div className="trial-gate-emoji" aria-hidden="true">🌑</div>
           <div className="trial-gate-body">
             <h2>暗黒の試練の門</h2>
-            <p>9 の段のなかまの加護を得たあなたに、新たな扉が現れた。挑むと 10 の段とその先への道が開く。</p>
+            <p>9 の段のなかまの加護を得たあなたに、新たな扉が現れた。何が起きるかは、挑んで確かめよう。</p>
             <button className="btn-primary" onClick={() => navigate('/trial/')}>門に挑む</button>
           </div>
         </div>

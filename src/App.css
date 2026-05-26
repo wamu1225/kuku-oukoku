@@ -1074,6 +1074,13 @@ main { padding: 20px 16px 40px; }
 /* Tower */
 .tower-screen { max-width: 480px; padding: 16px; border-radius: var(--radius-lg); transition: background 0.5s; }
 .tower-overlay { background: rgba(255, 255, 255, 0.92); padding: 16px; border-radius: var(--radius-lg); }
+.tower-countdown-screen {
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
 
 /* Blank */
 .quiz-blank {

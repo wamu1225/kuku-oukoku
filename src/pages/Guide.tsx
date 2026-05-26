@@ -125,7 +125,7 @@ export function Guide() {
       </ul>
 
       <div className="cta-row">
-        <button className="btn-primary" onClick={() => navigate('/')}>ホームへ戻る</button>
+        <button className="btn-primary" onClick={() => navigate('/')}>ホームへ</button>
         <button className="btn-secondary" onClick={() => navigate('/about/')}>このサイトについて</button>
       </div>
     </div>

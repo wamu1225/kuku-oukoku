@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import './App.css';
 import { LearningEngine } from './utils/LearningEngine';
 import { IdleManager } from './utils/IdleManager';
@@ -63,6 +63,7 @@ function App() {
   const [pathname, setPathname] = useState(typeof window !== 'undefined' ? window.location.pathname : '/');
   const [state, setState] = useState<KukuState>(() => LearningEngine.loadState());
   const [offlineNotice, setOfflineNotice] = useState<string | null>(null);
+  const offlineTimerRef = useRef<number | null>(null);
 
   const refresh = useCallback(() => {
     setState(LearningEngine.loadState());
@@ -83,7 +84,8 @@ function App() {
     setState(s);
     if (shouldNotify && offlineKp > 0) {
       setOfflineNotice(`おかえり！るすばん中に ${IdleManager.formatBigNumber(offlineKp)} KP ためたよ`);
-      window.setTimeout(() => setOfflineNotice(null), 5000);
+      if (offlineTimerRef.current) window.clearTimeout(offlineTimerRef.current);
+      offlineTimerRef.current = window.setTimeout(() => setOfflineNotice(null), 5000);
     }
 
     const onVisibility = () => {
@@ -95,14 +97,21 @@ function App() {
       }
     };
     document.addEventListener('visibilitychange', onVisibility);
-    return () => document.removeEventListener('visibilitychange', onVisibility);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      if (offlineTimerRef.current) window.clearTimeout(offlineTimerRef.current);
+    };
   }, []);
 
   const route = parseRoute(pathname);
 
   return (
     <>
-      <a href={`${BASE}/`} className="skip-link" onClick={(e) => { e.preventDefault(); navigate('/'); }}>
+      <a href="#main" className="skip-link" onClick={(e) => {
+        e.preventDefault();
+        const m = document.getElementById('main');
+        if (m) { m.scrollIntoView(); (m.querySelector('h1') as HTMLElement | null)?.focus?.(); }
+      }}>
         メインコンテンツへスキップ
       </a>
       {offlineNotice && (

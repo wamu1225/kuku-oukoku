@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { navigate } from '../App';
 import { LearningEngine } from '../utils/LearningEngine';
 import { KUKU_READINGS } from '../data/kukuReadings';
@@ -8,7 +8,8 @@ import { vibrate } from '../utils/haptics';
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
 
 export function Learning({ level, onComplete }: { level: number; onComplete: () => void }) {
-  const showHint = LearningEngine.loadState().settings?.showAnswerHint === true;
+  // 設定は mount 時に 1 度だけ読む（render 毎の localStorage アクセス防止）
+  const showHint = useMemo(() => LearningEngine.loadState().settings?.showAnswerHint === true, []);
   const [phase, setPhase] = useState<'list' | 'quiz' | 'done'>('list');
   const [index, setIndex] = useState(0);
   const [input, setInput] = useState('');
