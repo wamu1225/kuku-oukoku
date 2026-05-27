@@ -3,6 +3,7 @@ import { navigate } from '../App';
 import type { KukuState } from '../types';
 import { LearningEngine } from '../utils/LearningEngine';
 import { Confetti } from '../components/Confetti';
+import { vibrateCorrect, vibrateWrong } from '../utils/haptics';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
 const STAGES = [
@@ -108,6 +109,7 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
     const maxLen = current.answer.toString().length;
     if (next.length > maxLen) return;
     if (parseInt(next) === current.answer) {
+      vibrateCorrect();
       setInput(next);
       setFlashCorrect(true);
       advanceTimerRef.current = window.setTimeout(() => {
@@ -120,7 +122,7 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
         }
       }, 250);
     } else if (next.length === maxLen) {
-      if (typeof navigator !== 'undefined' && navigator.vibrate) try { navigator.vibrate([60, 40, 60]); } catch { /* ignore */ }
+      vibrateWrong();
       setInput(next);
       setFlashWrong(true);
       wrongTimerRef.current = window.setTimeout(() => {

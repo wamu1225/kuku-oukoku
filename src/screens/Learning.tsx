@@ -4,7 +4,7 @@ import { LearningEngine } from '../utils/LearningEngine';
 import { KUKU_READINGS } from '../data/kukuReadings';
 import { DotGrid } from '../components/DotGrid';
 import { Confetti } from '../components/Confetti';
-import { vibrate } from '../utils/haptics';
+import { vibrateCorrect, vibrateWrong } from '../utils/haptics';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
 
@@ -59,7 +59,7 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
     const maxLen = answer.toString().length;
     if (next.length > maxLen) return;
     if (parseInt(next) === answer) {
-      vibrate(20);
+      vibrateCorrect();
       setShowSuccess(true);
       setInput(next);
       successTimerRef.current = window.setTimeout(() => {
@@ -75,7 +75,7 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
       }, 400);
     } else if (next.length === maxLen) {
       // 桁数に達したのに正解と一致しない → 不正解
-      if (typeof navigator !== 'undefined' && navigator.vibrate) try { navigator.vibrate([60, 40, 60]); } catch { /* ignore */ }
+      vibrateWrong();
       setInput(next);
       setFlashWrong(true);
       wrongTimerRef.current = window.setTimeout(() => {

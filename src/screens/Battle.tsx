@@ -4,6 +4,7 @@ import type { KukuState } from '../types';
 import { LearningEngine } from '../utils/LearningEngine';
 import { IdleManager } from '../utils/IdleManager';
 import { Confetti } from '../components/Confetti';
+import { vibrateCorrect, vibrateWrong } from '../utils/haptics';
 
 const STAGES = [
   { id: '3', name: 'はじまりの草原', max: 3, unlockRank: 1, color: '#22c55e' },
@@ -131,6 +132,7 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
     if (next.length === 2) {
       const product = cards[next[0]] * cards[next[1]];
       if (product === hp) {
+        vibrateCorrect();
         const newDefeated = defeated + 1;
         const newCombo = combo + 1;
         const newMaxCombo = Math.max(maxCombo, newCombo);
@@ -152,6 +154,7 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
           setCards(generateCards(newHp, stage!.max, 5));
         }, 700);
       } else {
+        vibrateWrong();
         setFeedback('wrong');
         comboRef.current = 0;
         setCombo(0);

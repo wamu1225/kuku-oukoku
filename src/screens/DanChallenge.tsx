@@ -4,6 +4,7 @@ import { LearningEngine } from '../utils/LearningEngine';
 import { DAN_LEVELS, getNextDan } from '../data/danLevels';
 import { CountUp } from '../components/CountUp';
 import { Confetti } from '../components/Confetti';
+import { vibrateCorrect, vibrateWrong } from '../utils/haptics';
 
 // 段位ランク到達で新たに解禁されるコンテンツ
 function unlocksOnRank(rank: number): string[] {
@@ -123,6 +124,7 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
     const maxLen = ans.toString().length;
     if (next.length > maxLen) return;
     if (parseInt(next) === ans) {
+      vibrateCorrect();
       setInput(next);
       setFlashCorrect(true);
       advanceTimerRef.current = window.setTimeout(() => {
@@ -135,7 +137,7 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
         }
       }, 250);
     } else if (next.length === maxLen) {
-      if (typeof navigator !== 'undefined' && navigator.vibrate) try { navigator.vibrate([60, 40, 60]); } catch { /* ignore */ }
+      vibrateWrong();
       setInput(next);
       setFlashWrong(true);
       wrongTimerRef.current = window.setTimeout(() => {

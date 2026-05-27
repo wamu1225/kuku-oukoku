@@ -848,6 +848,15 @@ main { padding: 20px 16px 40px; }
   padding: 8px 0;
 }
 .settings-row input { width: 20px; height: 20px; }
+.settings-row-disabled { opacity: 0.55; }
+.settings-row-disabled input { cursor: not-allowed; }
+.settings-row-note {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: normal;
+  margin-top: 2px;
+}
 .stats-list { margin: 0; }
 .stats-list > div {
   display: flex;

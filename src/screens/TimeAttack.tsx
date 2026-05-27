@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { navigate } from '../App';
 import { LearningEngine } from '../utils/LearningEngine';
-import { vibrate } from '../utils/haptics';
+import { vibrateCorrect, vibrateWrong } from '../utils/haptics';
 import { CountUp } from '../components/CountUp';
 import { Confetti } from '../components/Confetti';
 
@@ -85,7 +85,7 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
     const maxLen = answer.toString().length;
     if (next.length > maxLen) return;
     if (parseInt(next) === answer) {
-      vibrate(15);
+      vibrateCorrect();
       setInput(next);
       setFlashCorrect(true);
       advanceTimerRef.current = window.setTimeout(() => {
@@ -98,7 +98,7 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
         }
       }, 250);
     } else if (next.length === maxLen) {
-      if (typeof navigator !== 'undefined' && navigator.vibrate) try { navigator.vibrate([60, 40, 60]); } catch { /* ignore */ }
+      vibrateWrong();
       setInput(next);
       setFlashWrong(true);
       wrongTimerRef.current = window.setTimeout(() => {

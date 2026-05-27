@@ -38,11 +38,36 @@ const getInitialState = (): KukuState => ({
   studyHistory: [],
 });
 
+// dan rank → 段番号 の対応を返す（mixed-segment ranks は null）
+function danRankToSegmentLevel(rank: number): number | null {
+  if (rank >= 1 && rank <= 9) return rank;       // 10級〜2級 → 1〜9の段
+  if (rank >= 11 && rank <= 21) return rank - 1; // 初段〜皆伝 → 10〜20の段
+  // rank 10 (1級: 1-9 mixed), 22 (名人), 23 (伝説) は対応 seal なし
+  return null;
+}
+
 const sanitize = (raw: unknown): KukuState => {
   const init = getInitialState();
   if (!raw || typeof raw !== 'object') return init;
   const p = raw as Partial<KukuState>;
   const merged: KukuState = { ...init, ...p };
+
+  // Migration (2026-05-27): completeDanTest が誤って rank ベースで seal を付与していたバグの掃除
+  // 各 seal_X は「X の段の印」を意味するので、tableBests[X].isCompleted か
+  // 対応する dan medal がない場合は誤付与とみなして除去する。
+  if (merged.wisdomSeals && merged.wisdomSeals.length > 0) {
+    merged.wisdomSeals = merged.wisdomSeals.filter((sealId) => {
+      const m = /^seal_(\d+)$/.exec(sealId);
+      if (!m) return true;
+      const segLv = parseInt(m[1]);
+      if (segLv < 1 || segLv > 20) return false; // seal_21+ は存在しないので除去
+      // 正当な根拠：(a) tableBests[segLv].isCompleted (b) 対応する dan rank の medal がある
+      const learnLegit = (merged.tableBests?.[segLv]?.isCompleted) === true;
+      const danRankForSeg = segLv <= 9 ? segLv : segLv + 1; // 1〜9段→rank=同, 10〜20段→rank=段+1
+      const danLegit = merged.danMedals && merged.danMedals[danRankForSeg] != null;
+      return learnLegit || !!danLegit;
+    });
+  }
   if (!merged.results) merged.results = {};
   if (!merged.tableBests) merged.tableBests = {};
   if (typeof merged.kp !== 'number' || isNaN(merged.kp)) merged.kp = 0;
@@ -109,6 +134,15 @@ function _checkAchievements(state: KukuState) {
     const id = `seal_${l}`;
     if (!hasAny(id) && state.tableBests?.[l]?.isCompleted) add(id);
   }
+  // dan medals からも seal を付与（段番号ベース）
+  Object.keys(state.danMedals || {}).forEach((rankStr) => {
+    const rank = parseInt(rankStr);
+    const segLv = danRankToSegmentLevel(rank);
+    if (segLv !== null) {
+      const id = `seal_${segLv}`;
+      if (!hasAny(id)) add(id);
+    }
+  });
 
   const totalCompanions = Object.values(state.companions || {}).reduce((a, b) => a + b, 0);
   if (!hasAny('treasure_1') && totalCompanions >= 10) add('treasure_1');
@@ -453,9 +487,8 @@ export const LearningEngine = {
     if ((state.danRank || 0) < rank) {
       state.danRank = rank;
       state.kp += rank * 1000;
-      const sealId = `seal_${rank}`;
+      // seal 付与は _checkAchievements 内で dan medal ベースに段番号→seal_X として行う
       if (!state.wisdomSeals) state.wisdomSeals = [];
-      if (!state.wisdomSeals.includes(sealId)) state.wisdomSeals.push(sealId);
     }
 
     if (!state.stats) state.stats = {};
