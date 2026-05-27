@@ -485,10 +485,22 @@ main { padding: 20px 16px 40px; }
   position: absolute;
   left: 50%;
   transform: translate(-50%, 50%);
-  font-size: 28px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
   transition: bottom 0.3s ease-out;
   z-index: 2;
+}
+.tower-player-rocket { font-size: 28px; }
+.tower-player-score {
+  background: rgba(255,255,255,0.95);
+  color: var(--primary-dark);
+  font-weight: 900;
+  font-size: 14px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
 }
 .tower-floating-gain {
   position: absolute;

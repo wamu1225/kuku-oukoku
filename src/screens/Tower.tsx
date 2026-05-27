@@ -43,6 +43,7 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
   const [flashCorrect, setFlashCorrect] = useState(false);
   const [flashWrong, setFlashWrong] = useState(false);
   const [floatingGain, setFloatingGain] = useState<{ value: number; key: number } | null>(null);
+  const [showQuitConfirm, setShowQuitConfirm] = useState(false);
   const advanceTimerRef = useRef<number | null>(null);
   const wrongTimerRef = useRef<number | null>(null);
   const floatTimerRef = useRef<number | null>(null);
@@ -191,7 +192,7 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
   if (phase === 'countdown') {
     return (
       <div className="screen tower-screen tower-countdown-screen" style={{ background: BG_TIERS[BG_TIERS.length - 1].bg }}>
-        <p className="countdown-ready" style={{ color: '#fff' }}>Ready...</p>
+        <p className="countdown-ready" style={{ color: '#fff' }}>よーい…</p>
         <p key={countdown} className="countdown-number pop" style={{ color: '#fff' }}>{countdown}</p>
       </div>
     );
@@ -200,10 +201,21 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
   if (phase === 'done') {
     const tier = getTier(score);
     const showConfetti = score >= 300;
+    // tier 別シンボル
+    const tierSymbol = tier.name === '深宇宙' ? '🌌' : tier.name === '宇宙' ? '🚀' : tier.name === '成層圏' ? '🛰' : tier.name === '雲の上' ? '☁️' : '🌱';
+    // メダル目標との比較
+    const stg = stage;
+    let goalHint = '';
+    if (stg) {
+      if (score >= stg.gold) goalHint = `🥇 金級到達！自己ベスト更新を狙おう`;
+      else if (score >= stg.silver) goalHint = `🥈 銀級。あと ${stg.gold - score}m で 🥇 金へ`;
+      else if (score >= stg.bronze) goalHint = `🥉 銅級。あと ${stg.silver - score}m で 🥈 銀へ`;
+      else goalHint = `あと ${stg.bronze - score}m で 🥉 銅級！`;
+    }
     return (
       <div className="screen result-screen">
         {showConfetti && <Confetti count={45} />}
-        <div className="result-symbol" aria-hidden="true">🚀</div>
+        <div className="result-symbol" aria-hidden="true">{tierSymbol}</div>
         <h1 className="result-title">🗼 {tier.name}に到達！</h1>
         <div className="result-stats">
           <div><span className="result-label">到達高度</span><span className="result-value">{score}m</span></div>
@@ -211,6 +223,7 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
           <div><span className="result-label">問題数</span><span className="result-value">{problemCount}問</span></div>
           <div><span className="result-label">獲得 KP</span><span className="result-value">+{Math.floor(score / 10)}</span></div>
         </div>
+        {goalHint && <p className="result-hint">{goalHint}</p>}
         <div className="result-actions">
           <button className="btn-primary" onClick={() => { setPhase('select'); }}>もう一度</button>
           <button className="btn-secondary" onClick={() => navigate('/')}>ホームへ</button>
@@ -238,12 +251,24 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
   };
   const playerPos = positionForScore(score);
 
+  const remainingSecs = Math.max(0, (30000 - elapsed) / 1000);
   return (
     <div className="screen tower-screen" style={{ background: tier.bg }}>
+      {showQuitConfirm && (
+        <div className="quit-confirm-overlay" role="alertdialog" aria-label="やめる確認">
+          <div className="quit-confirm-card">
+            <p className="quit-confirm-msg">やめてホームに戻りますか？<br/>スコアは記録されません。</p>
+            <div className="quit-confirm-actions">
+              <button className="btn-danger" onClick={() => navigate('/')}>やめる</button>
+              <button className="btn-secondary" onClick={() => setShowQuitConfirm(false)}>つづける</button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="tower-overlay tower-overlay-v2">
         <div className="quiz-header">
-          <span className="quiz-counter tower-time">⏱ {((30000 - elapsed) / 1000).toFixed(1)}秒</span>
-          <span className="quiz-counter tower-tier-label">📍 {tier.name}</span>
+          <span className={`quiz-counter tower-time ${remainingSecs < 5 ? 'time-urgent' : ''}`}>⏱ {remainingSecs.toFixed(1)}秒</span>
+          <span className="quiz-counter tower-tier-label">📍 今は『{tier.name}』</span>
         </div>
 
         <div className="tower-main">
@@ -256,16 +281,17 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
                   <span className="tower-tier-mark-line" />
                 </div>
               ))}
-              {/* プレイヤー位置 */}
+              {/* プレイヤー位置（🚀 + 現在スコアを横に） */}
               <div className="tower-player" style={{ bottom: `${playerPos}%` }}>
-                🚀
+                <span className="tower-player-rocket" aria-hidden="true">🚀</span>
+                <span className="tower-player-score">{score}m</span>
               </div>
-              {/* 浮遊「+ans」 */}
+              {/* 浮遊「+ans」（プレイヤーの少し上から） */}
               {floatingGain && (
                 <div
                   key={floatingGain.key}
                   className="tower-floating-gain"
-                  style={{ bottom: `${playerPos}%` }}
+                  style={{ bottom: `calc(${playerPos}% + 24px)` }}
                 >
                   +{floatingGain.value}m
                 </div>
@@ -274,9 +300,6 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
           </div>
 
           <div className="tower-game-col">
-            <div className={`tower-score-big ${flashCorrect ? 'pulse-up' : ''}`}>
-              <strong>{score}</strong><span>m</span>
-            </div>
             {nextTier && (
               <p className="tower-next-tier-v2">
                 あと <strong>{toNext}m</strong> で <strong>{nextTier.name}</strong> ！
@@ -286,7 +309,7 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
             <div className={`quiz-problem attack-problem ${flashCorrect ? 'flash-correct' : ''} ${flashWrong ? 'flash-wrong' : ''}`}>
               <span className="quiz-equation">{a} × {b} =</span>
               <span className={`quiz-input attack-input ${flashCorrect ? 'success' : ''} ${flashWrong ? 'wrong' : ''}`}>
-                {flashCorrect ? `${ans} ✓` : flashWrong ? '✗' : (input || '?')}
+                {flashCorrect ? `${ans} ✓` : flashWrong ? '✗' : (input || <span className="placeholder-q">?</span>)}
               </span>
             </div>
 
@@ -297,6 +320,10 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
             </div>
           </div>
         </div>
+
+        <button className="btn-link quit-btn" onClick={() => setShowQuitConfirm(true)}>
+          やめる
+        </button>
       </div>
     </div>
   );
