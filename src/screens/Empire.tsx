@@ -26,11 +26,18 @@ function PrestigeBanner({ state, onPrestige }: { state: KukuState; onPrestige: (
   );
 }
 
+const HELP_DISMISSED_KEY = 'kuku-oukoku:empire-help-dismissed';
+
 export function Empire({ state: initialState, onUpdate }: { state: KukuState; onUpdate: () => void }) {
   const [state, setState] = useState(initialState);
   const [now, setNow] = useState(Date.now());
   const [popLevel, setPopLevel] = useState<number | null>(null);
   const popTimerRef = useRef<number | null>(null);
+  const [helpOpen, setHelpOpen] = useState<boolean>(() => {
+    try { return localStorage.getItem(HELP_DISMISSED_KEY) !== '1'; } catch { return true; }
+  });
+  const [showPrestigeConfirm, setShowPrestigeConfirm] = useState(false);
+  const [prestigeNotice, setPrestigeNotice] = useState<string | null>(null);
 
   const triggerPop = (level: number) => {
     setPopLevel(level);
@@ -109,57 +116,61 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
     <div className="screen empire-screen" style={{ background: season.bg, padding: '16px', borderRadius: 'var(--radius-lg)' }}>
       <h1 className="screen-title">🏰 おうこく</h1>
 
-      <div className="kingdom-banner" aria-hidden="true">
-        <div className="kingdom-sky" />
+      <div className="kingdom-banner kingdom-banner-v2">
+        <div className="kingdom-sky" aria-hidden="true" />
         <div className="kingdom-ground">
-          <div className="kingdom-castle">{castleSize}</div>
-          <div className="kingdom-companions">
-            {ownedCompanions.slice(0, 12).map((c) => (
-              <span key={c.level} className="kingdom-mate" title={c.name}>{c.emoji}</span>
-            ))}
-            {ownedCompanions.length === 0 && (
-              <span className="kingdom-empty-hint">なかまを呼んでにぎわせよう</span>
-            )}
+          <div className="kingdom-castle" aria-hidden="true">{castleSize}</div>
+          <div className="kingdom-info">
+            <div className="kingdom-info-rank">
+              <strong>{empireName}</strong> <span className="kingdom-banner-level">{empireLevel}</span>
+            </div>
+            <div className="kingdom-info-season" style={{ color: season.accent }}>
+              <span aria-hidden="true">{season.emoji}</span> {season.name}
+            </div>
           </div>
         </div>
-        <p className="kingdom-banner-name">
-          <strong>{empireName}</strong> <span className="kingdom-banner-level">{empireLevel}</span>
-        </p>
+        <div className="kingdom-companions" aria-hidden="true">
+          {ownedCompanions.slice(0, 14).map((c) => (
+            <span key={c.level} className="kingdom-mate" title={c.name}>{c.emoji}</span>
+          ))}
+          {ownedCompanions.length === 0 && (
+            <span className="kingdom-empty-hint">なかまを呼んでにぎわせよう</span>
+          )}
+        </div>
       </div>
 
-      <p className="season-banner" style={{ borderLeftColor: season.accent }}>
-        <span aria-hidden="true">{season.emoji}</span> 今月のおうこく：<strong>{season.name}</strong>
-      </p>
-
-      <div className="empire-stats-v2">
+      <div className="empire-stats-v3">
         <div className="empire-stat-primary">
           <span className="empire-stat-primary-label">所持 KP</span>
           <span className="empire-stat-primary-value">{IdleManager.formatBigNumber(state.kp)}</span>
-          <span className="empire-stat-primary-sub">+ {IdleManager.formatBigNumber(kps)} / 秒</span>
-        </div>
-        <div className="empire-stat-secondary">
-          <div className="empire-stat empire-stat-rank">
-            <span className="empire-stat-label">{empireName}</span>
-            <span className="empire-stat-value">{empireLevel}</span>
-          </div>
-          <div className="empire-stat empire-stat-comp">
-            <span className="empire-stat-label">なかま合計</span>
-            <span className="empire-stat-value">{totalCompanions}人</span>
-          </div>
+          <span className="empire-stat-primary-sub">+ {IdleManager.formatBigNumber(kps)} / 秒　・　なかま {totalCompanions}人</span>
         </div>
       </div>
 
-      <details className="empire-help">
-        <summary>📖 おうこくのしくみ（タップで開く）</summary>
-        <ul>
-          <li><strong>招待 X KP</strong>：そのなかまを 1 人呼ぶ。コストは段ごと・所持数で増加</li>
-          <li><strong>まとめて招待</strong>：今の KP で買えるだけまとめて呼ぶ（最大 100 まで）</li>
-          <li><strong>熟練度バッジ</strong>：その段の九九を解いた数で銅→銀→金。生産力に倍率（最大 ×2.5）</li>
-          <li><strong>🎉 祝祭</strong>：アタックをクリアするとその段の生産が <strong>30 分間 1.5〜5×</strong>（メダル色で倍率変化）</li>
-          <li><strong>段位ボーナス</strong>：だんいにんていに合格した段は ×2 ボーナス</li>
-          <li>オフライン中も最大 <strong>12 時間</strong> KP がたまる</li>
-        </ul>
-      </details>
+      <div className={`empire-help ${helpOpen ? 'open' : ''}`}>
+        <button
+          className="empire-help-toggle"
+          onClick={() => {
+            const next = !helpOpen;
+            setHelpOpen(next);
+            try { localStorage.setItem(HELP_DISMISSED_KEY, next ? '0' : '1'); } catch { /* ignore */ }
+          }}
+          aria-expanded={helpOpen}
+        >
+          <span>📖 おうこくのしくみ</span>
+          <span className="empire-help-toggle-arrow">{helpOpen ? '▲' : '▼'}</span>
+        </button>
+        {helpOpen && (
+          <ul>
+            <li><strong>招待 X KP</strong>：そのなかまを 1 人呼ぶ。コストは段ごと・所持数で増加</li>
+            <li><strong>まとめて招待</strong>：今の KP で買えるだけまとめて呼ぶ（最大 100 まで）</li>
+            <li><strong>熟練度バッジ</strong>：その段の九九を解いた数で銅→銀→金。生産力に倍率（最大 ×2.5）</li>
+            <li><strong>🎉 祝祭</strong>：アタックをクリアするとその段の生産が <strong>30 分間 1.5〜5×</strong>（メダル色で倍率変化）</li>
+            <li><strong>段位ボーナス</strong>：だんいにんていに合格した段は ×2 ボーナス</li>
+            <li>オフライン中も最大 <strong>12 時間</strong> KP がたまる</li>
+          </ul>
+        )}
+      </div>
 
       {(state.activeQuests?.length ?? 0) > 0 && (
         <section className="quests-section">
@@ -183,13 +194,13 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
                     <span>{q.progress} / {q.target}</span>
                     {q.isCompleted && (
                       <button
-                        className="btn-primary quest-claim"
+                        className="btn-primary quest-claim-big"
                         onClick={() => {
                           const updated = LearningEngine.claimQuest(q.id);
                           setState(updated);
                           onUpdate();
                         }}
-                      >もらう</button>
+                      >🎁 もらう</button>
                     )}
                   </div>
                 </li>
@@ -204,21 +215,42 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
           <div className="trial-gate-emoji" aria-hidden="true">🌑</div>
           <div className="trial-gate-body">
             <h2>暗黒の試練の門</h2>
-            <p>9 の段のなかまの加護を得たあなたに、新たな扉が現れた。何が起きるかは、挑んで確かめよう。</p>
+            <p>9 の段のなかまを得たあなたを認める、特別な門が王国に現れました。挑んで何が起きるか確かめよう！</p>
             <button className="btn-primary" onClick={() => navigate('/trial/')}>門に挑む</button>
           </div>
         </div>
       )}
 
       {state.kp >= IdleManager.getPrestigeCost(state.prestigeCount || 0) && (
-        <PrestigeBanner state={state} onPrestige={() => {
-          const cost = IdleManager.getPrestigeCost(state.prestigeCount || 0);
-          if (!confirm(`王国をランクアップしますか？\n\n・現在 KP (${IdleManager.formatBigNumber(state.kp)}) がすべてリセットされます\n・必要 KP：${IdleManager.formatBigNumber(cost)}\n・なかまは維持されます\n・全体の生産力が永続的に ×2 されます`)) return;
-          const after = LearningEngine.prestige();
-          setState(after);
-          onUpdate();
-          alert('🎉 王国がランクアップした！全体の生産力が永続的にアップしたよ。');
-        }} />
+        <PrestigeBanner state={state} onPrestige={() => setShowPrestigeConfirm(true)} />
+      )}
+
+      {showPrestigeConfirm && (
+        <div className="quit-confirm-overlay" role="alertdialog" aria-label="ランクアップ確認">
+          <div className="quit-confirm-card">
+            <h2 className="prestige-confirm-title">👑 王国をランクアップしますか？</h2>
+            <ul className="prestige-confirm-list">
+              <li>現在の KP <strong>{IdleManager.formatBigNumber(state.kp)}</strong> がリセット</li>
+              <li>必要 KP：<strong>{IdleManager.formatBigNumber(IdleManager.getPrestigeCost(state.prestigeCount || 0))}</strong></li>
+              <li>なかまは <strong>維持</strong> されます</li>
+              <li>生産力が <strong>永続的に ×2</strong></li>
+            </ul>
+            <div className="quit-confirm-actions">
+              <button className="btn-primary" onClick={() => {
+                const after = LearningEngine.prestige();
+                setState(after);
+                onUpdate();
+                setShowPrestigeConfirm(false);
+                setPrestigeNotice('🎉 王国がランクアップした！生産力が永続的にアップ');
+                window.setTimeout(() => setPrestigeNotice(null), 4500);
+              }}>ランクアップ</button>
+              <button className="btn-secondary" onClick={() => setShowPrestigeConfirm(false)}>キャンセル</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {prestigeNotice && (
+        <div className="offline-toast" role="status">{prestigeNotice}</div>
       )}
 
       <div className="companion-list">
@@ -233,6 +265,8 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
           const festivalSecsLeft = festivalActive ? Math.ceil((festivalUntil - now) / 1000) : 0;
           const festivalMM = Math.floor(festivalSecsLeft / 60);
           const festivalSS = festivalSecsLeft % 60;
+          // まとめて招待で何匹買えるか事前計算
+          const maxBuyInfo = owned > 0 ? IdleManager.calculateMaxBuy(comp.level, owned, state.kp) : { count: 0, totalCost: 0 };
 
           return (
             <div key={comp.level} className={`companion-card ${festivalActive ? 'festival-active' : ''} ${popLevel === comp.level ? 'pop-in' : ''}`} style={{ borderColor: festivalActive ? '#ec4899' : comp.color }}>
@@ -250,7 +284,7 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
                     </span>
                   )}
                   {festivalActive && (
-                    <span className="festival-badge">🎉 祝祭中 残 {String(festivalMM).padStart(2, '0')}:{String(festivalSS).padStart(2, '0')}</span>
+                    <span className="festival-badge">🎉 祝祭中 残り {String(festivalMM).padStart(2, '0')}:{String(festivalSS).padStart(2, '0')}</span>
                   )}
                 </div>
               </div>
@@ -262,9 +296,9 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
                 >
                   招待 {IdleManager.formatBigNumber(cost)} KP
                 </button>
-                {owned > 0 && (
+                {owned > 0 && maxBuyInfo.count > 1 && (
                   <button className="btn-invite-max" onClick={() => inviteMax(comp.level)} disabled={!canBuy}>
-                    まとめて招待
+                    まとめて招待 ({maxBuyInfo.count}匹)
                   </button>
                 )}
               </div>

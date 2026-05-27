@@ -1806,6 +1806,85 @@ main { padding: 20px 16px 40px; }
 .kingdom-banner-name strong { font-size: 16px; }
 .kingdom-banner-level { color: var(--primary-dark); font-weight: 900; }
 
+/* Kingdom banner v2: コンパクト・横並び */
+.kingdom-banner-v2 {
+  padding: 10px 14px;
+}
+.kingdom-banner-v2 .kingdom-ground {
+  min-height: 60px;
+  justify-content: flex-start;
+  gap: 16px;
+}
+.kingdom-banner-v2 .kingdom-castle {
+  font-size: 48px;
+}
+.kingdom-info { flex: 1; }
+.kingdom-info-rank { font-size: 16px; color: #1f2937; line-height: 1.2; }
+.kingdom-info-rank strong { font-size: 18px; }
+.kingdom-info-season { font-size: 13px; font-weight: 700; margin-top: 2px; }
+.kingdom-banner-v2 .kingdom-companions {
+  margin-top: 4px;
+  max-width: 100%;
+}
+.kingdom-banner-v2 .kingdom-mate { font-size: 22px; }
+
+/* Empire stats v3 - KP 単独大型表示、なかま数は sub */
+.empire-stats-v3 { margin: 12px 0; }
+.empire-stats-v3 .empire-stat-primary {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 2px solid #f59e0b;
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+}
+.empire-stats-v3 .empire-stat-primary-value { word-break: break-all; }
+
+/* Empire help with toggle button (default open) */
+.empire-help {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 12px 0;
+  overflow: hidden;
+}
+.empire-help-toggle {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  font-weight: 700;
+  color: var(--primary-dark);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+.empire-help-toggle:hover { background: rgba(99, 102, 241, 0.05); }
+.empire-help-toggle-arrow { font-size: 12px; opacity: 0.6; }
+.empire-help ul { padding: 0 16px 14px 32px; margin: 0; font-size: 14px; line-height: 1.7; color: var(--text-muted); }
+
+/* Quest claim big button */
+.quest-claim-big {
+  padding: 8px 18px;
+  font-size: 14px;
+  animation: claim-bounce 1s ease-in-out infinite alternate;
+}
+@keyframes claim-bounce {
+  0% { transform: scale(1); box-shadow: var(--shadow); }
+  100% { transform: scale(1.06); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2); }
+}
+
+/* Prestige confirm modal */
+.prestige-confirm-title { margin: 0 0 12px; color: #b45309; font-size: 18px; }
+.prestige-confirm-list {
+  text-align: left;
+  margin: 0 0 16px;
+  padding-left: 20px;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
 /* === Confetti === */
 .confetti-root {
   position: fixed;
