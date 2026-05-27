@@ -1760,6 +1760,108 @@ main { padding: 20px 16px 40px; }
   font-size: 10px;
 }
 
+/* Map: progress summary */
+.map-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border: 2px solid #fbbf24;
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin: 12px 0;
+  font-size: 15px;
+  flex-wrap: wrap;
+}
+.map-progress-icon { font-size: 20px; }
+.map-progress-text strong { font-size: 20px; color: #b45309; }
+.map-progress-complete {
+  margin-left: auto;
+  background: var(--accent);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 13px;
+  animation: pop-in 0.4s;
+}
+.map-unlock-badge {
+  display: inline-block;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 999px;
+  padding: 1px 6px;
+  font-size: 11px;
+  margin-left: 4px;
+  animation: pop-in 0.5s;
+}
+
+/* Map: cell button + mastered */
+.kuku-map-cell-btn {
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  border-right: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
+  font-family: inherit;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 6px 4px;
+  transition: transform 0.1s, background 0.15s;
+}
+.kuku-map-cell-btn:hover { background: #fef9c3; }
+.kuku-map-cell-btn:active { transform: scale(0.92); }
+.kuku-map-cell-btn.cell-mastered {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  color: #92400e;
+  font-weight: 800;
+}
+.kuku-map-cell-btn.cell-selected {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 0 0 2px var(--primary-light) inset;
+}
+.kuku-map-head.col-mastered { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #fff; }
+
+.kuku-map-row.mastered {
+  background: linear-gradient(90deg, #fffbeb, #fef3c7, #fffbeb);
+}
+
+/* Map: reading popup (sticky bottom) */
+.map-reading-popup {
+  position: sticky;
+  bottom: 8px;
+  background: #fff;
+  border: 3px solid var(--primary);
+  border-radius: var(--radius-lg);
+  padding: 14px 38px 14px 14px;
+  margin: 12px 0;
+  box-shadow: var(--shadow-lg);
+  animation: pop-in 0.2s;
+}
+.map-reading-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: #e5e7eb;
+  font-size: 14px;
+  cursor: pointer;
+  line-height: 1;
+}
+.map-reading-close:hover { background: #d1d5db; }
+.map-reading-eq {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--primary-dark);
+  margin-bottom: 4px;
+}
+.map-reading-eq strong { color: var(--accent); }
+.map-reading-yomi { font-size: 18px; color: #1f2937; }
+.map-reading-yomi-extra { font-size: 14px; color: #6b7280; }
+
 /* === Dan passport === */
 .dan-passport {
   display: grid;
