@@ -709,6 +709,44 @@ main { padding: 20px 16px 40px; }
   border-radius: 8px;
 }
 
+/* Dan rank card (select screen) */
+.dan-rank-card {
+  background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+  border-left: 4px solid #8b5cf6;
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  margin: 12px 0 16px;
+}
+.dan-rank-now { font-size: 13px; color: #6b21a8; }
+.dan-rank-value { font-size: 24px; font-weight: 900; color: #4c1d95; margin: 2px 0; }
+.dan-rank-next { font-size: 13px; color: #5b21b6; margin-top: 6px; }
+
+/* Dan promotion display in result */
+.dan-promotion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 12px 0;
+  font-size: 18px;
+  font-weight: 900;
+}
+.dan-promotion-from { color: var(--text-muted); }
+.dan-promotion-arrow { color: var(--accent); font-size: 24px; }
+.dan-promotion-to { color: var(--primary-dark); font-size: 22px; }
+
+/* Urgent timer (< 10s) */
+.quiz-counter.time-urgent {
+  background: #fee2e2 !important;
+  color: var(--danger) !important;
+  border-color: var(--danger) !important;
+  animation: urgent-pulse 0.6s ease-in-out infinite alternate;
+}
+@keyframes urgent-pulse {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.05); }
+}
+
 /* === Empire === */
 .empire-stats {
   display: grid;

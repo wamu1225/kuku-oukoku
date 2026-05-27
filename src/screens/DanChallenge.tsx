@@ -58,6 +58,7 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
   const endedRef = useRef(false);
   const [flashCorrect, setFlashCorrect] = useState(false);
   const [flashWrong, setFlashWrong] = useState(false);
+  const [showQuitConfirm, setShowQuitConfirm] = useState(false);
   const advanceTimerRef = useRef<number | null>(null);
   const wrongTimerRef = useRef<number | null>(null);
   const current = problems[index];
@@ -172,12 +173,15 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
     return (
       <div className="screen">
         <h1 className="screen-title">だんいにんてい試験</h1>
-        <p className="screen-desc">
-          15問を制限時間 90秒以内に全問正解すると合格。次の段位は <strong>{nextDan?.name ?? '伝説 (最高位)'}</strong> です。
-        </p>
-        <p className="screen-desc">
-          現在の段位：<strong>{state.rank}</strong>
-        </p>
+        <div className="dan-rank-card">
+          <div className="dan-rank-now">現在の段位</div>
+          <div className="dan-rank-value">{state.rank}</div>
+          {nextDan && (
+            <div className="dan-rank-next">
+              次は <strong>{nextDan.name}</strong> ／ 15問を 90秒以内に全問正解で合格
+            </div>
+          )}
+        </div>
 
         {nextDan ? (
           <div className="dan-card">
@@ -197,12 +201,12 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
 
         {currentRank > 0 ? (
           <>
-            <h2 className="section-h">📜 段位パスポート</h2>
-            <p className="dan-retry-hint">タップで再挑戦・メダル改善。記録は上書きされます。</p>
+            <h2 className="section-h">📜 段位パスポート（タップで再挑戦）</h2>
+            <p className="dan-retry-hint">💡 より良いメダルを狙って再挑戦できます。記録は上書きされます。</p>
             <div className="dan-passport">
               {DAN_LEVELS.filter((d) => d.rank <= currentRank).map((d) => {
                 const medal = state.danMedals?.[d.rank];
-                const medalIcon = medal === 'gold' ? '🥇' : medal === 'silver' ? '🥈' : medal === 'bronze' ? '🥉' : '✅';
+                const medalIcon = medal === 'gold' ? '🥇' : medal === 'silver' ? '🥈' : medal === 'bronze' ? '🥉' : '📜';
                 return (
                   <button
                     key={d.rank}
@@ -229,7 +233,7 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
   if (phase === 'countdown') {
     return (
       <div className="screen countdown-screen">
-        <p className="countdown-ready">Ready...</p>
+        <p className="countdown-ready">よーい…</p>
         <p key={countdown} className="countdown-number pop">{countdown}</p>
       </div>
     );
@@ -238,6 +242,8 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
   if (phase === 'done' && result) {
     const newUnlocks = result.newDan && selected ? unlocksOnRank(selected) : [];
     const kpReward = result.newDan && selected ? selected * 1000 : 0;
+    const prevRankName = result.newDan && selected ? (DAN_LEVELS.find((d) => d.rank === selected - 1)?.name ?? 'みならい') : null;
+    const newRankName = result.newDan && selected ? DAN_LEVELS.find((d) => d.rank === selected)?.name : null;
     return (
       <div className="screen result-screen">
         {result.newDan && <Confetti count={50} />}
@@ -245,6 +251,13 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
         <h1 className={`result-title ${result.newDan ? 'celebrate' : ''}`}>
           {result.newDan ? '🎉 昇段おめでとう！' : 'クリア！'}
         </h1>
+        {result.newDan && prevRankName && newRankName && (
+          <p className="dan-promotion">
+            <span className="dan-promotion-from">{prevRankName}</span>
+            <span className="dan-promotion-arrow">→</span>
+            <span className="dan-promotion-to">{newRankName}</span>
+          </p>
+        )}
         <div className="result-stats">
           <div><span className="result-label">タイム</span><span className="result-value">{(result.timeMs / 1000).toFixed(2)}秒</span></div>
           <div><span className="result-label">メダル</span><span className="result-value">{result.medal}</span></div>
@@ -290,16 +303,30 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
     );
   }
 
+  const remainingSecs = Math.max(0, (90000 - elapsed) / 1000);
   return (
     <div className="screen quiz-screen">
+      {showQuitConfirm && (
+        <div className="quit-confirm-overlay" role="alertdialog" aria-label="やめる確認">
+          <div className="quit-confirm-card">
+            <p className="quit-confirm-msg">やめてホームに戻りますか？<br/>進捗は記録されません。</p>
+            <div className="quit-confirm-actions">
+              <button className="btn-danger" onClick={() => navigate('/')}>やめる</button>
+              <button className="btn-secondary" onClick={() => setShowQuitConfirm(false)}>つづける</button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="quiz-header">
-        <span className="quiz-counter">⏱ {(elapsed / 1000).toFixed(2)}秒 / 90秒</span>
-        <span className="quiz-counter">{index + 1} / {problems.length}</span>
+        <span className={`quiz-counter ${remainingSecs < 10 ? 'time-urgent' : ''}`}>
+          ⏱ のこり {remainingSecs.toFixed(1)}秒
+        </span>
+        <span className="quiz-counter">📝 {index + 1} / {problems.length}</span>
       </div>
       <div className={`quiz-problem ${flashCorrect ? 'flash-correct' : ''} ${flashWrong ? 'flash-wrong' : ''}`}>
         <span className="quiz-equation">{current.a} × {current.b} =</span>
         <span className={`quiz-input ${flashCorrect ? 'success' : ''} ${flashWrong ? 'wrong' : ''}`}>
-          {flashCorrect ? '✓' : flashWrong ? '✗' : (input || '?')}
+          {flashCorrect ? '✓' : flashWrong ? '✗' : (input || <span className="placeholder-q">?</span>)}
         </span>
       </div>
       <div className="keypad">
@@ -309,6 +336,9 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
           </button>
         ))}
       </div>
+      <button className="btn-link quit-btn" onClick={() => setShowQuitConfirm(true)}>
+        やめる
+      </button>
     </div>
   );
 }
