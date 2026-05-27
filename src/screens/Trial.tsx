@@ -3,6 +3,7 @@ import { navigate } from '../App';
 import type { KukuState } from '../types';
 import { LearningEngine } from '../utils/LearningEngine';
 import { Confetti } from '../components/Confetti';
+import { CountUp } from '../components/CountUp';
 import { vibrateCorrect, vibrateWrong } from '../utils/haptics';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
@@ -42,6 +43,7 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
   const endedRef = useRef(false);
   const [flashCorrect, setFlashCorrect] = useState(false);
   const [flashWrong, setFlashWrong] = useState(false);
+  const [showQuitConfirm, setShowQuitConfirm] = useState(false);
   const advanceTimerRef = useRef<number | null>(null);
   const wrongTimerRef = useRef<number | null>(null);
   const current = problems[index];
@@ -180,7 +182,7 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
 
         <div className="cta-row">
           <button className="btn-primary big" onClick={start}>
-            ⚔️ 挑戦する
+            {trialCleared ? '⚔️ 再挑戦' : '⚔️ 挑戦する'}
           </button>
           <button className="btn-secondary" onClick={() => navigate('/empire/')}>← おうこくへ</button>
         </div>
@@ -193,15 +195,26 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
   }
 
   if (phase === 'success') {
+    // 初回クリア vs 再挑戦で表示を分ける
+    // trialCleared は phase=success 突入時点の前提値（completeTrial で +1 されている）
+    const isFirstClear = (state.stats?.totalTrialsCleared || 0) === 1;
     return (
       <div className="screen result-screen">
-        <Confetti count={60} />
+        <Confetti count={isFirstClear ? 60 : 30} />
         <div className="result-symbol" aria-hidden="true">🌟</div>
-        <h1 className="result-title celebrate">🌟 試練の門が開いた！</h1>
-        <p>新たな道が見えた。10 の段が解禁されたよ。</p>
+        <h1 className={`result-title ${isFirstClear ? 'celebrate' : ''}`}>
+          {isFirstClear ? '🌟 試練の門が開いた！' : '🌟 試練クリア！'}
+        </h1>
+        {isFirstClear ? (
+          <p>新たな道が見えた。<strong>10 の段</strong> が解禁されたよ。</p>
+        ) : (
+          <p>もう一度試練を制覇した。KP を獲得！</p>
+        )}
         <div className="result-stats">
-          <div><span className="result-label">報酬</span><span className="result-value">+5,000 KP</span></div>
-          <div><span className="result-label">解禁</span><span className="result-value">10 の段</span></div>
+          <div><span className="result-label">報酬</span><span className="result-value">+<CountUp to={5000} duration={1200} format="plain" /> KP</span></div>
+          {isFirstClear && (
+            <div><span className="result-label">解禁</span><span className="result-value">10 の段</span></div>
+          )}
         </div>
         <div className="result-actions">
           <button className="btn-primary" onClick={() => navigate('/empire/')}>おうこくへ</button>
@@ -212,10 +225,14 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
   }
 
   if (phase === 'failed') {
+    const remaining = Math.max(0, PROBLEMS_COUNT - index);
     return (
       <div className="screen result-screen">
         <h1 className="result-title">🌑 時間切れ</h1>
-        <p>あと {Math.max(0, PROBLEMS_COUNT - index)} 問のところで時間切れ。九九の瞬発力が試されるよ。</p>
+        <p className="trial-fail-stats">
+          進捗：<strong>{index} / {PROBLEMS_COUNT} 問</strong>
+          {remaining <= 3 && <span className="trial-fail-close"> — もう少しだった！</span>}
+        </p>
         <p><strong>アタック</strong> や <strong>だんいにんてい</strong> で速度を磨いてから再挑戦するのがおすすめ。</p>
         <div className="result-actions">
           <button className="btn-primary" onClick={() => { setPhase('intro'); }}>もう一度</button>
@@ -230,14 +247,25 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
 
   return (
     <div className="screen quiz-screen trial-screen">
+      {showQuitConfirm && (
+        <div className="quit-confirm-overlay" role="alertdialog" aria-label="やめる確認">
+          <div className="quit-confirm-card">
+            <p className="quit-confirm-msg">やめてホームに戻りますか？<br/>記録されません。</p>
+            <div className="quit-confirm-actions">
+              <button className="btn-danger" onClick={() => navigate('/')}>やめる</button>
+              <button className="btn-secondary" onClick={() => setShowQuitConfirm(false)}>つづける</button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="quiz-header">
         <span className="quiz-counter trial-timer">⏱ {((TIME_LIMIT_MS - elapsed) / 1000).toFixed(1)}秒</span>
-        <span className="quiz-counter">{index + 1} / {problems.length}</span>
+        <span className="quiz-counter">📝 {index + 1} / {problems.length}</span>
       </div>
       <div className={`quiz-problem attack-problem ${flashCorrect ? 'flash-correct' : ''} ${flashWrong ? 'flash-wrong' : ''}`}>
         <span className="quiz-equation">{current.a} × {current.b} =</span>
         <span className={`quiz-input attack-input ${flashCorrect ? 'success' : ''} ${flashWrong ? 'wrong' : ''}`}>
-          {flashCorrect ? '✓' : flashWrong ? '✗' : (input || '?')}
+          {flashCorrect ? '✓' : flashWrong ? '✗' : (input || <span className="placeholder-q">?</span>)}
         </span>
       </div>
       <div className="keypad">
@@ -245,6 +273,9 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
           <button key={key} className="keypad-btn" onClick={() => handleKey(key)}>{key}</button>
         ))}
       </div>
+      <button className="btn-link quit-btn" onClick={() => setShowQuitConfirm(true)}>
+        やめる
+      </button>
     </div>
   );
 }

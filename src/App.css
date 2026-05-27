@@ -1284,6 +1284,9 @@ main { padding: 20px 16px 40px; }
   font-weight: 700;
 }
 .trial-screen { background: #0f172a; padding: 16px; border-radius: var(--radius-lg); }
+.trial-fail-stats { font-size: 16px; margin: 8px 0; }
+.trial-fail-stats strong { color: var(--danger); }
+.trial-fail-close { color: var(--accent); font-weight: 700; }
 .trial-screen .quiz-counter { background: #1e293b; color: #fcd34d; border-color: #4c1d95; }
 .trial-screen .keypad-btn { background: #1e293b; color: #fcd34d; border-color: #4c1d95; }
 .trial-timer { animation: pulse 1s infinite; }
