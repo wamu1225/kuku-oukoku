@@ -11,6 +11,12 @@ const STAGES = [
   { id: '6', name: 'そらの雲海', max: 6, unlockRank: 6 },
   { id: '9', name: 'かみなりの山', max: 9, unlockRank: 9 },
 ];
+
+const UNLOCK_RANK_NAMES: Record<number, string> = { 3: '8級', 6: '5級', 9: '2級' };
+
+// 金/銀メダルしきい値 (10 問の合計タイム)
+const GOLD_MS = 10 * 1500;  // 15 秒
+const SILVER_MS = 10 * 2250; // 22.5 秒
 const BADGE_LABEL: Record<string, string> = { gold: '金', silver: '銀', bronze: '銅', clear: 'クリア' };
 const QUESTION_COUNT = 10;
 
@@ -91,6 +97,7 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
   const endedRef = useRef(false);
   const [flashCorrect, setFlashCorrect] = useState(false);
   const [flashWrong, setFlashWrong] = useState(false);
+  const [showQuitConfirm, setShowQuitConfirm] = useState(false);
   const advanceTimerRef = useRef<number | null>(null);
   const wrongTimerRef = useRef<number | null>(null);
 
@@ -174,11 +181,16 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
                 <span className="stage-name">{s.name}</span>
                 <span className="stage-meta">1〜{s.max}の段</span>
                 {unlocked ? (
-                  <span className="stage-best">
-                    {best ? `自己ベスト: ${(best / 1000).toFixed(2)}秒` : '未挑戦'}
-                    {medal && ` (${BADGE_LABEL[medal]})`}
-                  </span>
-                ) : <span className="stage-locked">🔒 段位試験を進めて解禁</span>}
+                  <>
+                    <span className="stage-best">
+                      {best ? `自己ベスト: ${(best / 1000).toFixed(2)}秒` : '未挑戦'}
+                      {medal && ` (${BADGE_LABEL[medal]})`}
+                    </span>
+                    <span className="stage-targets">
+                      🥇 {(GOLD_MS / 1000).toFixed(1)}秒 / 🥈 {(SILVER_MS / 1000).toFixed(1)}秒 / 🥉 クリア
+                    </span>
+                  </>
+                ) : <span className="stage-locked">🔒 だんいにんてい {UNLOCK_RANK_NAMES[s.unlockRank]}合格で解禁</span>}
               </button>
             );
           })}
@@ -190,21 +202,28 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
   }
 
   if (phase === 'countdown') {
-    return <div className="screen countdown-screen"><p className="countdown-ready">Ready...</p><p key={countdown} className="countdown-number pop">{countdown}</p></div>;
+    return <div className="screen countdown-screen"><p className="countdown-ready">よーい…</p><p key={countdown} className="countdown-number pop">{countdown}</p></div>;
   }
 
   if (phase === 'done' && result) {
-    const showConfetti = result.medal === '金';
+    const showConfetti = result.medal === '金' || result.medal === '銀';
+    const ms = result.timeMs;
+    let goalHint = '';
+    if (ms <= GOLD_MS) goalHint = '🥇 金級！自己ベスト更新を狙おう';
+    else if (ms <= SILVER_MS) goalHint = `🥈 銀級。あと ${((ms - GOLD_MS) / 1000).toFixed(2)}秒 縮めれば 🥇 金へ`;
+    else goalHint = `🥉 銅級。あと ${((ms - SILVER_MS) / 1000).toFixed(2)}秒 縮めれば 🥈 銀へ`;
+    const symbol = result.medal === '金' ? '🥇' : result.medal === '銀' ? '🥈' : result.medal === '銅' ? '🥉' : '🌫';
     return (
       <div className="screen result-screen">
-        {showConfetti && <Confetti count={40} />}
-        <div className="result-symbol" aria-hidden="true">🌫</div>
+        {showConfetti && <Confetti count={result.medal === '金' ? 50 : 30} />}
+        <div className="result-symbol" aria-hidden="true">{symbol}</div>
         <h1 className="result-title">クリア！</h1>
         <div className="result-stats">
           <div><span className="result-label">タイム</span><span className="result-value">{(result.timeMs / 1000).toFixed(2)}秒</span></div>
           <div><span className="result-label">メダル</span><span className="result-value">{result.medal}</span></div>
           <div><span className="result-label">報酬</span><span className="result-value">+500 KP</span></div>
         </div>
+        <p className="result-hint">{goalHint}</p>
         <div className="result-actions">
           <button className="btn-primary" onClick={() => setPhase('select')}>もう一度</button>
           <button className="btn-secondary" onClick={() => navigate('/')}>ホームへ</button>
@@ -217,22 +236,32 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
 
   return (
     <div className="screen quiz-screen">
+      {showQuitConfirm && (
+        <div className="quit-confirm-overlay" role="alertdialog" aria-label="やめる確認">
+          <div className="quit-confirm-card">
+            <p className="quit-confirm-msg">やめてホームに戻りますか？<br/>タイムは記録されません。</p>
+            <div className="quit-confirm-actions">
+              <button className="btn-danger" onClick={() => navigate('/')}>やめる</button>
+              <button className="btn-secondary" onClick={() => setShowQuitConfirm(false)}>つづける</button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="quiz-header">
         <span className="quiz-counter">⏱ {(elapsed / 1000).toFixed(2)}秒</span>
-        <span className="quiz-counter">{index + 1} / {problems.length}</span>
+        <span className="quiz-counter">📝 {index + 1} / {problems.length}</span>
       </div>
-      <p className="blank-instruction">↓ <strong>あなあき（黄色のマス）</strong> に入る数をキーパッドで入力</p>
       <div className={`quiz-problem ${flashCorrect ? 'flash-correct' : ''} ${flashWrong ? 'flash-wrong' : ''}`}>
         {current.hole === 'a' ? (
           <span className="quiz-equation">
             <span className={`quiz-blank ${input ? 'filled' : ''} ${flashCorrect ? 'success' : ''} ${flashWrong ? 'wrong' : ''}`}>
-              {flashCorrect ? '✓' : flashWrong ? '✗' : (input || '?')}
+              {flashCorrect ? '✓' : flashWrong ? '✗' : (input ? input : <span className="placeholder-q">?</span>)}
             </span> × {current.b} = {current.c}
           </span>
         ) : (
           <span className="quiz-equation">
             {current.a} × <span className={`quiz-blank ${input ? 'filled' : ''} ${flashCorrect ? 'success' : ''} ${flashWrong ? 'wrong' : ''}`}>
-              {flashCorrect ? '✓' : flashWrong ? '✗' : (input || '?')}
+              {flashCorrect ? '✓' : flashWrong ? '✗' : (input ? input : <span className="placeholder-q">?</span>)}
             </span> = {current.c}
           </span>
         )}
@@ -242,6 +271,9 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
           <button key={key} className="keypad-btn" onClick={() => handleKey(key)}>{key}</button>
         ))}
       </div>
+      <button className="btn-link quit-btn" onClick={() => setShowQuitConfirm(true)}>
+        やめる
+      </button>
     </div>
   );
 }
