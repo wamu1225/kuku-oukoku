@@ -5,6 +5,8 @@ export interface CollectionItem {
   category: 'seal' | 'treasure' | 'medal' | 'relic';
   emoji: string;
   color: string;
+  /** true なら未獲得時に獲得条件を隠す（ラスボス系のお楽しみ用） */
+  hidden?: boolean;
 }
 
 export const COLLECTION_ITEMS: CollectionItem[] = [
@@ -37,8 +39,8 @@ export const COLLECTION_ITEMS: CollectionItem[] = [
   { id: 'treasure_6', name: 'ダイヤモンド', desc: '1億 KP 集めた証', category: 'treasure', emoji: '💎', color: '#7dd3fc' },
   { id: 'treasure_7', name: '勇者のマント', desc: '伝説のなかまを招待した証', category: 'treasure', emoji: '🧣', color: '#a78bfa' },
   { id: 'treasure_8', name: '世界樹の枝', desc: 'おうこくレベル Lv.3 に到達', category: 'treasure', emoji: '🌳', color: '#22c55e' },
-  { id: 'treasure_9', name: '虹色の杯', desc: '1兆 KP 集めた証', category: 'treasure', emoji: '🏆', color: '#fb923c' },
-  { id: 'treasure_10', name: '究極の玉座', desc: '王国の全てを手に入れた証', category: 'treasure', emoji: '👑', color: '#64748b' },
+  { id: 'treasure_9', name: '虹色の杯', desc: '1兆 KP 集めた証', category: 'treasure', emoji: '🏆', color: '#fb923c', hidden: true },
+  { id: 'treasure_10', name: '究極の玉座', desc: '王国の全てを手に入れた証', category: 'treasure', emoji: '👑', color: '#64748b', hidden: true },
 
   { id: 'medal_1', name: 'かけだしのバッジ', desc: 'はなまるスタンプを 10個 集めた', category: 'medal', emoji: '🎯', color: '#67e8f9' },
   { id: 'medal_2', name: '勇気の大剣', desc: 'バトルで 累計20体 撃破した', category: 'medal', emoji: '⚔️', color: '#22c55e' },
@@ -59,6 +61,6 @@ export const COLLECTION_ITEMS: CollectionItem[] = [
   { id: 'relic_6', name: '時空の時計', desc: '毎日学習を 3日 続けた', category: 'relic', emoji: '⏰', color: '#fb923c' },
   { id: 'relic_7', name: '知の羅針盤', desc: 'くもくも「かみなりの山」で金メダル', category: 'relic', emoji: '🧭', color: '#06b6d4' },
   { id: 'relic_8', name: '光り輝く地図', desc: '合計で 500問 とき終えた', category: 'relic', emoji: '🗺️', color: '#fcd34d' },
-  { id: 'relic_9', name: '導きの杖', desc: '合計で 5000問 とき終えた', category: 'relic', emoji: '🪄', color: '#a78bfa' },
+  { id: 'relic_9', name: '導きの杖', desc: '合計で 5000問 とき終えた', category: 'relic', emoji: '🪄', color: '#a78bfa', hidden: true },
   { id: 'relic_10', name: '賢者の石', desc: 'だんいにんてい 1級 を金メダルで合格した証', category: 'relic', emoji: '💎', color: '#fb7185' },
 ];
