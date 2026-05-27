@@ -4,7 +4,6 @@ import { LearningEngine } from '../utils/LearningEngine';
 import { vibrateCorrect, vibrateWrong } from '../utils/haptics';
 import { CountUp } from '../components/CountUp';
 import { Confetti } from '../components/Confetti';
-import { KUKU_READINGS } from '../data/kukuReadings';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
 const BADGE_LABEL: Record<string, string> = { gold: '金', silver: '銀', bronze: '銅', clear: 'クリア' };
@@ -195,9 +194,6 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
           {flashCorrect ? '✓' : flashWrong ? '✗' : (input || <span className="placeholder-q">?</span>)}
         </span>
       </div>
-      {level < 10 && (
-        <p className="quiz-reading-inline">🗣️ {KUKU_READINGS[`${current.a}x${current.b}`] || ''}</p>
-      )}
       <div className="keypad">
         {KEYS.map((key) => (
           <button key={key} className="keypad-btn" onClick={() => handleKey(key)} aria-label={key}>
