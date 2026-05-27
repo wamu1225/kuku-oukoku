@@ -104,9 +104,13 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
         <Confetti count={40} />
         <div className="result-symbol" aria-hidden="true">🌼</div>
         <h1 className="result-title">クリア！</h1>
-        <pre className="result-msg">{resultMsg}</pre>
+        <p className="result-msg">{resultMsg.split('\n').map((line, i) => (
+          <span key={i}>{i > 0 && <br />}{line}</span>
+        ))}</p>
+        <p className="result-hint">⚡ アタックモードで腕試しもできるよ</p>
         <div className="result-actions">
-          <button className="btn-primary" onClick={() => navigate('/learn/')}>つぎの段にちょうせん</button>
+          <button className="btn-primary" onClick={() => navigate(`/attack/${level}/`)}>⚡ {level}の段でアタック</button>
+          <button className="btn-secondary" onClick={() => navigate('/learn/')}>別の段</button>
           <button className="btn-secondary" onClick={() => navigate('/')}>ホームへ</button>
         </div>
       </div>
@@ -118,31 +122,31 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
       <div className="screen">
         <h1 className="screen-title">{level}の段を まなぼう！</h1>
         <p className="screen-desc">
-          まずは九九を <strong>声に出して</strong> 読んで覚えよう。答えは青く書いてあるよ。
-          おぼえたら下のボタンで <strong>クイズ</strong>（数字を入力するもんだい）に進もう。
+          まずは九九を <strong>声に出して 🗣️</strong> 読んで覚えよう。{level < 10 && <>右側のドットは答えの数を表しているよ。</>}
+          おぼえたら下のボタンで <strong>クイズ</strong>に進もう。
         </p>
         <div className="kuku-list">
           {problems.map((p) => (
-            <div key={p.b} className="kuku-card">
+            <div key={p.b} className="kuku-card kuku-card-v2">
               <div className="kuku-formula-block">
                 <div className="kuku-formula">
                   {p.a} × {p.b} = <span className="kuku-answer">{p.a * p.b}</span>
                 </div>
                 {level < 10 && (
-                  <div className="kuku-reading">{KUKU_READINGS[`${p.a}x${p.b}`] || ''}</div>
+                  <div className="kuku-reading">🗣️ {KUKU_READINGS[`${p.a}x${p.b}`] || ''}</div>
                 )}
               </div>
               {level < 10 && (
                 <div className="kuku-dotgrid">
-                  <DotGrid a={p.a} b={p.b} size={10} />
+                  <DotGrid a={p.a} b={p.b} size={9} />
                 </div>
               )}
             </div>
           ))}
         </div>
-        <div className="action-row">
+        <div className="action-row action-row-stacked">
           <button className="btn-primary big" onClick={startQuiz}>もんだいをといてみる →</button>
-          <button className="btn-secondary" onClick={() => navigate('/learn/')}>もどる</button>
+          <button className="btn-link" onClick={() => navigate('/learn/')}>← 別の段を選ぶ</button>
         </div>
       </div>
     );
@@ -150,16 +154,27 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
 
   return (
     <div className="screen quiz-screen">
-      <div className="quiz-header">
+      <div className="quiz-header quiz-header-learning">
+        <button
+          className="quiz-back-icon"
+          onClick={() => setPhase('list')}
+          aria-label="かくにんに戻る"
+          title="かくにんに戻る"
+        >←</button>
         <span className="quiz-counter">{index + 1} / {problems.length}</span>
-        {level < 10 && <span className="quiz-reading">{KUKU_READINGS[`${current.a}x${current.b}`] || ''}</span>}
+        {level < 10 && <span className="quiz-reading">🗣️ {KUKU_READINGS[`${current.a}x${current.b}`] || ''}</span>}
       </div>
       <div className={`quiz-problem ${flashWrong ? 'flash-wrong' : ''}`}>
         <span className="quiz-equation">{current.a} × {current.b} =</span>
         <span className={`quiz-input ${showSuccess ? 'success' : ''} ${flashWrong ? 'wrong' : ''}`}>
-          {showSuccess ? '✓' : input || (showHint ? <span className="answer-hint">{current.a * current.b}</span> : '?')}
+          {showSuccess ? '✓' : input || (showHint ? <span className="answer-hint">{current.a * current.b}</span> : <span className="placeholder-q">?</span>)}
         </span>
       </div>
+      {level < 10 && (
+        <div className="quiz-dotgrid-mini" aria-hidden="true">
+          <DotGrid a={current.a} b={current.b} size={8} color="#94a3b8" />
+        </div>
+      )}
       <div className="keypad">
         {KEYS.map((key) => (
           <button key={key} className="keypad-btn" onClick={() => handleKey(key)} aria-label={key}>
@@ -167,7 +182,6 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
           </button>
         ))}
       </div>
-      <button className="btn-secondary back-link" onClick={() => setPhase('list')}>← かくにんに戻る</button>
     </div>
   );
 }

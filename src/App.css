@@ -620,8 +620,57 @@ main { padding: 20px 16px 40px; }
   align-items: center;
 }
 .kuku-formula { font-size: 22px; font-weight: 700; }
-.kuku-answer { color: var(--primary); }
+.kuku-answer { color: #2563eb; /* 純粋な青：text "青く" と一致 */ }
 .kuku-reading { color: var(--text-muted); font-size: 13px; }
+
+/* Learning list v2: more spacious card */
+.kuku-card-v2 { padding: 16px 18px; min-height: 60px; }
+.kuku-card-v2 .kuku-formula { font-size: 24px; line-height: 1.2; }
+.kuku-card-v2 .kuku-reading { margin-top: 4px; }
+
+/* Action row stacked (primary big, secondary as link) */
+.action-row-stacked {
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 14px;
+  text-decoration: underline;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+.btn-link:hover { color: var(--text); }
+
+/* Learning quiz header with back icon */
+.quiz-header-learning { align-items: center; }
+.quiz-back-icon {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  font-size: 18px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.quiz-back-icon:hover { background: var(--border); color: var(--text); }
+
+/* Mini dotgrid below quiz problem */
+.quiz-dotgrid-mini {
+  display: flex;
+  justify-content: center;
+  margin: 8px 0 12px;
+  opacity: 0.6;
+}
+
+/* ? placeholder lightened */
+.placeholder-q { opacity: 0.4; }
 
 /* === Dan Challenge === */
 .dan-card {
