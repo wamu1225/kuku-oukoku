@@ -265,7 +265,7 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
           const festivalSecsLeft = festivalActive ? Math.ceil((festivalUntil - now) / 1000) : 0;
           const festivalMM = Math.floor(festivalSecsLeft / 60);
           const festivalSS = festivalSecsLeft % 60;
-          // まとめて招待で何匹買えるか事前計算
+          // まとめて招待で何人買えるか事前計算
           const maxBuyInfo = owned > 0 ? IdleManager.calculateMaxBuy(comp.level, owned, state.kp) : { count: 0, totalCost: 0 };
 
           return (
@@ -298,7 +298,7 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
                 </button>
                 {owned > 0 && maxBuyInfo.count > 1 && (
                   <button className="btn-invite-max" onClick={() => inviteMax(comp.level)} disabled={!canBuy}>
-                    まとめて招待 ({maxBuyInfo.count}匹)
+                    まとめて招待 ({maxBuyInfo.count}人)
                   </button>
                 )}
               </div>
