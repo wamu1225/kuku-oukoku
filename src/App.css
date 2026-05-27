@@ -967,8 +967,47 @@ main { padding: 20px 16px 40px; }
 .calendar-cell.empty { background: transparent; border: none; }
 .calendar-cell.today { background: #fef3c7; border-color: #fbbf24; }
 .calendar-cell.studied { background: #d1fae5; border-color: #6ee7b7; }
+.calendar-cell.future { opacity: 0.4; background: #f9fafb; }
+.calendar-cell.future .calendar-day { color: var(--text-light); }
 .calendar-day { font-weight: 700; }
 .calendar-mark { font-size: 16px; }
+
+/* Calendar: today CTA */
+.calendar-today-cta {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border: 2px solid #fbbf24;
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+.calendar-today-cta-msg {
+  font-size: 14px;
+  color: #92400e;
+  text-align: center;
+}
+.calendar-today-cta-btn { padding: 10px 24px; font-size: 15px; }
+
+/* Calendar: stats */
+.calendar-stats {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin: 12px 0;
+}
+.calendar-stats-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+.calendar-stats-row + .calendar-stats-row { border-top: 1px dashed var(--border); }
+.calendar-stats-label { font-size: 14px; color: var(--text-muted); }
+.calendar-stats-value { font-size: 18px; font-weight: 800; color: var(--primary-dark); }
 .calendar-summary { margin-top: 16px; color: var(--text-muted); text-align: center; }
 
 /* === Settings === */

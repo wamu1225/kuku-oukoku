@@ -18,22 +18,46 @@ export function Calendar({ state }: { state: KukuState }) {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const today = DateUtils.getLocalDateString();
   const studyHistory = new Set(state.studyHistory || []);
+  const totalStudyDays = studyHistory.size;
+  const hasClockRelic = (state.royalTreasures || []).includes('relic_6');
 
-  const cells: Array<{ day: number | null; date: string | null; studied: boolean; isToday: boolean }> = [];
-  for (let i = 0; i < firstDay; i++) cells.push({ day: null, date: null, studied: false, isToday: false });
+  const cells: Array<{ day: number | null; date: string | null; studied: boolean; isToday: boolean; isFuture: boolean }> = [];
+  for (let i = 0; i < firstDay; i++) cells.push({ day: null, date: null, studied: false, isToday: false, isFuture: false });
   for (let d = 1; d <= daysInMonth; d++) {
     const date = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    cells.push({ day: d, date, studied: studyHistory.has(date), isToday: date === today });
+    cells.push({
+      day: d,
+      date,
+      studied: studyHistory.has(date),
+      isToday: date === today,
+      isFuture: date > today,
+    });
   }
-  while (cells.length % 7 !== 0) cells.push({ day: null, date: null, studied: false, isToday: false });
+  while (cells.length % 7 !== 0) cells.push({ day: null, date: null, studied: false, isToday: false, isFuture: false });
 
   const streak = state.dailyStreak?.count ?? 0;
   const studyDaysInMonth = cells.filter((c) => c.studied).length;
+  const studiedToday = studyHistory.has(today);
 
-  // 炎サイズ・色：streak に応じて段階化
   const flameTier = streak === 0 ? 0 : streak < 3 ? 1 : streak < 7 ? 2 : streak < 14 ? 3 : streak < 30 ? 4 : 5;
   const flameEmoji = streak === 0 ? '🕯️' : streak < 3 ? '🔥' : streak < 30 ? '🔥' : '🌟';
   const flameSize = [28, 36, 48, 60, 72, 88][flameTier];
+
+  // streak hint：relic_6 既獲得時は時計の文言を出さない
+  let streakHint: React.ReactNode;
+  if (streak === 0) {
+    streakHint = <>今日からスタート！🌱 まずは 1 日 やってみよう</>;
+  } else if (!hasClockRelic && streak < 3) {
+    streakHint = <>あと <strong>{3 - streak}日</strong> で「時空の時計」メダル！</>;
+  } else if (streak < 7) {
+    streakHint = <>あと <strong>{7 - streak}日</strong> で 1 週間達成！</>;
+  } else if (streak < 14) {
+    streakHint = <>あと <strong>{14 - streak}日</strong> で 2 週間達成！</>;
+  } else if (streak < 30) {
+    streakHint = <>あと <strong>{30 - streak}日</strong> で 1 ヶ月連続！</>;
+  } else {
+    streakHint = <>すごい！1 ヶ月以上の連続学習達成 🎉</>;
+  }
 
   return (
     <div className="screen">
@@ -45,16 +69,20 @@ export function Calendar({ state }: { state: KukuState }) {
         </div>
         <div className="streak-hero-text">
           <div className="streak-hero-count"><strong>{streak}</strong> 日 れんぞく</div>
-          <div className="streak-hero-hint">
-            {streak < 3 && <>あと <strong>{3 - streak}日</strong> で「時空の時計」メダル！</>}
-            {streak >= 3 && streak < 7 && <>あと <strong>{7 - streak}日</strong> で 1 週間達成！</>}
-            {streak >= 7 && streak < 30 && <>あと <strong>{30 - streak}日</strong> で 1 ヶ月連続！</>}
-            {streak >= 30 && <>すごい！1 ヶ月以上の連続学習達成 🎉</>}
-          </div>
+          <div className="streak-hero-hint">{streakHint}</div>
         </div>
       </div>
 
-      <p className="screen-desc">まいにち少しずつでも続けるのが上達のコツ。</p>
+      <p className="screen-desc">まいにち ちょっとずつ つづけるのが じょうたつの コツ。</p>
+
+      {!studiedToday && (
+        <div className="calendar-today-cta">
+          <span className="calendar-today-cta-msg">📚 まだ きょうの がくしゅうが おわってないよ！</span>
+          <button className="btn-primary calendar-today-cta-btn" onClick={() => navigate('/learning/')}>
+            まなぶをはじめる
+          </button>
+        </div>
+      )}
 
       <div className="calendar-controls">
         <button onClick={() => setOffset((o) => o - 1)} aria-label="前の月">← 前</button>
@@ -69,7 +97,7 @@ export function Calendar({ state }: { state: KukuState }) {
         {cells.map((c, i) => (
           <div
             key={i}
-            className={`calendar-cell ${c.studied ? 'studied' : ''} ${c.isToday ? 'today' : ''} ${c.day == null ? 'empty' : ''}`}
+            className={`calendar-cell ${c.studied ? 'studied' : ''} ${c.isToday ? 'today' : ''} ${c.isFuture ? 'future' : ''} ${c.day == null ? 'empty' : ''}`}
             role="gridcell"
           >
             {c.day && <span className="calendar-day">{c.day}</span>}
@@ -78,9 +106,18 @@ export function Calendar({ state }: { state: KukuState }) {
         ))}
       </div>
 
-      <p className="calendar-summary">この月の学習日数：{studyDaysInMonth}日</p>
+      <div className="calendar-stats">
+        <div className="calendar-stats-row">
+          <span className="calendar-stats-label">この月の学習日数</span>
+          <span className="calendar-stats-value">{studyDaysInMonth} 日</span>
+        </div>
+        <div className="calendar-stats-row">
+          <span className="calendar-stats-label">これまでの累計</span>
+          <span className="calendar-stats-value">{totalStudyDays} 日</span>
+        </div>
+      </div>
 
-      <button className="back-link" onClick={() => navigate('/')}>← ホームへ</button>
+      <button className="btn-secondary" onClick={() => navigate('/')}>← ホームへ</button>
     </div>
   );
 }
