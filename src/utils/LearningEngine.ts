@@ -201,6 +201,8 @@ function _checkAchievements(state: KukuState) {
   if (!hasAny('relic_6') && (state.dailyStreak?.count || 0) >= 3) add('relic_6');
   if (!hasAny('relic_8') && totalMastery >= 500) add('relic_8');
   if (!hasAny('relic_9') && totalMastery >= 5000) add('relic_9');
+  // 1級 (rank 10) を金メダル取得 = 1〜9 段ランダム 15 問を 22.5 秒以内
+  if (!hasAny('relic_10') && state.danMedals?.[10] === 'gold') add('relic_10');
 }
 
 function _updateHabit(state: KukuState, isActivity: boolean) {
@@ -422,8 +424,9 @@ export const LearningEngine = {
     const currentBest = state.tableBests[level] || {
       level, bestTimeMs: 0, badge: null, isCompleted: false,
     };
+    // 「15秒以内」など desc に合わせて inclusive (<=) 判定で統一
     const badge: 'gold' | 'silver' | 'bronze' | 'clear' =
-      timeMs < 15000 ? 'gold' : timeMs < 25000 ? 'silver' : timeMs < 40000 ? 'bronze' : 'clear';
+      timeMs <= 15000 ? 'gold' : timeMs <= 25000 ? 'silver' : timeMs <= 40000 ? 'bronze' : 'clear';
 
     let isNewBest = false;
     if (currentBest.bestTimeMs === 0 || timeMs < currentBest.bestTimeMs) {
@@ -476,8 +479,8 @@ export const LearningEngine = {
     const GOLD_PACE = 1500;
     const SILVER_PACE = 2250;
     const problems = rank === 22 ? 50 : rank === 23 ? 100 : 15;
-    if (timeTakenMs < problems * GOLD_PACE) medal = 'gold';
-    else if (timeTakenMs < problems * SILVER_PACE) medal = 'silver';
+    if (timeTakenMs <= problems * GOLD_PACE) medal = 'gold';
+    else if (timeTakenMs <= problems * SILVER_PACE) medal = 'silver';
     const medalPriority = { gold: 3, silver: 2, bronze: 1, clear: 0 };
     const currentMedal = state.danMedals[rank] || 'clear';
     if (medalPriority[medal] > medalPriority[currentMedal as keyof typeof medalPriority]) {
@@ -577,8 +580,8 @@ export const LearningEngine = {
 
     if (!state.blankMedalsPerDiff) state.blankMedalsPerDiff = {};
     let medal: 'gold' | 'silver' | 'bronze' | 'clear' = 'clear';
-    if (timeMs < 10 * 1500) medal = 'gold';
-    else if (timeMs < 10 * 2250) medal = 'silver';
+    if (timeMs <= 10 * 1500) medal = 'gold';
+    else if (timeMs <= 10 * 2250) medal = 'silver';
     else medal = 'bronze';
     const priority = { gold: 3, silver: 2, bronze: 1, clear: 0 };
     const cur = state.blankMedalsPerDiff[diffId] || 'clear';
