@@ -103,6 +103,15 @@ function App() {
     };
   }, []);
 
+  // 1秒ごとに KPS による passive earning を反映（ヘッダー KP を含む全画面の state を更新）
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      const r = LearningEngine.applyOfflineEarnings();
+      setState(r.state);
+    }, 1000);
+    return () => window.clearInterval(interval);
+  }, []);
+
   const route = parseRoute(pathname);
 
   return (

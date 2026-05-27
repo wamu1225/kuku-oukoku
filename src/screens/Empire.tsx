@@ -51,19 +51,10 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
 
   useEffect(() => setState(initialState), [initialState]);
 
-  // Empire mount 時に offline KP を credit（タブ内ナビゲーションでも反映）
-  useEffect(() => {
-    const r = LearningEngine.applyOfflineEarnings();
-    setState(r.state);
-  }, []);
-
-  // 1 秒ごとの KP 加算は applyOfflineEarnings (時間差分から算出) で行う。
-  // これにより招待操作との race condition (タイミング被りで kp 上書き) を解消。
-  // applyOfflineEarnings は engine 内で atomically load → modify → save する。
+  // 1 秒ごとの KP 加算は App.tsx の global ticker で実行され、initialState 経由で同期される。
+  // ここでは祝祭タイマー表示用に setNow のみ更新する。
   useEffect(() => {
     const interval = window.setInterval(() => {
-      const r = LearningEngine.applyOfflineEarnings();
-      setState(r.state);
       setNow(Date.now());
     }, 1000);
     return () => window.clearInterval(interval);
