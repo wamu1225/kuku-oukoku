@@ -4,6 +4,7 @@ import { LearningEngine } from '../utils/LearningEngine';
 import { vibrateCorrect, vibrateWrong } from '../utils/haptics';
 import { CountUp } from '../components/CountUp';
 import { Confetti } from '../components/Confetti';
+import { KUKU_READINGS } from '../data/kukuReadings';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
 const BADGE_LABEL: Record<string, string> = { gold: '金', silver: '銀', bronze: '銅', clear: 'クリア' };
@@ -66,6 +67,7 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
   const endedRef = useRef(false);
   const [flashCorrect, setFlashCorrect] = useState(false);
   const [flashWrong, setFlashWrong] = useState(false);
+  const [showQuitConfirm, setShowQuitConfirm] = useState(false);
   const advanceTimerRef = useRef<number | null>(null);
   const wrongTimerRef = useRef<number | null>(null);
 
@@ -126,7 +128,7 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
   if (countdown > 0) {
     return (
       <div className="screen countdown-screen">
-        <p className="countdown-ready">Ready...</p>
+        <p className="countdown-ready">よーい…</p>
         <p key={countdown} className="countdown-number pop">{countdown}</p>
       </div>
     );
@@ -134,10 +136,18 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
 
   if (finished && result) {
     const secs = result.timeMs / 1000;
-    let next: { medal: string; gap: number } | null = null;
-    if (secs >= 15 && secs < 25) next = { medal: '🥇 金', gap: secs - 15 };
-    else if (secs >= 25 && secs < 40) next = { medal: '🥈 銀', gap: secs - 25 };
-    else if (secs >= 40) next = { medal: '🥉 銅', gap: secs - 40 };
+    let nextHint: string;
+    if (secs <= 15) {
+      nextHint = result.isNewBest
+        ? '最速ペース達成！次は自己ベストをさらに更新しよう'
+        : '🥇 金メダル！自己ベスト更新を狙おう';
+    } else if (secs <= 25) {
+      nextHint = `今は 🥈 銀。あと ${(secs - 15).toFixed(2)}秒 縮めれば 🥇 金へ`;
+    } else if (secs <= 40) {
+      nextHint = `今は 🥉 銅。あと ${(secs - 25).toFixed(2)}秒 で 🥈 銀へ`;
+    } else {
+      nextHint = `あと ${(secs - 40).toFixed(2)}秒 で 🥉 銅メダル！`;
+    }
     const showConfetti = result.isNewBest || result.badge === '金';
     return (
       <div className="screen result-screen">
@@ -149,14 +159,13 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
           <div><span className="result-label">メダル</span><span className="result-value">{result.badge}</span></div>
           <div><span className="result-label">報酬</span><span className="result-value">+<CountUp to={100} duration={900} format="plain" /> KP</span></div>
         </div>
-        {next ? (
-          <p className="result-hint">あと <strong>{next.gap.toFixed(2)}秒</strong> で {next.medal} メダル！</p>
-        ) : (
-          <p className="result-hint">🥇 金メダル獲得！最速ペース達成！</p>
-        )}
-        <p className="festival-notice">🎉 おうこくで「{level}の段の祝祭」が <strong>30 分間</strong> 発動！生産が大幅アップ</p>
+        <p className="result-hint">{nextHint}</p>
+        <p className="festival-notice">
+          🎉 アタッククリアの特典：おうこくで「{level}の段の祝祭」が <strong>30 分間</strong> 発動！その段のなかまの生産が大幅アップ
+        </p>
         <div className="result-actions">
-          <button className="btn-primary" onClick={() => navigate('/attack/')}>つぎにちょうせん</button>
+          <button className="btn-primary" onClick={() => navigate(`/attack/${level}/`)}>もう一度</button>
+          <button className="btn-secondary" onClick={() => navigate('/attack/')}>別の段</button>
           <button className="btn-secondary" onClick={() => navigate('/')}>ホームへ</button>
         </div>
       </div>
@@ -165,16 +174,30 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
 
   return (
     <div className="screen quiz-screen">
+      {showQuitConfirm && (
+        <div className="quit-confirm-overlay" role="alertdialog" aria-label="やめる確認">
+          <div className="quit-confirm-card">
+            <p className="quit-confirm-msg">やめてホームに戻りますか？<br/>タイムは記録されません。</p>
+            <div className="quit-confirm-actions">
+              <button className="btn-danger" onClick={() => navigate('/')}>やめる</button>
+              <button className="btn-secondary" onClick={() => setShowQuitConfirm(false)}>つづける</button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="quiz-header">
         <span className="quiz-counter">⏱ {(elapsed / 1000).toFixed(2)}秒</span>
-        <span className="quiz-counter">のこり {problems.length - index}</span>
+        <span className="quiz-counter">📝 のこり {problems.length - index}問</span>
       </div>
       <div className={`quiz-problem attack-problem ${flashCorrect ? 'flash-correct' : ''} ${flashWrong ? 'flash-wrong' : ''}`}>
         <span className="quiz-equation">{current.a} × {current.b} =</span>
         <span className={`quiz-input attack-input ${flashCorrect ? 'success' : ''} ${flashWrong ? 'wrong' : ''}`}>
-          {flashCorrect ? '✓' : flashWrong ? '✗' : (input || '?')}
+          {flashCorrect ? '✓' : flashWrong ? '✗' : (input || <span className="placeholder-q">?</span>)}
         </span>
       </div>
+      {level < 10 && (
+        <p className="quiz-reading-inline">🗣️ {KUKU_READINGS[`${current.a}x${current.b}`] || ''}</p>
+      )}
       <div className="keypad">
         {KEYS.map((key) => (
           <button key={key} className="keypad-btn" onClick={() => handleKey(key)} aria-label={key}>
@@ -182,7 +205,7 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
           </button>
         ))}
       </div>
-      <button className="btn-secondary quit-btn" onClick={() => { if (confirm('やめてホームに戻りますか？（タイムは記録されません）')) navigate('/'); }}>
+      <button className="btn-link quit-btn" onClick={() => setShowQuitConfirm(true)}>
         やめる
       </button>
     </div>

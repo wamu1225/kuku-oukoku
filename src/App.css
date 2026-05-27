@@ -1425,12 +1425,46 @@ main { padding: 20px 16px 40px; }
   font-weight: 700;
 }
 
-/* === Quit button === */
+/* === Quit button + inline confirm === */
 .quit-btn {
   display: block;
   margin: 16px auto 0;
   font-size: 13px;
   padding: 8px 16px;
+}
+.quit-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 16px;
+}
+.quit-confirm-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 24px 20px;
+  max-width: 360px;
+  width: 100%;
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+}
+.quit-confirm-msg { margin: 0 0 16px; line-height: 1.6; }
+.quit-confirm-actions { display: flex; gap: 10px; justify-content: center; }
+
+/* Inline reading hint */
+.quiz-reading-inline {
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-muted);
+  background: #fef9e7;
+  padding: 6px 14px;
+  border-radius: 999px;
+  display: inline-block;
+  margin: 4px auto 16px;
+  width: fit-content;
 }
 
 /* === Empire help === */
