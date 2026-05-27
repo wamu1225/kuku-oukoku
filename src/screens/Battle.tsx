@@ -7,10 +7,12 @@ import { Confetti } from '../components/Confetti';
 import { vibrateCorrect, vibrateWrong } from '../utils/haptics';
 
 const STAGES = [
-  { id: '3', name: 'はじまりの草原', max: 3, unlockRank: 1, color: '#22c55e' },
-  { id: '6', name: 'しずかな森', max: 6, unlockRank: 4, color: '#16a34a' },
-  { id: '9', name: 'ゴツゴツ洞窟', max: 9, unlockRank: 7, color: '#a16207' },
+  { id: '3', name: 'はじまりの草原', max: 3, unlockRank: 1, color: '#22c55e', enemyEmoji: '🐛', goldCount: 10 },
+  { id: '6', name: 'しずかな森', max: 6, unlockRank: 4, color: '#16a34a', enemyEmoji: '🦊', goldCount: 15 },
+  { id: '9', name: 'ゴツゴツ洞窟', max: 9, unlockRank: 7, color: '#a16207', enemyEmoji: '👹', goldCount: 20 },
 ];
+
+const UNLOCK_RANK_NAMES: Record<number, string> = { 1: '10級', 4: '7級', 7: '4級' };
 
 function generateHP(maxTable: number): number {
   // Choose a*b where a,b in [1..9] but at least one in [1..maxTable]
@@ -61,10 +63,16 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
   const stageRef = useRef<(typeof STAGES)[number] | null>(null);
   const endedRef = useRef(false);
   const feedbackTimerRef = useRef<number | null>(null);
+  const [showQuitConfirm, setShowQuitConfirm] = useState(false);
+  const [comboFlash, setComboFlash] = useState(false);
+  const comboFlashTimerRef = useRef<number | null>(null);
   const [result, setResult] = useState<{ count: number; combo: number; kpGain: number } | null>(null);
 
   useEffect(() => {
-    return () => { if (feedbackTimerRef.current) window.clearTimeout(feedbackTimerRef.current); };
+    return () => {
+      if (feedbackTimerRef.current) window.clearTimeout(feedbackTimerRef.current);
+      if (comboFlashTimerRef.current) window.clearTimeout(comboFlashTimerRef.current);
+    };
   }, []);
 
   const start = (s: (typeof STAGES)[number]) => {
@@ -143,6 +151,12 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
         setCombo(newCombo);
         setMaxCombo(newMaxCombo);
         setFeedback('correct');
+        // コンボ更新時のフラッシュ演出（max 更新 or マイルストーン 3/5/10/20...）
+        if (newCombo > maxCombo || newCombo === 3 || newCombo === 5 || newCombo === 10 || newCombo % 10 === 0) {
+          setComboFlash(true);
+          if (comboFlashTimerRef.current) window.clearTimeout(comboFlashTimerRef.current);
+          comboFlashTimerRef.current = window.setTimeout(() => setComboFlash(false), 600);
+        }
         // 正解は 700ms に延長：式 + ⚔️ 表示をプレイヤーが視認できる時間を確保
         if (feedbackTimerRef.current) window.clearTimeout(feedbackTimerRef.current);
         feedbackTimerRef.current = window.setTimeout(() => {
@@ -207,9 +221,9 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
                 <span className="stage-name">{s.name}</span>
                 <span className="stage-meta">1〜{s.max}の段</span>
                 {unlocked ? (
-                  <span className="stage-best">自己ベスト: {best}体</span>
+                  <span className="stage-best">自己ベスト: {best}体 / 🥇金 {s.goldCount}体</span>
                 ) : (
-                  <span className="stage-locked">🔒 段位試験を進めて解禁</span>
+                  <span className="stage-locked">🔒 だんいにんてい {UNLOCK_RANK_NAMES[s.unlockRank]}合格で解禁</span>
                 )}
               </button>
             );
@@ -222,11 +236,19 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
   }
 
   if (phase === 'countdown') {
-    return <div className="screen countdown-screen"><p className="countdown-ready">Ready...</p><p key={countdown} className="countdown-number pop">{countdown}</p></div>;
+    return <div className="screen countdown-screen"><p className="countdown-ready">よーい…</p><p key={countdown} className="countdown-number pop">{countdown}</p></div>;
   }
 
   if (phase === 'done' && result) {
     const showConfetti = result.count >= 10 || result.combo >= 5;
+    const goldGoal = stage?.goldCount ?? 10;
+    const evalText =
+      result.count >= goldGoal
+        ? `🥇 ${stage!.name} の金級達成！`
+        : result.count >= Math.floor(goldGoal * 0.7)
+        ? `あと ${goldGoal - result.count}体 で 🥇 金級！`
+        : `次は ${goldGoal}体 撃破を狙おう（🥇 金級ライン）`;
+    const comboNote = result.combo >= 5 ? `🔥 ${result.combo} 連続コンボ！` : null;
     return (
       <div className="screen result-screen">
         {showConfetti && <Confetti count={40} />}
@@ -237,6 +259,8 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
           <div><span className="result-label">最大コンボ</span><span className="result-value">{result.combo}</span></div>
           <div><span className="result-label">獲得 KP</span><span className="result-value">+{IdleManager.formatBigNumber(result.kpGain)}</span></div>
         </div>
+        <p className="result-hint">{evalText}</p>
+        {comboNote && <p className="result-hint result-hint-combo">{comboNote}</p>}
         <div className="result-actions">
           <button className="btn-primary" onClick={() => { setPhase('select'); setResult(null); }}>もう一度</button>
           <button className="btn-secondary" onClick={() => navigate('/')}>ホームへ</button>
@@ -245,25 +269,31 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
     );
   }
 
+  const remainingSecs = Math.max(0, (30000 - elapsed) / 1000);
   return (
     <div className="screen battle-screen">
+      {showQuitConfirm && (
+        <div className="quit-confirm-overlay" role="alertdialog" aria-label="やめる確認">
+          <div className="quit-confirm-card">
+            <p className="quit-confirm-msg">やめてホームに戻りますか？<br/>進捗は記録されません。</p>
+            <div className="quit-confirm-actions">
+              <button className="btn-danger" onClick={() => navigate('/')}>やめる</button>
+              <button className="btn-secondary" onClick={() => setShowQuitConfirm(false)}>つづける</button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="quiz-header">
-        <span className="quiz-counter">⏱ {((30000 - elapsed) / 1000).toFixed(1)}秒</span>
+        <span className={`quiz-counter ${remainingSecs < 5 ? 'time-urgent' : ''}`}>⏱ {remainingSecs.toFixed(1)}秒</span>
         <span className="quiz-counter">⚔️ {defeated}体</span>
-        <span className={`quiz-counter combo-counter combo-${combo >= 5 ? 'hot' : combo >= 3 ? 'warm' : ''}`}>
+        <span className={`quiz-counter combo-counter combo-${combo >= 5 ? 'hot' : combo >= 3 ? 'warm' : ''} ${comboFlash ? 'combo-flash' : ''}`}>
           🔥 {combo}コンボ
         </span>
       </div>
 
       <div className={`battle-enemy ${feedback === 'correct' ? 'hit' : feedback === 'wrong' ? 'shake' : ''}`}>
-        <div className="enemy-emoji" aria-hidden="true">👾</div>
+        <div className="enemy-emoji" aria-hidden="true">{stage?.enemyEmoji ?? '👾'}</div>
         <div className="enemy-hp">この数を作ろう：<strong>{hp}</strong></div>
-        <div className="enemy-hp-bar" aria-hidden="true">
-          {/* HP visualization: 横並び block 表現（HP / stage.max で 0-9 段階） */}
-          {Array.from({ length: Math.max(1, Math.ceil(hp / 9)) }, (_, i) => (
-            <span key={i} className="enemy-hp-block" />
-          ))}
-        </div>
       </div>
 
       <div className="battle-formula-line">
@@ -293,7 +323,7 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
         {selected.length === 1 && 'もう 1 まい選ぼう（× するとどうなる？）'}
         {selected.length === 2 && (
           cards[selected[0]] * cards[selected[1]] === hp
-            ? '正解！'
+            ? '⚔️ 撃破！次の敵が来るよ'
             : 'HP と合わない… 1 まい選び直そう'
         )}
       </p>
@@ -312,6 +342,10 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
           </button>
         ))}
       </div>
+
+      <button className="btn-link quit-btn" onClick={() => setShowQuitConfirm(true)}>
+        やめる
+      </button>
     </div>
   );
 }
