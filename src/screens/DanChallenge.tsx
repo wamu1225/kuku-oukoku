@@ -44,7 +44,22 @@ function pickProblems(source: number[], count: number) {
 
 export function DanChallenge({ state, onComplete }: { state: any; onComplete: () => void }) {
   const currentRank = state.danRank || 0;
-  const nextDan = getNextDan(currentRank);
+  const trialCleared = (state.stats?.totalTrialsCleared || 0) > 0;
+  const nextDanRaw = getNextDan(currentRank);
+  // 1級 (rank 10) 取得後、初段 (rank 11) を受けるには暗黒の試練クリアが必要
+  const trialGateActive = currentRank === 10 && !trialCleared;
+  const nextDan = trialGateActive ? null : nextDanRaw;
+
+  // 次の段位が「まなぶ未解禁の段」かどうかチェック（事前学習推奨ヒント）
+  const unmasteredHint = (() => {
+    if (!nextDan) return null;
+    if (nextDan.source.length !== 1) return null; // 単段試験のみ
+    const segLv = nextDan.source[0];
+    if (segLv <= 9) return null; // 1-9 段は初期解禁なので OK
+    const isCompletedLearn = state.tableBests?.[segLv]?.isCompleted === true;
+    if (isCompletedLearn) return null;
+    return segLv;
+  })();
   const [selected, setSelected] = useState<number | null>(null);
   const [phase, setPhase] = useState<'select' | 'countdown' | 'playing' | 'done' | 'failed'>('select');
   const [countdown, setCountdown] = useState(3);
@@ -181,9 +196,28 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
               次は <strong>{nextDan.name}</strong> ／ 15問を 90秒以内に全問正解で合格
             </div>
           )}
+          {trialGateActive && (
+            <div className="dan-rank-next">
+              次は <strong>初段</strong>。挑戦する前に <strong>暗黒の試練</strong> をクリアしてください
+            </div>
+          )}
         </div>
 
-        {nextDan ? (
+        {trialGateActive ? (
+          <div className="dan-card dan-card-locked">
+            <h2>🌑 初段への道</h2>
+            <p>
+              初段は <strong>10の段</strong> の試験です。挑む前に「<strong>暗黒の試練</strong>」をクリアして、10 の段を解禁しましょう。
+            </p>
+            <p className="dan-trial-hint">
+              💡 暗黒の試練は <a href="/kuku-oukoku/empire/" onClick={(e) => { e.preventDefault(); navigate('/empire/'); }}>おうこく</a> で 9 の段のなかまを呼ぶと挑戦できるようになります。
+            </p>
+            <div className="cta-row">
+              <button className="btn-primary big" onClick={() => navigate('/trial/')}>⚔️ 試練の門へ</button>
+              <button className="btn-secondary" onClick={() => navigate('/empire/')}>おうこくへ</button>
+            </div>
+          </div>
+        ) : nextDan ? (
           <div className="dan-card">
             <h2>{nextDan.name} に挑戦</h2>
             <p>出題範囲：{nextDan.source.length === 1 ? `${nextDan.source[0]}の段` : `${Math.min(...nextDan.source)}〜${Math.max(...nextDan.source)}の段ランダム`}</p>
@@ -193,6 +227,13 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
               <span className="dan-medal-target dan-medal-silver">🥈 銀：{(nextDan.silverTimeMs / 1000).toFixed(1)}秒以内</span>
               <span className="dan-medal-target dan-medal-bronze">🥉 銅：90秒以内クリア</span>
             </div>
+            {unmasteredHint !== null && (
+              <p className="dan-prep-hint">
+                💡 <strong>{unmasteredHint}の段</strong> がまだの場合は、先に
+                <a href={`/kuku-oukoku/learn/${unmasteredHint}/`} onClick={(e) => { e.preventDefault(); navigate(`/learn/${unmasteredHint}/`); }}>まなぶ</a>
+                で覚えてから挑戦すると有利！
+              </p>
+            )}
             <button className="btn-primary big" onClick={() => start(nextDan.rank)}>挑戦する</button>
           </div>
         ) : (

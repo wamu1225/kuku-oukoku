@@ -721,6 +721,35 @@ main { padding: 20px 16px 40px; }
 .dan-rank-value { font-size: 24px; font-weight: 900; color: #4c1d95; margin: 2px 0; }
 .dan-rank-next { font-size: 13px; color: #5b21b6; margin-top: 6px; }
 
+/* Dan card locked (trial gate) */
+.dan-card-locked {
+  background: linear-gradient(135deg, #1f2937 0%, #4b1d6e 100%);
+  color: #f3f4f6;
+  border: 2px solid #fcd34d;
+}
+.dan-card-locked h2 { color: #fcd34d; }
+.dan-card-locked p { color: #e2e8f0; }
+.dan-card-locked a { color: #fcd34d; text-decoration: underline; }
+.dan-trial-hint {
+  background: rgba(0,0,0,0.3);
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin: 12px 0;
+  font-size: 14px;
+}
+
+/* Prep hint (untouched段 まなぶ first) */
+.dan-prep-hint {
+  background: #fef9e7;
+  border-left: 3px solid var(--accent);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #92400e;
+  margin: 12px 0;
+}
+.dan-prep-hint a { color: var(--primary-dark); font-weight: 700; }
+
 /* Dan promotion display in result */
 .dan-promotion {
   display: flex;
