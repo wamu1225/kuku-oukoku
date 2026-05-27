@@ -19,6 +19,7 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 export function TimeAttack({ level, onComplete }: { level: number; onComplete: () => void }) {
+  const [runId, setRunId] = useState(0);
   const [countdown, setCountdown] = useState(3);
   const [started, setStarted] = useState(false);
   const [finished, setFinished] = useState(false);
@@ -30,12 +31,30 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
   const startRef = useRef<number | null>(null);
   const timerRef = useRef<number | null>(null);
 
-  // CRITICAL: problems must be stable for the duration of the attack. Generate once based on level.
+  // CRITICAL: problems must be stable for the duration of the attack. Generate once based on level+runId.
   const problems = useMemo(
     () => shuffle(Array.from({ length: 9 }, (_, i) => ({ a: level, b: i + 1 }))),
-    [level]
+    [level, runId]
   );
   const current = problems[index];
+
+  const retry = () => {
+    endedRef.current = false;
+    setCountdown(3);
+    setStarted(false);
+    setFinished(false);
+    setIndex(0);
+    setInput('');
+    setElapsed(0);
+    setResult(null);
+    setFlashCorrect(false);
+    setFlashWrong(false);
+    startRef.current = null;
+    if (timerRef.current) { window.clearInterval(timerRef.current); timerRef.current = null; }
+    if (advanceTimerRef.current) { window.clearTimeout(advanceTimerRef.current); advanceTimerRef.current = null; }
+    if (wrongTimerRef.current) { window.clearTimeout(wrongTimerRef.current); wrongTimerRef.current = null; }
+    setRunId((n) => n + 1);
+  };
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
@@ -163,7 +182,7 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
           🎉 アタッククリアの特典：おうこくで「{level}の段の祝祭」が <strong>30 分間</strong> 発動！その段のなかまの生産が大幅アップ
         </p>
         <div className="result-actions">
-          <button className="btn-primary" onClick={() => navigate(`/attack/${level}/`)}>もう一度</button>
+          <button className="btn-primary" onClick={retry}>もう一度</button>
           <button className="btn-secondary" onClick={() => navigate('/attack/')}>別の段</button>
           <button className="btn-secondary" onClick={() => navigate('/')}>ホームへ</button>
         </div>
