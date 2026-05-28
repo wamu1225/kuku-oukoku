@@ -19,15 +19,17 @@ type Stage = {
   requiresStage4Gold?: boolean;
 };
 
+const BATTLE_GOLD_COUNT = 12;
+
 const STAGES: Stage[] = [
-  { id: '3', name: 'はじまりの草原', max: 3, unlockRank: 1, color: '#22c55e', enemyEmoji: '🐛', goldCount: 10, cards: 5 },
-  { id: '6', name: 'しずかな森', max: 6, unlockRank: 4, color: '#16a34a', enemyEmoji: '🦊', goldCount: 13, cards: 5 },
-  { id: '9', name: 'ゴツゴツ洞窟', max: 9, unlockRank: 7, color: '#a16207', enemyEmoji: '👹', goldCount: 15, cards: 5 },
-  { id: '15', name: '月夜の古城', max: 15, color: '#7c3aed', enemyEmoji: '🐉', goldCount: 12, cards: 7, requiresTrial: true },
-  { id: '20', name: '星天の決戦場', max: 20, color: '#fbbf24', enemyEmoji: '👑', goldCount: 10, cards: 7, requiresTrial: true, requiresStage4Gold: true },
+  { id: '3', name: 'はじまりの草原', max: 3, unlockRank: 1, color: '#22c55e', enemyEmoji: '🐛', goldCount: BATTLE_GOLD_COUNT, cards: 5 },
+  { id: '6', name: 'しずかな森', max: 6, unlockRank: 4, color: '#16a34a', enemyEmoji: '🦊', goldCount: BATTLE_GOLD_COUNT, cards: 5 },
+  { id: '9', name: 'ゴツゴツ洞窟', max: 9, unlockRank: 7, color: '#a16207', enemyEmoji: '👹', goldCount: BATTLE_GOLD_COUNT, cards: 5 },
+  { id: '15', name: '月夜の古城', max: 15, color: '#7c3aed', enemyEmoji: '🐉', goldCount: BATTLE_GOLD_COUNT, cards: 7, requiresTrial: true },
+  { id: '20', name: '星天の決戦場', max: 20, color: '#fbbf24', enemyEmoji: '👑', goldCount: BATTLE_GOLD_COUNT, cards: 7, requiresTrial: true, requiresStage4Gold: true },
 ];
 
-const STAGE4_GOLD_COUNT = 12;
+const STAGE4_GOLD_COUNT = BATTLE_GOLD_COUNT;
 
 const UNLOCK_RANK_NAMES: Record<number, string> = { 1: '10級', 4: '7級', 7: '4級' };
 
