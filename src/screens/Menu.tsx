@@ -113,7 +113,13 @@ export function Menu({ state }: { state: KukuState }) {
       return { icon: '🌑', text: '暗黒の試練を突破して、伝説の段へ！', path: '/empire/' };
     }
     if (danRank > 10 && danRank < 21) {
-      return { icon: '🌟', text: '伝説の段を進めて皆伝（21段）を目指そう！', path: '/dan/' };
+      return { icon: '🌟', text: '伝説の段を進めて皆伝を目指そう！', path: '/dan/' };
+    }
+    if (danRank === 21) {
+      return { icon: '🏆', text: '名人（50問連続）にちょうせん！', path: '/dan/' };
+    }
+    if (danRank === 22) {
+      return { icon: '👑', text: '伝説（100問連続）にちょうせん！', path: '/dan/' };
     }
     return null;
   }, [state]);

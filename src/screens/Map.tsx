@@ -102,7 +102,7 @@ export function Map({ state }: { state: KukuState }) {
               {Array.from({ length: size }, (_, b) => {
                 const col = b + 1;
                 const isColMastered = masteredCols.has(col);
-                const cellMastered = isRowMastered || isColMastered;
+                const cellMastered = (isRowMastered && col <= 9) || (isColMastered && row <= 9);
                 const isSelected = selected?.a === row && selected?.b === col;
                 return (
                   <button
