@@ -1,6 +1,6 @@
 import type { KukuState } from '../types';
 import { DateUtils } from './DateUtils';
-import { IdleManager } from './IdleManager';
+import { IdleManager, MAX_KP } from './IdleManager';
 import { getDanRankName } from '../data/danLevels';
 import { KUKU_READINGS } from '../data/kukuReadings';
 
@@ -71,6 +71,7 @@ const sanitize = (raw: unknown): KukuState => {
   if (!merged.results) merged.results = {};
   if (!merged.tableBests) merged.tableBests = {};
   if (typeof merged.kp !== 'number' || isNaN(merged.kp)) merged.kp = 0;
+  else if (merged.kp > MAX_KP) merged.kp = MAX_KP;
   if (typeof merged.totalStamps !== 'number') merged.totalStamps = 0;
   if (!merged.rank) merged.rank = 'みならい';
   if (!merged.companions) merged.companions = {};
@@ -345,6 +346,7 @@ export const LearningEngine = {
 
   saveState(state: KukuState): void {
     try {
+      if (typeof state.kp === 'number' && state.kp > MAX_KP) state.kp = MAX_KP;
       state.lastSeenDate = new Date().toISOString();
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch (e) {
@@ -634,11 +636,14 @@ export const LearningEngine = {
   applyOfflineEarnings(): { state: KukuState; offlineKp: number; shouldNotify: boolean } {
     const state = this.loadState();
     const offline = IdleManager.calculateOfflineEarnings(state, 600);
+    let appliedKp = 0;
     if (offline.kp > 0) {
-      state.kp += offline.kp;
-      this.saveState(state);
+      const before = state.kp;
+      state.kp = Math.min(state.kp + offline.kp, MAX_KP);
+      appliedKp = state.kp - before;
+      if (appliedKp > 0) this.saveState(state);
     }
-    return { state, offlineKp: offline.kp, shouldNotify: offline.shouldNotify };
+    return { state, offlineKp: appliedKp, shouldNotify: offline.shouldNotify && appliedKp > 0 };
   },
 
   getReading(level: number, b: number): string {
