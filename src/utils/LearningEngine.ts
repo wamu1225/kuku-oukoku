@@ -538,6 +538,8 @@ export const LearningEngine = {
       '3': { gold: 230, silver: 150, bronze: 80 },
       '6': { gold: 460, silver: 300, bronze: 160 },
       '9': { gold: 630, silver: 410, bronze: 220 },
+      '15': { gold: 800, silver: 520, bronze: 280 },
+      '20': { gold: 1000, silver: 650, bronze: 350 },
     };
     const c = criteria[diffId] || criteria['9'];
     let medal: 'gold' | 'silver' | 'bronze' | 'clear' = 'clear';

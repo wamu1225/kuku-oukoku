@@ -6,45 +6,61 @@ import { IdleManager } from '../utils/IdleManager';
 import { Confetti } from '../components/Confetti';
 import { vibrateCorrect, vibrateWrong } from '../utils/haptics';
 
-const STAGES = [
-  { id: '3', name: 'はじまりの草原', max: 3, unlockRank: 1, color: '#22c55e', enemyEmoji: '🐛', goldCount: 10 },
-  { id: '6', name: 'しずかな森', max: 6, unlockRank: 4, color: '#16a34a', enemyEmoji: '🦊', goldCount: 15 },
-  { id: '9', name: 'ゴツゴツ洞窟', max: 9, unlockRank: 7, color: '#a16207', enemyEmoji: '👹', goldCount: 20 },
+type Stage = {
+  id: string;
+  name: string;
+  max: number;
+  color: string;
+  enemyEmoji: string;
+  goldCount: number;
+  cards: number;
+  unlockRank?: number;
+  requiresTrial?: boolean;
+  requiresStage4Gold?: boolean;
+};
+
+const STAGES: Stage[] = [
+  { id: '3', name: 'はじまりの草原', max: 3, unlockRank: 1, color: '#22c55e', enemyEmoji: '🐛', goldCount: 10, cards: 5 },
+  { id: '6', name: 'しずかな森', max: 6, unlockRank: 4, color: '#16a34a', enemyEmoji: '🦊', goldCount: 15, cards: 5 },
+  { id: '9', name: 'ゴツゴツ洞窟', max: 9, unlockRank: 7, color: '#a16207', enemyEmoji: '👹', goldCount: 20, cards: 5 },
+  { id: '15', name: '月夜の古城', max: 15, color: '#7c3aed', enemyEmoji: '🐉', goldCount: 18, cards: 7, requiresTrial: true },
+  { id: '20', name: '星天の決戦場', max: 20, color: '#fbbf24', enemyEmoji: '👑', goldCount: 15, cards: 7, requiresTrial: true, requiresStage4Gold: true },
 ];
+
+const STAGE4_GOLD_COUNT = 18;
 
 const UNLOCK_RANK_NAMES: Record<number, string> = { 1: '10級', 4: '7級', 7: '4級' };
 
 function generateHP(maxTable: number): number {
-  // Choose a*b where a,b in [1..9] but at least one in [1..maxTable]
+  // a×b: a in [1..maxTable], b in [1..9]。少なくとも片方が maxTable 内にある
   const a = Math.floor(Math.random() * maxTable) + 1;
   const b = Math.floor(Math.random() * 9) + 1;
   return a * b;
 }
 
 function generateCards(hp: number, maxTable: number, count: number): number[] {
-  // Ensure at least one valid pair (a,b) where a*b === hp and a or b ≤ maxTable
+  const cardMax = Math.max(9, maxTable);
   const cards: number[] = [];
-  // Find divisor pair
-  for (let a = 1; a <= 9; a++) {
-    if (hp % a === 0) {
-      const b = hp / a;
-      if (b >= 1 && b <= 9 && (a <= maxTable || b <= maxTable)) {
-        cards.push(a, b);
-        break;
-      }
-    }
+  // a×b === hp なる(a,b)を探す。a,b ∈ [1..cardMax]、少なくとも一方が maxTable 以内
+  for (let a = 1; a <= cardMax; a++) {
+    if (hp % a !== 0) continue;
+    const b = hp / a;
+    if (b < 1 || b > cardMax) continue;
+    if (a > maxTable && b > maxTable) continue;
+    cards.push(a, b);
+    break;
   }
   while (cards.length < count) {
-    const c = Math.floor(Math.random() * 9) + 1;
-    cards.push(c);
+    cards.push(Math.floor(Math.random() * cardMax) + 1);
   }
   return cards.sort(() => Math.random() - 0.5);
 }
 
 export function Battle({ state, onComplete }: { state: KukuState; onComplete: () => void }) {
   const danRank = state.danRank || 0;
+  const trialCleared = (state.stats?.totalTrialsCleared || 0) > 0;
   const [phase, setPhase] = useState<'select' | 'countdown' | 'playing' | 'done'>('select');
-  const [stage, setStage] = useState<(typeof STAGES)[number] | null>(null);
+  const [stage, setStage] = useState<Stage | null>(null);
   const [countdown, setCountdown] = useState(3);
   const [hp, setHp] = useState(0);
   const [cards, setCards] = useState<number[]>([]);
@@ -60,7 +76,7 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
   const defeatedRef = useRef(0);
   const comboRef = useRef(0);
   const maxComboRef = useRef(0);
-  const stageRef = useRef<(typeof STAGES)[number] | null>(null);
+  const stageRef = useRef<Stage | null>(null);
   const endedRef = useRef(false);
   const feedbackTimerRef = useRef<number | null>(null);
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
@@ -75,7 +91,7 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
     };
   }, []);
 
-  const start = (s: (typeof STAGES)[number]) => {
+  const start = (s: Stage) => {
     setStage(s);
     stageRef.current = s;
     setPhase('countdown');
@@ -87,7 +103,7 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
     endedRef.current = false;
     const newHp = generateHP(s.max);
     setHp(newHp);
-    setCards(generateCards(newHp, s.max, 5));
+    setCards(generateCards(newHp, s.max, s.cards));
   };
 
   useEffect(() => {
@@ -165,7 +181,7 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
           setSelected([]);
           const newHp = generateHP(stage!.max);
           setHp(newHp);
-          setCards(generateCards(newHp, stage!.max, 5));
+          setCards(generateCards(newHp, stage!.max, stage!.cards));
         }, 700);
       } else {
         vibrateWrong();
@@ -207,13 +223,23 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
         </div>
 
         <div className="battle-stages">
-          {STAGES.map((s) => {
-            const unlocked = danRank >= s.unlockRank;
+          {STAGES.filter((s) => !s.requiresTrial || trialCleared).map((s) => {
+            const stage4Best = state.stats?.battleMaxDefeatedPerDiff?.['15'] || 0;
+            const stage4Gold = stage4Best >= STAGE4_GOLD_COUNT;
+            let unlocked = true;
+            let lockMsg = '';
+            if (s.requiresStage4Gold && !stage4Gold) {
+              unlocked = false;
+              lockMsg = `🔒 月夜の古城で 🥇 金級（${STAGE4_GOLD_COUNT}体撃破）で解禁`;
+            } else if (s.unlockRank != null && danRank < s.unlockRank) {
+              unlocked = false;
+              lockMsg = `🔒 だんいにんてい ${UNLOCK_RANK_NAMES[s.unlockRank]}合格で解禁`;
+            }
             const best = state.stats?.battleMaxDefeatedPerDiff?.[s.id] || 0;
             return (
               <button
                 key={s.id}
-                className={`battle-stage ${unlocked ? '' : 'locked'}`}
+                className={`battle-stage ${unlocked ? '' : 'locked'} ${s.requiresTrial ? 'stage-legend' : ''}`}
                 style={{ '--stage-color': s.color } as React.CSSProperties}
                 disabled={!unlocked}
                 onClick={() => start(s)}
@@ -223,7 +249,7 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
                 {unlocked ? (
                   <span className="stage-best">自己ベスト: {best}体 / 🥇金 {s.goldCount}体</span>
                 ) : (
-                  <span className="stage-locked">🔒 だんいにんてい {UNLOCK_RANK_NAMES[s.unlockRank]}合格で解禁</span>
+                  <span className="stage-locked">{lockMsg}</span>
                 )}
               </button>
             );
@@ -328,7 +354,7 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
         )}
       </p>
 
-      <div className="battle-cards">
+      <div className={`battle-cards ${cards.length === 7 ? 'battle-cards-7' : ''}`}>
         {cards.map((c, i) => (
           <button
             key={i}

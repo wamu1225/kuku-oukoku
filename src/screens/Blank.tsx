@@ -6,10 +6,22 @@ import { Confetti } from '../components/Confetti';
 import { vibrateCorrect, vibrateWrong } from '../utils/haptics';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
-const STAGES = [
+
+type Stage = {
+  id: string;
+  name: string;
+  max: number;
+  unlockRank?: number;
+  requiresTrial?: boolean;
+  requiresStage4Gold?: boolean;
+};
+
+const STAGES: Stage[] = [
   { id: '3', name: 'しんキロウの森', max: 3, unlockRank: 3 },
   { id: '6', name: 'そらの雲海', max: 6, unlockRank: 6 },
   { id: '9', name: 'かみなりの山', max: 9, unlockRank: 9 },
+  { id: '15', name: '月見の雲海', max: 15, requiresTrial: true },
+  { id: '20', name: '流星の彼方', max: 20, requiresTrial: true, requiresStage4Gold: true },
 ];
 
 const UNLOCK_RANK_NAMES: Record<number, string> = { 3: '8級', 6: '5級', 9: '2級' };
@@ -49,8 +61,9 @@ function generate(max: number): BlankProblem[] {
 
 export function Blank({ state, onComplete }: { state: KukuState; onComplete: () => void }) {
   const danRank = state.danRank || 0;
+  const trialCleared = (state.stats?.totalTrialsCleared || 0) > 0;
   const [phase, setPhase] = useState<'select' | 'countdown' | 'playing' | 'done'>('select');
-  const [stage, setStage] = useState<(typeof STAGES)[number] | null>(null);
+  const [stage, setStage] = useState<Stage | null>(null);
   const [countdown, setCountdown] = useState(3);
   const [problems, setProblems] = useState<BlankProblem[]>([]);
   const [index, setIndex] = useState(0);
@@ -62,7 +75,7 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
 
   const current = problems[index];
 
-  const start = (s: (typeof STAGES)[number]) => {
+  const start = (s: Stage) => {
     setStage(s);
     setProblems(generate(s.max));
     setIndex(0);
@@ -166,15 +179,25 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
         </p>
 
         <div className="battle-stages">
-          {STAGES.map((s) => {
-            const unlocked = danRank >= s.unlockRank;
+          {STAGES.filter((s) => !s.requiresTrial || trialCleared).map((s) => {
+            const stage4Medal = state.blankMedalsPerDiff?.['15'];
+            const stage4Gold = stage4Medal === 'gold';
+            let unlocked = true;
+            let lockMsg = '';
+            if (s.requiresStage4Gold && !stage4Gold) {
+              unlocked = false;
+              lockMsg = '🔒 月見の雲海で 🥇 金メダルを取ると解禁';
+            } else if (s.unlockRank != null && danRank < s.unlockRank) {
+              unlocked = false;
+              lockMsg = `🔒 だんいにんてい ${UNLOCK_RANK_NAMES[s.unlockRank]}合格で解禁`;
+            }
             const best = state.challengeBestTimes?.[s.id];
             const medal = state.blankMedalsPerDiff?.[s.id];
             return (
               <button
                 key={s.id}
-                className={`battle-stage ${unlocked ? '' : 'locked'}`}
-                style={{ '--stage-color': '#8b5cf6' } as React.CSSProperties}
+                className={`battle-stage ${unlocked ? '' : 'locked'} ${s.requiresTrial ? 'stage-legend' : ''}`}
+                style={{ '--stage-color': s.requiresTrial ? '#a78bfa' : '#8b5cf6' } as React.CSSProperties}
                 disabled={!unlocked}
                 onClick={() => start(s)}
               >
@@ -190,7 +213,7 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
                       🥇 {(GOLD_MS / 1000).toFixed(1)}秒 / 🥈 {(SILVER_MS / 1000).toFixed(1)}秒 / 🥉 クリア
                     </span>
                   </>
-                ) : <span className="stage-locked">🔒 だんいにんてい {UNLOCK_RANK_NAMES[s.unlockRank]}合格で解禁</span>}
+                ) : <span className="stage-locked">{lockMsg}</span>}
               </button>
             );
           })}

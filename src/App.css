@@ -1247,6 +1247,23 @@ main { padding: 20px 16px 40px; }
   background: #94a3b8;
   color: #e2e8f0;
 }
+.battle-stage.stage-legend {
+  background: linear-gradient(135deg, var(--stage-color, #7c3aed) 0%, #312e81 100%);
+  box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.5), var(--shadow);
+  position: relative;
+}
+.battle-stage.stage-legend::before {
+  content: '✨';
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 16px;
+  animation: legend-shimmer 2s ease-in-out infinite;
+}
+@keyframes legend-shimmer {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
 .stage-name { font-size: 18px; font-weight: 900; }
 .stage-meta { font-size: 13px; opacity: 0.92; }
 .stage-best { font-size: 13px; opacity: 0.95; margin-top: 4px; }
@@ -1396,6 +1413,13 @@ main { padding: 20px 16px 40px; }
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 8px;
+}
+.battle-cards-7 {
+  grid-template-columns: repeat(4, 1fr);
+}
+.battle-cards-7 .battle-card {
+  padding: 16px 0;
+  font-size: 28px;
 }
 .battle-card {
   background: linear-gradient(135deg, #fde68a 0%, #f59e0b 100%);

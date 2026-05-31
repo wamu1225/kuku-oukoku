@@ -6,10 +6,25 @@ import { Confetti } from '../components/Confetti';
 import { vibrateCorrect, vibrateWrong } from '../utils/haptics';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
-const STAGES = [
+
+type Stage = {
+  id: string;
+  name: string;
+  max: number;
+  gold: number;
+  silver: number;
+  bronze: number;
+  unlockRank?: number;
+  requiresTrial?: boolean;
+  requiresStage4Gold?: boolean;
+};
+
+const STAGES: Stage[] = [
   { id: '3', name: 'そよ風の塔', max: 3, unlockRank: 2, gold: 230, silver: 150, bronze: 80 },
   { id: '6', name: '雲海の見張り塔', max: 6, unlockRank: 5, gold: 460, silver: 300, bronze: 160 },
   { id: '9', name: '迅雷の尖塔', max: 9, unlockRank: 8, gold: 630, silver: 410, bronze: 220 },
+  { id: '15', name: '月光の天楼', max: 15, gold: 800, silver: 520, bronze: 280, requiresTrial: true },
+  { id: '20', name: '星天の頂', max: 20, gold: 1000, silver: 650, bronze: 350, requiresTrial: true, requiresStage4Gold: true },
 ];
 const BG_TIERS = [
   { from: 2000, name: '深宇宙', bg: 'linear-gradient(180deg, #020617 0%, #1e1b4b 100%)' },
@@ -25,8 +40,9 @@ function getTier(score: number) {
 
 export function Tower({ state, onComplete }: { state: KukuState; onComplete: () => void }) {
   const danRank = state.danRank || 0;
+  const trialCleared = (state.stats?.totalTrialsCleared || 0) > 0;
   const [phase, setPhase] = useState<'select' | 'countdown' | 'playing' | 'done'>('select');
-  const [stage, setStage] = useState<(typeof STAGES)[number] | null>(null);
+  const [stage, setStage] = useState<Stage | null>(null);
   const [countdown, setCountdown] = useState(3);
   const [score, setScore] = useState(0);
   const [a, setA] = useState(1);
@@ -38,7 +54,7 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
   const timerRef = useRef<number | null>(null);
   // setInterval 内 finish() の stale closure 対策
   const scoreRef = useRef(0);
-  const stageRef = useRef<(typeof STAGES)[number] | null>(null);
+  const stageRef = useRef<Stage | null>(null);
   const endedRef = useRef(false);
   const [flashCorrect, setFlashCorrect] = useState(false);
   const [flashWrong, setFlashWrong] = useState(false);
@@ -62,7 +78,7 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
     setInput('');
   };
 
-  const start = (s: (typeof STAGES)[number]) => {
+  const start = (s: Stage) => {
     setStage(s);
     stageRef.current = s;
     setPhase('countdown');
@@ -155,15 +171,26 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
         </p>
 
         <div className="battle-stages">
-          {STAGES.map((s) => {
-            const unlocked = danRank >= s.unlockRank;
+          {STAGES.filter((s) => !s.requiresTrial || trialCleared).map((s) => {
+            const stage4Medal = state.stats?.towerMedalsPerDiff?.['15'];
+            const stage4Gold = stage4Medal === 'gold';
+            let unlocked = true;
+            let lockMsg = '';
+            if (s.requiresStage4Gold && !stage4Gold) {
+              unlocked = false;
+              lockMsg = '🔒 月光の天楼で 🥇 金メダルを取ると解禁';
+            } else if (s.unlockRank != null && danRank < s.unlockRank) {
+              unlocked = false;
+              const rankLabel = s.unlockRank === 2 ? '9級' : s.unlockRank === 5 ? '6級' : '3級';
+              lockMsg = `🔒 だんいにんてい ${rankLabel}合格で解禁`;
+            }
             const best = state.stats?.towerBestHeightsPerDiff?.[s.id] || 0;
             const medal = state.stats?.towerMedalsPerDiff?.[s.id];
             return (
               <button
                 key={s.id}
-                className={`battle-stage ${unlocked ? '' : 'locked'}`}
-                style={{ '--stage-color': '#6366f1' } as React.CSSProperties}
+                className={`battle-stage ${unlocked ? '' : 'locked'} ${s.requiresTrial ? 'stage-legend' : ''}`}
+                style={{ '--stage-color': s.requiresTrial ? '#a78bfa' : '#6366f1' } as React.CSSProperties}
                 disabled={!unlocked}
                 onClick={() => start(s)}
               >
@@ -178,7 +205,7 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
                       🥇 {s.gold}m / 🥈 {s.silver}m / 🥉 {s.bronze}m
                     </span>
                   </>
-                ) : <span className="stage-locked">🔒 だんいにんてい {s.unlockRank === 2 ? '9級' : s.unlockRank === 5 ? '6級' : '3級'}合格で解禁</span>}
+                ) : <span className="stage-locked">{lockMsg}</span>}
               </button>
             );
           })}
