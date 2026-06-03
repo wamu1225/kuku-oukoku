@@ -249,7 +249,8 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
           const owned = state.companions[comp.level] || 0;
           const cost = IdleManager.getUpgradeCost(comp.level, owned);
           const canBuy = state.kp >= cost;
-          const production = IdleManager.getIndividualProduction(state, comp.level);
+          // 表示はおうこくレベル（昇段ボーナス）反映後の値にする（合計KPSと整合させるため）
+          const production = IdleManager.getIndividualProduction(state, comp.level) * IdleManager.getPrestigeBonus(state.prestigeCount);
           const masteryInfo = IdleManager.getMasteryInfo(state, comp.level);
           const festivalUntil = state.festivalUntil?.[comp.level] || 0;
           const festivalActive = festivalUntil > now;
