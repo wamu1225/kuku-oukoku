@@ -227,8 +227,8 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
             <p>出題範囲：{nextDan.source.length === 1 ? `${nextDan.source[0]}の段` : `${Math.min(...nextDan.source)}〜${Math.max(...nextDan.source)}の段ランダム`}</p>
             <p>問題数：{nextDan.count}問　／　制限時間：90秒</p>
             <div className="dan-medal-targets">
-              <span className="dan-medal-target dan-medal-gold">🥇 金：{(nextDan.goldTimeMs / 1000).toFixed(1)}秒以内</span>
-              <span className="dan-medal-target dan-medal-silver">🥈 銀：{(nextDan.silverTimeMs / 1000).toFixed(1)}秒以内</span>
+              <span className="dan-medal-target dan-medal-gold">🥇 金：{nextDan.goldTimeMs / 1000}秒以内</span>
+              <span className="dan-medal-target dan-medal-silver">🥈 銀：{nextDan.silverTimeMs / 1000}秒以内</span>
               <span className="dan-medal-target dan-medal-bronze">🥉 銅：90秒以内クリア</span>
             </div>
             {unmasteredHint !== null && (

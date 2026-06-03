@@ -7,8 +7,9 @@ export interface DanLevel {
   silverTimeMs: number;
 }
 
-const GOLD_PACE = 1500;
-const SILVER_PACE = 2250;
+// 1問あたりの基準ペース。問題数(15/50/100)を掛けても秒数が整数になる値にする
+const GOLD_PACE = 1600;
+const SILVER_PACE = 2400;
 
 const standardLevel = (rank: number, name: string, level: number): DanLevel => ({
   rank, name, source: [level], count: 15,
