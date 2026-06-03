@@ -546,17 +546,16 @@ export const LearningEngine = {
       state.danMedals[rank] = medal;
     }
 
-    let promotionKp = 0;
-    if ((state.danRank || 0) < rank) {
+    const isPromotion = (state.danRank || 0) < rank;
+    if (isPromotion) {
       state.danRank = rank;
-      promotionKp = rank * 1000;
-      state.kp += promotionKp;
       // seal 付与は _checkAchievements 内で dan medal ベースに段番号→seal_X として行う
       if (!state.wisdomSeals) state.wisdomSeals = [];
     }
 
-    // 時間ボーナスは一律60秒（昇段・再挑戦とも）
-    const bonus = _grantTimeBonus(state, 60);
+    // 時間ボーナス：一律60秒。初昇段時は節目として rank×30秒 を追加（KPS連動でスケール）
+    const baseBonus = _grantTimeBonus(state, 60);
+    const promoBonus = isPromotion ? _grantTimeBonus(state, rank * 30) : 0;
     // 祝祭：出題範囲の段から1段ランダムに発動
     const festivalLevel = _triggerFestivalRandom(state, dan ? dan.source : [rank]);
 
@@ -570,7 +569,7 @@ export const LearningEngine = {
     _updateRank(state);
     _syncUnlockedLevels(state);
     this.saveState(state);
-    return { state, kpGained: promotionKp + bonus, festivalLevel };
+    return { state, kpGained: baseBonus + promoBonus, festivalLevel };
   },
 
   saveBattleResult(diffId: string, count: number, combo: number, solvedByLevel?: Record<number, number>): { state: KukuState; kpGained: number; festivalLevel: number } {
