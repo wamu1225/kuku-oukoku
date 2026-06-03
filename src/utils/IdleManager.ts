@@ -15,8 +15,10 @@ export const IdleManager = {
     const masteryInfo = this.getMasteryInfo(state, level);
     const masteryBadgeMultiplier = 1 + masteryInfo.bonus;
 
+    // danMedals は「段位ランク」キー。段Lは 1〜9→同rank、10〜20→rank=L+1（初段=rank11=10の段…）
+    const danRankForLevel = level <= 9 ? level : level + 1;
     let danMultiplier = 1;
-    if (state.danMedals?.[level]) {
+    if (state.danMedals?.[danRankForLevel]) {
       danMultiplier = 2.0;
     }
 
