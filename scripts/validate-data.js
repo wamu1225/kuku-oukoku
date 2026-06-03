@@ -28,8 +28,9 @@ for (let lv = 1; lv <= 20; lv++) {
 // 3. DAN_LEVELS rank 1..23 must exist
 const danFile = read('data/danLevels.ts');
 const ranks = new Set();
-// Capture both standardLevel(rank, ...) helper calls and inline { rank: N }
+// Capture standardLevel(rank, ...) / makeLevel(rank, ...) helper calls and inline { rank: N }
 for (const m of danFile.matchAll(/standardLevel\((\d+),/g)) ranks.add(parseInt(m[1]));
+for (const m of danFile.matchAll(/makeLevel\((\d+),/g)) ranks.add(parseInt(m[1]));
 for (const m of danFile.matchAll(/rank:\s*(\d+)/g)) ranks.add(parseInt(m[1]));
 for (let r = 1; r <= 23; r++) {
   if (!ranks.has(r)) errors.push(`DAN_LEVELS missing rank ${r}`);
