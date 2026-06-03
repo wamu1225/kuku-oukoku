@@ -1,7 +1,7 @@
 import type { KukuState } from '../types';
 import { DateUtils } from './DateUtils';
 import { IdleManager, MAX_KP } from './IdleManager';
-import { getDanRankName } from '../data/danLevels';
+import { getDanRankName, DAN_LEVELS } from '../data/danLevels';
 import { KUKU_READINGS } from '../data/kukuReadings';
 
 const STORAGE_KEY = 'kuku-oukoku:state';
@@ -202,7 +202,7 @@ function _checkAchievements(state: KukuState) {
   if (!hasAny('relic_6') && (state.dailyStreak?.count || 0) >= 3) add('relic_6');
   if (!hasAny('relic_8') && totalMastery >= 500) add('relic_8');
   if (!hasAny('relic_9') && totalMastery >= 5000) add('relic_9');
-  // 1級 (rank 10) を金メダル取得 = 1〜9 段ランダム 15 問を 22.5 秒以内
+  // 1級 (rank 10) を金メダル取得 = 1〜9 段ランダム 15 問を金タイム以内（danLevels.ts 基準）
   if (!hasAny('relic_10') && state.danMedals?.[10] === 'gold') add('relic_10');
 }
 
@@ -489,11 +489,11 @@ export const LearningEngine = {
 
     if (!state.danMedals) state.danMedals = {};
     let medal: 'gold' | 'silver' | 'bronze' | 'clear' = 'bronze';
-    const GOLD_PACE = 1500;
-    const SILVER_PACE = 2250;
-    const problems = rank === 22 ? 50 : rank === 23 ? 100 : 15;
-    if (timeTakenMs <= problems * GOLD_PACE) medal = 'gold';
-    else if (timeTakenMs <= problems * SILVER_PACE) medal = 'silver';
+    // 基準タイム・問題数は danLevels.ts を唯一の正とする（表示と判定のズレを防ぐ）
+    const dan = DAN_LEVELS.find((d) => d.rank === rank);
+    const problems = dan?.count ?? 15;
+    if (dan && timeTakenMs <= dan.goldTimeMs) medal = 'gold';
+    else if (dan && timeTakenMs <= dan.silverTimeMs) medal = 'silver';
     const medalPriority = { gold: 3, silver: 2, bronze: 1, clear: 0 };
     const currentMedal = state.danMedals[rank] || 'clear';
     if (medalPriority[medal] > medalPriority[currentMedal as keyof typeof medalPriority]) {

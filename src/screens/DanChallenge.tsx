@@ -79,6 +79,9 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
   // 解いた段ごとの問題数（熟練度加算用）
   const solvedRef = useRef<Record<number, number>>({});
   const current = problems[index];
+  // 挑戦中の段位の制限時間（問題数に連動。15問=90秒 / 名人50問=300秒 / 伝説100問=600秒）
+  const activeDan = DAN_LEVELS.find((d) => d.rank === selected) ?? null;
+  const limitMs = activeDan?.limitMs ?? 90000;
 
   useEffect(() => {
     return () => {
@@ -119,13 +122,13 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
       timerRef.current = window.setInterval(() => {
         const e = Date.now() - (startRef.current || 0);
         setElapsed(e);
-        if (e >= 90000) {
+        if (e >= limitMs) {
           fail();
         }
       }, 100);
       return () => { if (timerRef.current) window.clearInterval(timerRef.current); };
     }
-  }, [phase]);
+  }, [phase, limitMs]);
 
   const fail = () => {
     if (endedRef.current) return;
@@ -197,7 +200,7 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
           <div className="dan-rank-value">{state.rank}</div>
           {nextDan && (
             <div className="dan-rank-next">
-              次は <strong>{nextDan.name}</strong> ／ 15問を 90秒以内に全問正解で合格
+              次は <strong>{nextDan.name}</strong> ／ {nextDan.count}問を {nextDan.limitMs / 1000}秒以内に全問正解で合格
             </div>
           )}
           {trialGateActive && (
@@ -225,11 +228,11 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
           <div className="dan-card">
             <h2>{nextDan.name} に挑戦</h2>
             <p>出題範囲：{nextDan.source.length === 1 ? `${nextDan.source[0]}の段` : `${Math.min(...nextDan.source)}〜${Math.max(...nextDan.source)}の段ランダム`}</p>
-            <p>問題数：{nextDan.count}問　／　制限時間：90秒</p>
+            <p>問題数：{nextDan.count}問　／　制限時間：{nextDan.limitMs / 1000}秒</p>
             <div className="dan-medal-targets">
               <span className="dan-medal-target dan-medal-gold">🥇 金：{nextDan.goldTimeMs / 1000}秒以内</span>
               <span className="dan-medal-target dan-medal-silver">🥈 銀：{nextDan.silverTimeMs / 1000}秒以内</span>
-              <span className="dan-medal-target dan-medal-bronze">🥉 銅：90秒以内クリア</span>
+              <span className="dan-medal-target dan-medal-bronze">🥉 銅：{nextDan.limitMs / 1000}秒以内クリア</span>
             </div>
             {unmasteredHint !== null && (
               <p className="dan-prep-hint">
@@ -348,7 +351,7 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
     );
   }
 
-  const remainingSecs = Math.max(0, (90000 - elapsed) / 1000);
+  const remainingSecs = Math.max(0, (limitMs - elapsed) / 1000);
   return (
     <div className="screen quiz-screen">
       {showQuitConfirm && (

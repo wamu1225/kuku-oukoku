@@ -212,7 +212,7 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
         <h1 className="screen-title">⚔️ 九九バトル</h1>
         <p className="screen-desc">
           敵が <strong>HP（つくる数）</strong> を持って現れます。
-          5 枚のカードから <strong>2 まい</strong> を選び、その <strong>かけ算の答えが HP と同じ</strong> になったら撃破！
+          ならんだカードから <strong>2 まい</strong> を選び、その <strong>かけ算の答えが HP と同じ</strong> になったら撃破！
         </p>
         <div className="battle-howto">
           <div className="battle-howto-example">
