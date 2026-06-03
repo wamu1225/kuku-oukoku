@@ -10,14 +10,7 @@ export const IdleManager = {
 
     const baseProd = Math.pow(4, level - 1);
 
-    let festivalMultiplier = 1;
-    const festivalUntil = state.festivalUntil?.[level] || 0;
-    if (festivalUntil > Date.now()) {
-      const badge = state.tableBests?.[level]?.badge;
-      if (badge === 'gold') festivalMultiplier = 5.0;
-      else if (badge === 'silver') festivalMultiplier = 3.0;
-      else festivalMultiplier = 1.5;
-    }
+    const festivalMultiplier = this.getFestivalMultiplier(state, level);
 
     const masteryInfo = this.getMasteryInfo(state, level);
     const masteryBadgeMultiplier = 1 + masteryInfo.bonus;
@@ -28,6 +21,16 @@ export const IdleManager = {
     }
 
     return baseProd * count * festivalMultiplier * masteryBadgeMultiplier * danMultiplier;
+  },
+
+  // 祝祭が発動中ならその段の倍率（金×5 / 銀×3 / 銅・なし×1.5）、未発動なら1を返す
+  getFestivalMultiplier(state: KukuState, level: number): number {
+    const festivalUntil = state.festivalUntil?.[level] || 0;
+    if (festivalUntil <= Date.now()) return 1;
+    const badge = state.tableBests?.[level]?.badge;
+    if (badge === 'gold') return 5.0;
+    if (badge === 'silver') return 3.0;
+    return 1.5;
   },
 
   getPrestigeBonus(prestigeCount: number | undefined): number {

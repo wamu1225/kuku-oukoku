@@ -276,7 +276,7 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
                     </span>
                   )}
                   {festivalActive && (
-                    <span className="festival-badge">🎉 祝祭中 残り {String(festivalMM).padStart(2, '0')}:{String(festivalSS).padStart(2, '0')}</span>
+                    <span className="festival-badge">🎉 祝祭中 ×{IdleManager.getFestivalMultiplier(state, comp.level).toFixed(1)}（残り {String(festivalMM).padStart(2, '0')}:{String(festivalSS).padStart(2, '0')}）</span>
                   )}
                 </div>
               </div>
