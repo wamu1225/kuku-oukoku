@@ -156,7 +156,7 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
             <li><strong>招待 X KP</strong>：そのなかまを 1 人呼ぶ。コストは段ごと・所持数で増加</li>
             <li><strong>まとめて招待</strong>：今の KP で買えるだけまとめて呼ぶ（最大 100 まで）</li>
             <li><strong>熟練度バッジ</strong>：その段の九九を解いた数で銅→銀→金。生産力に倍率（最大 ×2.5）</li>
-            <li><strong>🎉 祝祭</strong>：アタックをクリアするとその段の生産が <strong>30 分間 1.5〜5×</strong>（メダル色で倍率変化）</li>
+            <li><strong>🎉 祝祭</strong>：アタックをクリアするとその段の生産が <strong>30 分間 1.5〜5×</strong> にアップ</li>
             <li><strong>段位ボーナス</strong>：だんいにんていに合格した段は ×2 ボーナス</li>
             <li>オフライン中も最大 <strong>12 時間</strong> KP がたまる</li>
           </ul>
