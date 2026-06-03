@@ -601,7 +601,7 @@ export const LearningEngine = {
     if (!state.blankMedalsPerDiff) state.blankMedalsPerDiff = {};
     let medal: 'gold' | 'silver' | 'bronze' | 'clear' = 'clear';
     if (timeMs <= 10 * 1500) medal = 'gold';
-    else if (timeMs <= 10 * 2250) medal = 'silver';
+    else if (timeMs <= 10 * 2500) medal = 'silver';
     else medal = 'bronze';
     const priority = { gold: 3, silver: 2, bronze: 1, clear: 0 };
     const cur = state.blankMedalsPerDiff[diffId] || 'clear';

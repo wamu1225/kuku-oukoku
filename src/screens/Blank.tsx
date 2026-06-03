@@ -28,7 +28,7 @@ const UNLOCK_RANK_NAMES: Record<number, string> = { 3: '8級', 6: '5級', 9: '2�
 
 // 金/銀メダルしきい値 (10 問の合計タイム)
 const GOLD_MS = 10 * 1500;  // 15 秒
-const SILVER_MS = 10 * 2250; // 22.5 秒
+const SILVER_MS = 10 * 2500; // 25 秒
 const BADGE_LABEL: Record<string, string> = { gold: '金', silver: '銀', bronze: '銅', clear: 'クリア' };
 const QUESTION_COUNT = 10;
 
