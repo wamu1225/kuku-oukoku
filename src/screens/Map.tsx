@@ -80,12 +80,8 @@ export function Map({ state }: { state: KukuState }) {
           <div className="map-reading-eq">
             {selected.a} × {selected.b} = <strong>{selectedAnswer}</strong>
           </div>
-          {selectedReading ? (
+          {selectedReading && (
             <div className="map-reading-yomi">「{selectedReading}」</div>
-          ) : (
-            <div className="map-reading-yomi map-reading-yomi-extra">
-              （でんせつの だん：声に出して「{selected.a} かける {selected.b} は {selectedAnswer}」）
-            </div>
           )}
         </div>
       )}
