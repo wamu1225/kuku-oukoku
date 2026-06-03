@@ -77,7 +77,8 @@ export function Map({ state }: { state: KukuState }) {
           <div className="kuku-map-cell kuku-map-corner">×</div>
           {Array.from({ length: size }, (_, i) => {
             const col = i + 1;
-            const isColMastered = masteredCols.has(col);
+            // 10〜20 は早見表（参照専用）。マスタ装飾は本来の九九 1〜9 のみ
+            const isColMastered = col <= 9 && masteredCols.has(col);
             return (
               <div
                 key={col}
@@ -91,7 +92,7 @@ export function Map({ state }: { state: KukuState }) {
         </div>
         {Array.from({ length: size }, (_, a) => {
           const row = a + 1;
-          const isRowMastered = masteredRows.has(row);
+          const isRowMastered = row <= 9 && masteredRows.has(row);
           const region = row <= 3 ? 'basic' : row <= 6 ? 'mid' : row <= 9 ? 'adv' : 'legend';
           return (
             <div key={row} className={`kuku-map-row map-row-${region} ${isRowMastered ? 'mastered' : ''}`}>
@@ -101,7 +102,7 @@ export function Map({ state }: { state: KukuState }) {
               </div>
               {Array.from({ length: size }, (_, b) => {
                 const col = b + 1;
-                const isColMastered = masteredCols.has(col);
+                const isColMastered = col <= 9 && masteredCols.has(col);
                 const cellMastered = (isRowMastered && col <= 9) || (isColMastered && row <= 9);
                 const isSelected = selected?.a === row && selected?.b === col;
                 return (
