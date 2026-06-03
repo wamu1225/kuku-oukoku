@@ -63,6 +63,8 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
   const advanceTimerRef = useRef<number | null>(null);
   const wrongTimerRef = useRef<number | null>(null);
   const floatTimerRef = useRef<number | null>(null);
+  // 解いた段ごとの問題数（熟練度加算用）
+  const solvedRef = useRef<Record<number, number>>({});
 
   useEffect(() => {
     return () => {
@@ -85,6 +87,7 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
     setCountdown(3);
     setScore(0); scoreRef.current = 0;
     setProblemCount(0);
+    solvedRef.current = {};
     endedRef.current = false;
     nextProblem(s.max);
   };
@@ -119,7 +122,7 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
     if (timerRef.current) { window.clearInterval(timerRef.current); timerRef.current = null; }
     const stg = stageRef.current;
     const s = scoreRef.current;
-    if (stg) LearningEngine.saveTowerResult(stg.id, s);
+    if (stg) LearningEngine.saveTowerResult(stg.id, s, solvedRef.current);
     setPhase('done');
     onComplete();
   };
@@ -138,6 +141,7 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
       scoreRef.current = newScore;
       setScore(newScore);
       setProblemCount(problemCount + 1);
+      solvedRef.current[a] = (solvedRef.current[a] || 0) + 1;
       setInput(next);
       setFlashCorrect(true);
       // 浮遊「+ans」アニメ

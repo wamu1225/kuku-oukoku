@@ -76,6 +76,8 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
   const advanceTimerRef = useRef<number | null>(null);
   const wrongTimerRef = useRef<number | null>(null);
+  // 解いた段ごとの問題数（熟練度加算用）
+  const solvedRef = useRef<Record<number, number>>({});
   const current = problems[index];
 
   useEffect(() => {
@@ -94,6 +96,7 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
     setCountdown(3);
     setIndex(0);
     setInput('');
+    solvedRef.current = {};
     endedRef.current = false;
   };
 
@@ -141,6 +144,7 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
     if (next.length > maxLen) return;
     if (parseInt(next) === ans) {
       vibrateCorrect();
+      solvedRef.current[current.a] = (solvedRef.current[current.a] || 0) + 1;
       setInput(next);
       setFlashCorrect(true);
       advanceTimerRef.current = window.setTimeout(() => {
@@ -173,7 +177,7 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
     setElapsed(final);
     const rank = selected!;
     const before = state.danRank || 0;
-    const after = LearningEngine.completeDanTest(rank, final);
+    const after = LearningEngine.completeDanTest(rank, final, solvedRef.current);
     const medal = after.danMedals?.[rank] ?? 'clear';
     setResult({
       timeMs: final,

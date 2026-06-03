@@ -468,7 +468,18 @@ export const LearningEngine = {
     return { state, isNewBest };
   },
 
-  completeDanTest(rank: number, timeTakenMs: number): KukuState {
+  // 各モードで「実際に解いた段」を熟練度に加算する（まなぶ/アタックと同じ 1問1カウント）
+  _applySolvedMastery(state: KukuState, solvedByLevel?: Record<number, number>): void {
+    if (!solvedByLevel) return;
+    if (!state.mastery) state.mastery = {};
+    for (const key in solvedByLevel) {
+      const level = parseInt(key);
+      const n = solvedByLevel[key];
+      if (level >= 1 && n > 0) state.mastery[level] = (state.mastery[level] || 0) + n;
+    }
+  },
+
+  completeDanTest(rank: number, timeTakenMs: number, solvedByLevel?: Record<number, number>): KukuState {
     const state = this.loadState();
     if (!state.danBestTimes) state.danBestTimes = {};
     const currentBest = state.danBestTimes[rank] || Infinity;
@@ -499,6 +510,8 @@ export const LearningEngine = {
     if (!state.stats) state.stats = {};
     state.stats.totalDanSolved = (state.stats.totalDanSolved || 0) + problems;
 
+    this._applySolvedMastery(state, solvedByLevel);
+
     _updateHabit(state, true);
     _checkAchievements(state);
     _updateRank(state);
@@ -507,9 +520,10 @@ export const LearningEngine = {
     return state;
   },
 
-  saveBattleResult(diffId: string, count: number, combo: number): KukuState {
+  saveBattleResult(diffId: string, count: number, combo: number, solvedByLevel?: Record<number, number>): KukuState {
     const state = this.loadState();
     if (!state.stats) state.stats = {};
+    this._applySolvedMastery(state, solvedByLevel);
     state.stats.battleTotalDefeated = (state.stats.battleTotalDefeated || 0) + count;
     if (combo > (state.stats.maxCombo || 0)) state.stats.maxCombo = combo;
     if (!state.stats.battleMaxDefeatedPerDiff) state.stats.battleMaxDefeatedPerDiff = {};
@@ -526,9 +540,10 @@ export const LearningEngine = {
     return state;
   },
 
-  saveTowerResult(diffId: string, score: number): KukuState {
+  saveTowerResult(diffId: string, score: number, solvedByLevel?: Record<number, number>): KukuState {
     const state = this.loadState();
     if (!state.stats) state.stats = {};
+    this._applySolvedMastery(state, solvedByLevel);
     if (!state.stats.towerBestHeightsPerDiff) state.stats.towerBestHeightsPerDiff = {};
     if (score > (state.stats.towerBestHeightsPerDiff[diffId] || 0)) {
       state.stats.towerBestHeightsPerDiff[diffId] = score;
@@ -576,8 +591,9 @@ export const LearningEngine = {
     return state;
   },
 
-  saveBlankResult(diffId: string, timeMs: number): KukuState {
+  saveBlankResult(diffId: string, timeMs: number, solvedByLevel?: Record<number, number>): KukuState {
     const state = this.loadState();
+    this._applySolvedMastery(state, solvedByLevel);
     if (!state.challengeBestTimes) state.challengeBestTimes = {};
     const currentBest = state.challengeBestTimes[diffId] || Infinity;
     if (timeMs < currentBest) state.challengeBestTimes[diffId] = timeMs;

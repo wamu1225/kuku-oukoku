@@ -80,6 +80,8 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
   const maxComboRef = useRef(0);
   const stageRef = useRef<Stage | null>(null);
   const endedRef = useRef(false);
+  // 解いた段ごとの問題数（熟練度加算用）。撃破1回につき選んだ2枚（2因数）の段を加算
+  const solvedRef = useRef<Record<number, number>>({});
   const feedbackTimerRef = useRef<number | null>(null);
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
   const [comboFlash, setComboFlash] = useState(false);
@@ -102,6 +104,7 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
     setCombo(0); comboRef.current = 0;
     setMaxCombo(0); maxComboRef.current = 0;
     setSelected([]);
+    solvedRef.current = {};
     endedRef.current = false;
     const newHp = generateHP(s.max);
     setHp(newHp);
@@ -140,7 +143,7 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
     const d = defeatedRef.current;
     const m = Math.max(maxComboRef.current, comboRef.current);
     const stg = stageRef.current;
-    if (stg) LearningEngine.saveBattleResult(stg.id, d, m);
+    if (stg) LearningEngine.saveBattleResult(stg.id, d, m, solvedRef.current);
     setResult({ count: d, combo: m, kpGain: d * 50 + Math.floor(d / 10) * 10000 });
     setPhase('done');
     onComplete();
@@ -159,6 +162,10 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
       const product = cards[next[0]] * cards[next[1]];
       if (product === hp) {
         vibrateCorrect();
+        const f1 = cards[next[0]];
+        const f2 = cards[next[1]];
+        solvedRef.current[f1] = (solvedRef.current[f1] || 0) + 1;
+        solvedRef.current[f2] = (solvedRef.current[f2] || 0) + 1;
         const newDefeated = defeated + 1;
         const newCombo = combo + 1;
         const newMaxCombo = Math.max(maxCombo, newCombo);

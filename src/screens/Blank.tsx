@@ -71,6 +71,8 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
   const [elapsed, setElapsed] = useState(0);
   const startRef = useRef<number | null>(null);
   const timerRef = useRef<number | null>(null);
+  // 解いた段ごとの問題数（熟練度加算用）
+  const solvedRef = useRef<Record<number, number>>({});
   const [result, setResult] = useState<{ timeMs: number; medal: string } | null>(null);
 
   const current = problems[index];
@@ -78,6 +80,7 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
   const start = (s: Stage) => {
     setStage(s);
     setProblems(generate(s.max));
+    solvedRef.current = {};
     setIndex(0);
     setInput('');
     setPhase('countdown');
@@ -130,6 +133,7 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
     if (next.length > maxLen) return;
     if (parseInt(next) === current.answer) {
       vibrateCorrect();
+      solvedRef.current[current.a] = (solvedRef.current[current.a] || 0) + 1;
       setInput(next);
       setFlashCorrect(true);
       advanceTimerRef.current = window.setTimeout(() => {
@@ -159,7 +163,7 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
     endedRef.current = true;
     if (timerRef.current) { window.clearInterval(timerRef.current); timerRef.current = null; }
     const final = Date.now() - (startRef.current || Date.now());
-    const after = LearningEngine.saveBlankResult(stage!.id, final);
+    const after = LearningEngine.saveBlankResult(stage!.id, final, solvedRef.current);
     const medal = after.blankMedalsPerDiff?.[stage!.id] ?? 'clear';
     setResult({ timeMs: final, medal: BADGE_LABEL[medal] || 'クリア' });
     setPhase('done');
