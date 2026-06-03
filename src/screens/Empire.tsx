@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { navigate } from '../App';
 import type { KukuState } from '../types';
-import { LearningEngine } from '../utils/LearningEngine';
+import { LearningEngine, QUEST_KP_SECONDS } from '../utils/LearningEngine';
 import { IdleManager } from '../utils/IdleManager';
 import { COMPANIONS } from '../data/companions';
 import { getCurrentSeasonal } from '../utils/seasonal';
@@ -156,7 +156,7 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
             <li><strong>招待 X KP</strong>：そのなかまを 1 人呼ぶ。コストは段ごと・所持数で増加</li>
             <li><strong>まとめて招待</strong>：今の KP で買えるだけまとめて呼ぶ（最大 100 まで）</li>
             <li><strong>熟練度バッジ</strong>：その段の九九を解いた数で銅→銀→金。生産力に倍率（最大 ×2.5）</li>
-            <li><strong>🎉 祝祭</strong>：アタックをクリアするとその段の生産が <strong>30 分間 1.5〜5×</strong> にアップ</li>
+            <li><strong>🎉 祝祭</strong>：アタック・だん・タワー・くもくも・バトルのクリアで、ある段の生産が <strong>30 分間</strong> アップ（アタックはその段、他は挑戦した範囲からランダムな1段）。倍率はその段のアタックのメダル（金×5・銀×3・他×1.5）</li>
             <li><strong>段位ボーナス</strong>：だんいにんていに合格した段は ×2 ボーナス</li>
             <li>オフライン中も最大 <strong>12 時間</strong> KP がたまる</li>
           </ul>
@@ -174,7 +174,7 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
                   <div className="quest-head">
                     <span className="quest-title">{q.title}</span>
                     <span className="quest-reward">
-                      {q.reward.type === 'kp' ? '+' + IdleManager.formatBigNumber(q.reward.amount) + ' KP' : '+' + q.reward.amount + ' スタンプ'}
+                      {q.reward.type === 'kp' ? '+' + IdleManager.formatBigNumber(Math.floor(kps * QUEST_KP_SECONDS)) + ' KP' : '+' + q.reward.amount + ' スタンプ'}
                     </span>
                   </div>
                   <p className="quest-desc">{q.description}</p>

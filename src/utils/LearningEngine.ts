@@ -285,6 +285,9 @@ function _grantScaledBonus(state: KukuState, topLevel: number, medal: string | n
   return _grantTimeBonus(state, seconds);
 }
 
+// クエスト(KP型)の報酬秒数。KPS連動にして放置収入に埋もれないようにする
+export const QUEST_KP_SECONDS = 180;
+
 function _replenishQuests(state: KukuState) {
   if (!state.activeQuests) state.activeQuests = [];
   // Cleanup duplicates
@@ -379,7 +382,8 @@ export const LearningEngine = {
     const state = this.loadState();
     const q = state.activeQuests?.find((x) => x.id === questId);
     if (!q || !q.isCompleted || q.isClaimed) return state;
-    if (q.reward.type === 'kp') state.kp += q.reward.amount;
+    // KP 報酬は KPS 連動（固定額だと放置収入に埋もれるため）
+    if (q.reward.type === 'kp') _grantTimeBonus(state, QUEST_KP_SECONDS);
     else if (q.reward.type === 'stamps') state.totalStamps += q.reward.amount;
     state.activeQuests = state.activeQuests?.filter((x) => x.id !== questId);
     _replenishQuests(state);
@@ -633,12 +637,14 @@ export const LearningEngine = {
     return { state, kpGained: Math.floor(score / 10) + bonus, festivalLevel };
   },
 
-  completeTrial(success: boolean): KukuState {
+  completeTrial(success: boolean): { state: KukuState; kpGained: number } {
     const state = this.loadState();
     if (!state.stats) state.stats = {};
+    let kpGained = 0;
     if (success) {
       state.stats.totalTrialsCleared = (state.stats.totalTrialsCleared || 0) + 1;
       state.kp += 5000;
+      kpGained = 5000 + _grantTimeBonus(state, 600);
       if (!state.royalTreasures) state.royalTreasures = [];
       if (!state.wisdomSeals) state.wisdomSeals = [];
     } else {
@@ -648,7 +654,7 @@ export const LearningEngine = {
     _updateHabit(state, true);
     _checkAchievements(state);
     this.saveState(state);
-    return state;
+    return { state, kpGained };
   },
 
   saveBlankResult(diffId: string, timeMs: number, solvedByLevel?: Record<number, number>): { state: KukuState; kpGained: number; festivalLevel: number } {

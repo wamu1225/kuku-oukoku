@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { navigate } from '../App';
 import type { KukuState } from '../types';
 import { LearningEngine } from '../utils/LearningEngine';
+import { IdleManager } from '../utils/IdleManager';
 import { Confetti } from '../components/Confetti';
-import { CountUp } from '../components/CountUp';
 import { vibrateCorrect, vibrateWrong } from '../utils/haptics';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
@@ -38,6 +38,7 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
   const [input, setInput] = useState('');
   const [elapsed, setElapsed] = useState(0);
   const [problems, setProblems] = useState<{ a: number; b: number }[]>([]);
+  const [rewardKp, setRewardKp] = useState(5000);
   const startRef = useRef<number | null>(null);
   const timerRef = useRef<number | null>(null);
   const endedRef = useRef(false);
@@ -101,7 +102,8 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
     if (endedRef.current) return;
     endedRef.current = true;
     if (timerRef.current) { window.clearInterval(timerRef.current); timerRef.current = null; }
-    LearningEngine.completeTrial(true);
+    const { kpGained } = LearningEngine.completeTrial(true);
+    setRewardKp(kpGained);
     setPhase('success');
     onComplete();
   };
@@ -211,7 +213,7 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
           <p>もう一度試練を制覇した。KP を獲得！</p>
         )}
         <div className="result-stats">
-          <div><span className="result-label">報酬</span><span className="result-value">+<CountUp to={5000} duration={1200} format="plain" /> KP</span></div>
+          <div><span className="result-label">報酬</span><span className="result-value">+{IdleManager.formatBigNumber(rewardKp)} KP</span></div>
           {isFirstClear && (
             <div><span className="result-label">解禁</span><span className="result-value">10 の段</span></div>
           )}
