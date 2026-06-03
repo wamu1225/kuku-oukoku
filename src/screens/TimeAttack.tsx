@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { navigate } from '../App';
 import { LearningEngine } from '../utils/LearningEngine';
+import { IdleManager } from '../utils/IdleManager';
 import { vibrateCorrect, vibrateWrong } from '../utils/haptics';
-import { CountUp } from '../components/CountUp';
 import { Confetti } from '../components/Confetti';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
@@ -26,7 +26,7 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
   const [index, setIndex] = useState(0);
   const [input, setInput] = useState('');
   const [elapsed, setElapsed] = useState(0);
-  const [result, setResult] = useState<{ timeMs: number; badge: string; isNewBest: boolean } | null>(null);
+  const [result, setResult] = useState<{ timeMs: number; badge: string; isNewBest: boolean; kpGained: number } | null>(null);
 
   const startRef = useRef<number | null>(null);
   const timerRef = useRef<number | null>(null);
@@ -137,9 +137,9 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
     if (timerRef.current) window.clearInterval(timerRef.current);
     const final = Date.now() - (startRef.current || Date.now());
     setElapsed(final);
-    const { state, isNewBest } = LearningEngine.saveTimeAttackResult(level, final);
+    const { state, isNewBest, kpGained } = LearningEngine.saveTimeAttackResult(level, final);
     const badge = state.tableBests[level]?.badge ?? 'clear';
-    setResult({ timeMs: final, badge: BADGE_LABEL[badge] || 'クリア', isNewBest });
+    setResult({ timeMs: final, badge: BADGE_LABEL[badge] || 'クリア', isNewBest, kpGained });
     onComplete();
   };
 
@@ -175,7 +175,7 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
         <div className="result-stats">
           <div><span className="result-label">タイム</span><span className="result-value">{secs.toFixed(2)}秒</span></div>
           <div><span className="result-label">メダル</span><span className="result-value">{result.badge}</span></div>
-          <div><span className="result-label">報酬</span><span className="result-value">+<CountUp to={100} duration={900} format="plain" /> KP</span></div>
+          <div><span className="result-label">報酬</span><span className="result-value">+{IdleManager.formatBigNumber(result.kpGained)} KP</span></div>
         </div>
         <p className="result-hint">{nextHint}</p>
         <p className="festival-notice">

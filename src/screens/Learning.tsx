@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { navigate } from '../App';
 import { LearningEngine } from '../utils/LearningEngine';
+import { IdleManager } from '../utils/IdleManager';
 import { KUKU_READINGS } from '../data/kukuReadings';
 import { DotGrid } from '../components/DotGrid';
 import { Confetti } from '../components/Confetti';
@@ -92,9 +93,9 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
   const finish = () => {
     if (endedRef.current) return;
     endedRef.current = true;
-    LearningEngine.setLearningCompleted(level);
+    const { kpGained } = LearningEngine.setLearningCompleted(level);
     setPhase('done');
-    setResultMsg(`よくがんばったね！\n100 KP ＆ はなまるスタンプ +1 ゲット！`);
+    setResultMsg(`よくがんばったね！\n${IdleManager.formatBigNumber(kpGained)} KP ＆ はなまるスタンプ +1 ゲット！`);
     onComplete();
   };
 

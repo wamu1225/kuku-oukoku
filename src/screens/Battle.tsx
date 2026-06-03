@@ -86,7 +86,7 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
   const [comboFlash, setComboFlash] = useState(false);
   const comboFlashTimerRef = useRef<number | null>(null);
-  const [result, setResult] = useState<{ count: number; combo: number; kpGain: number } | null>(null);
+  const [result, setResult] = useState<{ count: number; combo: number; kpGain: number; festivalLevel: number | null } | null>(null);
 
   useEffect(() => {
     return () => {
@@ -143,8 +143,14 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
     const d = defeatedRef.current;
     const m = Math.max(maxComboRef.current, comboRef.current);
     const stg = stageRef.current;
-    if (stg) LearningEngine.saveBattleResult(stg.id, d, m, solvedRef.current);
-    setResult({ count: d, combo: m, kpGain: d * 50 + Math.floor(d / 10) * 10000 });
+    let kpGain = d * 50 + Math.floor(d / 10) * 10000;
+    let festivalLevel: number | null = null;
+    if (stg) {
+      const r = LearningEngine.saveBattleResult(stg.id, d, m, solvedRef.current);
+      kpGain = r.kpGained;
+      festivalLevel = r.festivalLevel;
+    }
+    setResult({ count: d, combo: m, kpGain, festivalLevel });
     setPhase('done');
     onComplete();
   };
@@ -295,6 +301,7 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
         </div>
         <p className="result-hint">{evalText}</p>
         {comboNote && <p className="result-hint result-hint-combo">{comboNote}</p>}
+        {result.festivalLevel !== null && <p className="festival-notice">🎉 {result.festivalLevel}の段の祝祭が 30分 発動！その段のなかまの生産アップ</p>}
         <div className="result-actions">
           <button className="btn-primary" onClick={() => { setPhase('select'); setResult(null); }}>もう一度</button>
           <button className="btn-secondary" onClick={() => navigate('/')}>ホームへ</button>

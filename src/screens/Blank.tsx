@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { navigate } from '../App';
 import type { KukuState } from '../types';
 import { LearningEngine } from '../utils/LearningEngine';
+import { IdleManager } from '../utils/IdleManager';
 import { Confetti } from '../components/Confetti';
 import { vibrateCorrect, vibrateWrong } from '../utils/haptics';
 
@@ -73,7 +74,7 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
   const timerRef = useRef<number | null>(null);
   // 解いた段ごとの問題数（熟練度加算用）
   const solvedRef = useRef<Record<number, number>>({});
-  const [result, setResult] = useState<{ timeMs: number; medal: string } | null>(null);
+  const [result, setResult] = useState<{ timeMs: number; medal: string; kpGained: number; festivalLevel: number } | null>(null);
 
   const current = problems[index];
 
@@ -163,9 +164,9 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
     endedRef.current = true;
     if (timerRef.current) { window.clearInterval(timerRef.current); timerRef.current = null; }
     const final = Date.now() - (startRef.current || Date.now());
-    const after = LearningEngine.saveBlankResult(stage!.id, final, solvedRef.current);
+    const { state: after, kpGained, festivalLevel } = LearningEngine.saveBlankResult(stage!.id, final, solvedRef.current);
     const medal = after.blankMedalsPerDiff?.[stage!.id] ?? 'clear';
-    setResult({ timeMs: final, medal: BADGE_LABEL[medal] || 'クリア' });
+    setResult({ timeMs: final, medal: BADGE_LABEL[medal] || 'クリア', kpGained, festivalLevel });
     setPhase('done');
     onComplete();
   };
@@ -248,9 +249,10 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
         <div className="result-stats">
           <div><span className="result-label">タイム</span><span className="result-value">{(result.timeMs / 1000).toFixed(2)}秒</span></div>
           <div><span className="result-label">メダル</span><span className="result-value">{result.medal}</span></div>
-          <div><span className="result-label">報酬</span><span className="result-value">+500 KP</span></div>
+          <div><span className="result-label">報酬</span><span className="result-value">+{IdleManager.formatBigNumber(result.kpGained)} KP</span></div>
         </div>
         <p className="result-hint">{goalHint}</p>
+        <p className="festival-notice">🎉 {result.festivalLevel}の段の祝祭が 30分 発動！その段のなかまの生産アップ</p>
         <div className="result-actions">
           <button className="btn-primary" onClick={() => setPhase('select')}>もう一度</button>
           <button className="btn-secondary" onClick={() => navigate('/')}>ホームへ</button>

@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { navigate } from '../App';
 import { LearningEngine } from '../utils/LearningEngine';
+import { IdleManager } from '../utils/IdleManager';
 import { DAN_LEVELS, getNextDan } from '../data/danLevels';
-import { CountUp } from '../components/CountUp';
 import { Confetti } from '../components/Confetti';
 import { vibrateCorrect, vibrateWrong } from '../utils/haptics';
 
@@ -67,7 +67,7 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
   const [input, setInput] = useState('');
   const [elapsed, setElapsed] = useState(0);
   const [problems, setProblems] = useState<{ a: number; b: number }[]>([]);
-  const [result, setResult] = useState<{ timeMs: number; medal: string; newDan: boolean } | null>(null);
+  const [result, setResult] = useState<{ timeMs: number; medal: string; newDan: boolean; kpGained: number; festivalLevel: number } | null>(null);
   const startRef = useRef<number | null>(null);
   const timerRef = useRef<number | null>(null);
   const endedRef = useRef(false);
@@ -180,12 +180,14 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
     setElapsed(final);
     const rank = selected!;
     const before = state.danRank || 0;
-    const after = LearningEngine.completeDanTest(rank, final, solvedRef.current);
+    const { state: after, kpGained, festivalLevel } = LearningEngine.completeDanTest(rank, final, solvedRef.current);
     const medal = after.danMedals?.[rank] ?? 'clear';
     setResult({
       timeMs: final,
       medal: BADGE_LABEL[medal] || 'クリア',
       newDan: (after.danRank || 0) > before,
+      kpGained,
+      festivalLevel,
     });
     setPhase('done');
     onComplete();
@@ -289,7 +291,6 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
 
   if (phase === 'done' && result) {
     const newUnlocks = result.newDan && selected ? unlocksOnRank(selected) : [];
-    const kpReward = result.newDan && selected ? selected * 1000 : 0;
     const prevRankName = result.newDan && selected ? (DAN_LEVELS.find((d) => d.rank === selected - 1)?.name ?? 'みならい') : null;
     const newRankName = result.newDan && selected ? DAN_LEVELS.find((d) => d.rank === selected)?.name : null;
     return (
@@ -309,13 +310,9 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
         <div className="result-stats">
           <div><span className="result-label">タイム</span><span className="result-value">{(result.timeMs / 1000).toFixed(2)}秒</span></div>
           <div><span className="result-label">メダル</span><span className="result-value">{result.medal}</span></div>
-          {kpReward > 0 && (
-            <div>
-              <span className="result-label">昇段ボーナス</span>
-              <span className="result-value">+<CountUp to={kpReward} duration={1200} format="plain" /> KP</span>
-            </div>
-          )}
+          <div><span className="result-label">獲得 KP</span><span className="result-value">+{IdleManager.formatBigNumber(result.kpGained)}</span></div>
         </div>
+        <p className="festival-notice">🎉 {result.festivalLevel}の段の祝祭が 30分 発動！その段のなかまの生産アップ</p>
         {newUnlocks.length > 0 && (
           <div className="result-unlock">
             <h3>🔓 新しく解禁されたよ！</h3>

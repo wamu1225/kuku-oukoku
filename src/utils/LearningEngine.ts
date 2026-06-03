@@ -241,6 +241,50 @@ function _updateRank(state: KukuState) {
   state.rank = getDanRankName(state.danRank || 0);
 }
 
+// アクティブプレイ報酬：現在の生産(KPS)×秒数を「前借り」として付与し、付与額を返す。
+// 放置収入が指数的に伸びても各モードの報酬が相対的に無意味化しないようにする。
+function _grantTimeBonus(state: KukuState, seconds: number): number {
+  const kps = IdleManager.calculateKPS(state);
+  const bonus = Math.floor(kps * seconds);
+  if (bonus > 0) state.kp = Math.min(MAX_KP, state.kp + bonus);
+  return bonus;
+}
+
+// 指定段リストから1段をランダムに選び、その段の祝祭(30分)を発動。選んだ段を返す。
+// ※KPS 計算より後に呼ぶこと（祝祭で自分のボーナスを水増ししないため）
+function _triggerFestivalRandom(state: KukuState, levels: number[]): number {
+  if (!state.festivalUntil) state.festivalUntil = {};
+  const level = levels[Math.floor(Math.random() * levels.length)];
+  state.festivalUntil[level] = Date.now() + 30 * 60 * 1000;
+  return level;
+}
+
+const rangeLevels = (max: number): number[] =>
+  Array.from({ length: max }, (_, i) => i + 1);
+
+// ステージ難易度倍率（段の上限で決定）
+function _stageDifficultyMult(topLevel: number): number {
+  if (topLevel <= 3) return 1.0;
+  if (topLevel <= 6) return 1.3;
+  if (topLevel <= 9) return 1.6;
+  if (topLevel <= 15) return 2.0;
+  return 2.5;
+}
+
+// メダル倍率（実績）
+function _medalMult(medal: string | null | undefined): number {
+  if (medal === 'gold') return 2.0;
+  if (medal === 'silver') return 1.5;
+  if (medal === 'bronze') return 1.2;
+  return 1.0;
+}
+
+// アタック/くもくも/タワー/バトル共通：60秒 × 難易度 × メダル の時間ボーナスを付与
+function _grantScaledBonus(state: KukuState, topLevel: number, medal: string | null | undefined): number {
+  const seconds = 60 * _stageDifficultyMult(topLevel) * _medalMult(medal);
+  return _grantTimeBonus(state, seconds);
+}
+
 function _replenishQuests(state: KukuState) {
   if (!state.activeQuests) state.activeQuests = [];
   // Cleanup duplicates
@@ -391,7 +435,7 @@ export const LearningEngine = {
     return state;
   },
 
-  setLearningCompleted(level: number): KukuState {
+  setLearningCompleted(level: number): { state: KukuState; kpGained: number } {
     const state = this.loadState();
     if (!state.stats) state.stats = {};
     state.stats.totalLearnPlays = (state.stats.totalLearnPlays || 0) + 1;
@@ -402,6 +446,7 @@ export const LearningEngine = {
 
     state.mastery[level] = (state.mastery[level] || 0) + 9;
     state.kp += 100;
+    const bonus = _grantTimeBonus(state, 30);
     state.totalStamps += 1;
 
     if (level === 1) {
@@ -412,16 +457,16 @@ export const LearningEngine = {
     _updateHabit(state, true);
     _checkAchievements(state);
     this.saveState(state);
-    return state;
+    return { state, kpGained: 100 + bonus };
   },
 
-  saveTimeAttackResult(level: number, timeMs: number): { state: KukuState; isNewBest: boolean } {
+  saveTimeAttackResult(level: number, timeMs: number): { state: KukuState; isNewBest: boolean; kpGained: number; festivalLevel: number } {
     const state = this.loadState();
     if (!state.stats) state.stats = {};
     state.stats.totalAttackPlays = (state.stats.totalAttackPlays || 0) + 1;
     state.stats.totalAttackCorrect = (state.stats.totalAttackCorrect || 0) + 9;
 
-    if (timeMs < 1000) return { state, isNewBest: false };
+    if (timeMs < 1000) return { state, isNewBest: false, kpGained: 0, festivalLevel: level };
 
     const currentBest = state.tableBests[level] || {
       level, bestTimeMs: 0, badge: null, isCompleted: false,
@@ -453,6 +498,7 @@ export const LearningEngine = {
     }
 
     state.kp += 100;
+    const bonus = _grantScaledBonus(state, level, badge);
     state.festivalUntil[level] = Date.now() + 30 * 60 * 1000;
 
     if (level === 1) {
@@ -465,7 +511,7 @@ export const LearningEngine = {
     _checkAchievements(state);
     _updateRank(state);
     this.saveState(state);
-    return { state, isNewBest };
+    return { state, isNewBest, kpGained: 100 + bonus, festivalLevel: level };
   },
 
   // 各モードで「実際に解いた段」を熟練度に加算する（まなぶ/アタックと同じ 1問1カウント）
@@ -479,7 +525,7 @@ export const LearningEngine = {
     }
   },
 
-  completeDanTest(rank: number, timeTakenMs: number, solvedByLevel?: Record<number, number>): KukuState {
+  completeDanTest(rank: number, timeTakenMs: number, solvedByLevel?: Record<number, number>): { state: KukuState; kpGained: number; festivalLevel: number } {
     const state = this.loadState();
     if (!state.danBestTimes) state.danBestTimes = {};
     const currentBest = state.danBestTimes[rank] || Infinity;
@@ -500,12 +546,19 @@ export const LearningEngine = {
       state.danMedals[rank] = medal;
     }
 
+    let promotionKp = 0;
     if ((state.danRank || 0) < rank) {
       state.danRank = rank;
-      state.kp += rank * 1000;
+      promotionKp = rank * 1000;
+      state.kp += promotionKp;
       // seal 付与は _checkAchievements 内で dan medal ベースに段番号→seal_X として行う
       if (!state.wisdomSeals) state.wisdomSeals = [];
     }
+
+    // 時間ボーナスは一律60秒（昇段・再挑戦とも）
+    const bonus = _grantTimeBonus(state, 60);
+    // 祝祭：出題範囲の段から1段ランダムに発動
+    const festivalLevel = _triggerFestivalRandom(state, dan ? dan.source : [rank]);
 
     if (!state.stats) state.stats = {};
     state.stats.totalDanSolved = (state.stats.totalDanSolved || 0) + problems;
@@ -517,10 +570,10 @@ export const LearningEngine = {
     _updateRank(state);
     _syncUnlockedLevels(state);
     this.saveState(state);
-    return state;
+    return { state, kpGained: promotionKp + bonus, festivalLevel };
   },
 
-  saveBattleResult(diffId: string, count: number, combo: number, solvedByLevel?: Record<number, number>): KukuState {
+  saveBattleResult(diffId: string, count: number, combo: number, solvedByLevel?: Record<number, number>): { state: KukuState; kpGained: number; festivalLevel: number } {
     const state = this.loadState();
     if (!state.stats) state.stats = {};
     this._applySolvedMastery(state, solvedByLevel);
@@ -534,13 +587,18 @@ export const LearningEngine = {
     // 10体ごとのゴールデンエネミー累積ボーナス
     const goldenEnemies = Math.floor(count / 10);
     state.kp += goldenEnemies * 10000;
+    // 撃破数からメダル相当を判定（金12体/銀7体/銅1体）
+    const battleMedal = count >= 12 ? 'gold' : count >= 7 ? 'silver' : count >= 1 ? 'bronze' : 'clear';
+    const max = parseInt(diffId);
+    const bonus = _grantScaledBonus(state, max, battleMedal);
+    const festivalLevel = _triggerFestivalRandom(state, rangeLevels(max));
     _updateHabit(state, true);
     _checkAchievements(state);
     this.saveState(state);
-    return state;
+    return { state, kpGained: count * 50 + goldenEnemies * 10000 + bonus, festivalLevel };
   },
 
-  saveTowerResult(diffId: string, score: number, solvedByLevel?: Record<number, number>): KukuState {
+  saveTowerResult(diffId: string, score: number, solvedByLevel?: Record<number, number>): { state: KukuState; kpGained: number; festivalLevel: number } {
     const state = this.loadState();
     if (!state.stats) state.stats = {};
     this._applySolvedMastery(state, solvedByLevel);
@@ -567,10 +625,13 @@ export const LearningEngine = {
       state.stats.towerMedalsPerDiff[diffId] = medal;
     }
     state.kp += Math.floor(score / 10);
+    const max = parseInt(diffId);
+    const bonus = _grantScaledBonus(state, max, medal);
+    const festivalLevel = _triggerFestivalRandom(state, rangeLevels(max));
     _updateHabit(state, true);
     _checkAchievements(state);
     this.saveState(state);
-    return state;
+    return { state, kpGained: Math.floor(score / 10) + bonus, festivalLevel };
   },
 
   completeTrial(success: boolean): KukuState {
@@ -591,7 +652,7 @@ export const LearningEngine = {
     return state;
   },
 
-  saveBlankResult(diffId: string, timeMs: number, solvedByLevel?: Record<number, number>): KukuState {
+  saveBlankResult(diffId: string, timeMs: number, solvedByLevel?: Record<number, number>): { state: KukuState; kpGained: number; festivalLevel: number } {
     const state = this.loadState();
     this._applySolvedMastery(state, solvedByLevel);
     if (!state.challengeBestTimes) state.challengeBestTimes = {};
@@ -609,10 +670,13 @@ export const LearningEngine = {
       state.blankMedalsPerDiff[diffId] = medal;
     }
     state.kp += 500;
+    const max = parseInt(diffId);
+    const bonus = _grantScaledBonus(state, max, medal);
+    const festivalLevel = _triggerFestivalRandom(state, rangeLevels(max));
     _updateHabit(state, true);
     _checkAchievements(state);
     this.saveState(state);
-    return state;
+    return { state, kpGained: 500 + bonus, festivalLevel };
   },
 
   prestige(): KukuState {

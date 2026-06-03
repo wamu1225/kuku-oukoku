@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { navigate } from '../App';
 import type { KukuState } from '../types';
 import { LearningEngine } from '../utils/LearningEngine';
+import { IdleManager } from '../utils/IdleManager';
 import { Confetti } from '../components/Confetti';
 import { vibrateCorrect, vibrateWrong } from '../utils/haptics';
 
@@ -65,6 +66,7 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
   const floatTimerRef = useRef<number | null>(null);
   // 解いた段ごとの問題数（熟練度加算用）
   const solvedRef = useRef<Record<number, number>>({});
+  const [reward, setReward] = useState<{ kp: number; festivalLevel: number } | null>(null);
 
   useEffect(() => {
     return () => {
@@ -122,7 +124,10 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
     if (timerRef.current) { window.clearInterval(timerRef.current); timerRef.current = null; }
     const stg = stageRef.current;
     const s = scoreRef.current;
-    if (stg) LearningEngine.saveTowerResult(stg.id, s, solvedRef.current);
+    if (stg) {
+      const r = LearningEngine.saveTowerResult(stg.id, s, solvedRef.current);
+      setReward({ kp: r.kpGained, festivalLevel: r.festivalLevel });
+    }
     setPhase('done');
     onComplete();
   };
@@ -252,9 +257,10 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
           <div><span className="result-label">到達高度</span><span className="result-value">{score}m</span></div>
           <div><span className="result-label">エリア</span><span className="result-value">{tier.name}</span></div>
           <div><span className="result-label">問題数</span><span className="result-value">{problemCount}問</span></div>
-          <div><span className="result-label">獲得 KP</span><span className="result-value">+{Math.floor(score / 10)}</span></div>
+          <div><span className="result-label">獲得 KP</span><span className="result-value">+{IdleManager.formatBigNumber(reward?.kp ?? Math.floor(score / 10))}</span></div>
         </div>
         {goalHint && <p className="result-hint">{goalHint}</p>}
+        {reward && <p className="festival-notice">🎉 {reward.festivalLevel}の段の祝祭が 30分 発動！その段のなかまの生産アップ</p>}
         <div className="result-actions">
           <button className="btn-primary" onClick={() => { setPhase('select'); }}>もう一度</button>
           <button className="btn-secondary" onClick={() => navigate('/')}>ホームへ</button>
