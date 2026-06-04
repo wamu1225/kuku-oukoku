@@ -2,6 +2,7 @@ import type { KukuState } from '../types';
 import { DateUtils } from './DateUtils';
 import { IdleManager, MAX_KP } from './IdleManager';
 import { getDanRankName, DAN_LEVELS } from '../data/danLevels';
+import { getTowerMedal } from '../data/towerStages';
 import { KUKU_READINGS } from '../data/kukuReadings';
 
 const STORAGE_KEY = 'kuku-oukoku:state';
@@ -292,6 +293,14 @@ export const QUEST_KP_SECONDS = 180;
 // ダイヤは金より上位なので「金以上」判定に含める（解禁・実績の取りこぼし防止）
 export const isGoldOrBetter = (m: string | null | undefined): boolean => m === 'gold' || m === 'diamond';
 
+export type Medal = 'diamond' | 'gold' | 'silver' | 'bronze' | 'clear';
+// アタックのタイム→バッジ（10/15/25/40秒）。ダイヤは隠し
+const _attackBadge = (ms: number): Medal =>
+  ms <= 10000 ? 'diamond' : ms <= 15000 ? 'gold' : ms <= 25000 ? 'silver' : ms <= 40000 ? 'bronze' : 'clear';
+// くもくものタイム→メダル（12/15/25秒、クリアは銅）
+const _blankBadge = (ms: number): Medal =>
+  ms <= 12000 ? 'diamond' : ms <= 15000 ? 'gold' : ms <= 25000 ? 'silver' : 'bronze';
+
 function _replenishQuests(state: KukuState) {
   if (!state.activeQuests) state.activeQuests = [];
   // Cleanup duplicates
@@ -468,27 +477,26 @@ export const LearningEngine = {
     return { state, kpGained: 100 + bonus };
   },
 
-  saveTimeAttackResult(level: number, timeMs: number): { state: KukuState; isNewBest: boolean; kpGained: number; festivalLevel: number } {
+  saveTimeAttackResult(level: number, timeMs: number): { state: KukuState; isNewBest: boolean; kpGained: number; festivalLevel: number; runBadge: Medal } {
     const state = this.loadState();
     if (!state.stats) state.stats = {};
     state.stats.totalAttackPlays = (state.stats.totalAttackPlays || 0) + 1;
     state.stats.totalAttackCorrect = (state.stats.totalAttackCorrect || 0) + 9;
 
-    if (timeMs < 1000) return { state, isNewBest: false, kpGained: 0, festivalLevel: level };
+    if (timeMs < 1000) return { state, isNewBest: false, kpGained: 0, festivalLevel: level, runBadge: 'clear' };
 
     const currentBest = state.tableBests[level] || {
       level, bestTimeMs: 0, badge: null, isCompleted: false,
     };
-    // 「15秒以内」など desc に合わせて inclusive (<=) 判定で統一。10秒以内は隠しダイヤ
-    const badge: 'diamond' | 'gold' | 'silver' | 'bronze' | 'clear' =
-      timeMs <= 10000 ? 'diamond' : timeMs <= 15000 ? 'gold' : timeMs <= 25000 ? 'silver' : timeMs <= 40000 ? 'bronze' : 'clear';
+    const runBadge = _attackBadge(timeMs); // この回の成績（時間ボーナス用）
 
     let isNewBest = false;
     if (currentBest.bestTimeMs === 0 || timeMs < currentBest.bestTimeMs) {
       currentBest.bestTimeMs = timeMs;
-      currentBest.badge = badge;
       isNewBest = true;
     }
+    // バッジは常にベストタイムから現行基準で再評価（ベスト未更新でもダイヤ昇格を反映）
+    currentBest.badge = _attackBadge(currentBest.bestTimeMs);
     currentBest.isCompleted = true;
     state.tableBests[level] = currentBest;
     state.totalStamps += 5;
@@ -506,7 +514,7 @@ export const LearningEngine = {
     }
 
     state.kp += 100;
-    const bonus = _grantScaledBonus(state, level, badge);
+    const bonus = _grantScaledBonus(state, level, runBadge);
     state.festivalUntil[level] = Date.now() + 30 * 60 * 1000;
 
     if (level === 1) {
@@ -519,7 +527,7 @@ export const LearningEngine = {
     _checkAchievements(state);
     _updateRank(state);
     this.saveState(state);
-    return { state, isNewBest, kpGained: 100 + bonus, festivalLevel: level };
+    return { state, isNewBest, kpGained: 100 + bonus, festivalLevel: level, runBadge };
   },
 
   // 各モードで「実際に解いた段」を熟練度に加算する（まなぶ/アタックと同じ 1問1カウント）
@@ -533,7 +541,7 @@ export const LearningEngine = {
     }
   },
 
-  completeDanTest(rank: number, timeTakenMs: number, solvedByLevel?: Record<number, number>): { state: KukuState; kpGained: number; festivalLevel: number } {
+  completeDanTest(rank: number, timeTakenMs: number, solvedByLevel?: Record<number, number>): { state: KukuState; kpGained: number; festivalLevel: number; runMedal: Medal } {
     const state = this.loadState();
     if (!state.danBestTimes) state.danBestTimes = {};
     const currentBest = state.danBestTimes[rank] || Infinity;
@@ -542,18 +550,17 @@ export const LearningEngine = {
     }
 
     if (!state.danMedals) state.danMedals = {};
-    let medal: 'diamond' | 'gold' | 'silver' | 'bronze' | 'clear' = 'bronze';
     // 基準タイム・問題数は danLevels.ts を唯一の正とする（表示と判定のズレを防ぐ）
     const dan = DAN_LEVELS.find((d) => d.rank === rank);
     const problems = dan?.count ?? 15;
-    if (dan && timeTakenMs <= dan.diamondTimeMs) medal = 'diamond';
-    else if (dan && timeTakenMs <= dan.goldTimeMs) medal = 'gold';
-    else if (dan && timeTakenMs <= dan.silverTimeMs) medal = 'silver';
-    const medalPriority = { diamond: 4, gold: 3, silver: 2, bronze: 1, clear: 0 };
-    const currentMedal = state.danMedals[rank] || 'clear';
-    if (medalPriority[medal] > medalPriority[currentMedal as keyof typeof medalPriority]) {
-      state.danMedals[rank] = medal;
-    }
+    const danMedalFor = (ms: number): Medal =>
+      dan && ms <= dan.diamondTimeMs ? 'diamond'
+      : dan && ms <= dan.goldTimeMs ? 'gold'
+      : dan && ms <= dan.silverTimeMs ? 'silver'
+      : 'bronze';
+    const runMedal = danMedalFor(timeTakenMs); // この回の成績（結果画面用）
+    // 保存メダルは常にベストタイムから現行基準で再評価（ベスト未更新でもダイヤ昇格を反映）
+    state.danMedals[rank] = danMedalFor(state.danBestTimes[rank] ?? timeTakenMs);
 
     const isPromotion = (state.danRank || 0) < rank;
     if (isPromotion) {
@@ -578,7 +585,7 @@ export const LearningEngine = {
     _updateRank(state);
     _syncUnlockedLevels(state);
     this.saveState(state);
-    return { state, kpGained: baseBonus + promoBonus, festivalLevel };
+    return { state, kpGained: baseBonus + promoBonus, festivalLevel, runMedal };
   },
 
   saveBattleResult(diffId: string, count: number, combo: number, solvedByLevel?: Record<number, number>): { state: KukuState; kpGained: number; festivalLevel: number } {
@@ -620,32 +627,16 @@ export const LearningEngine = {
       state.stats.towerBestHeightsPerDiff[diffId] = score;
     }
     if (!state.stats.towerMedalsPerDiff) state.stats.towerMedalsPerDiff = {};
-    // diamond は隠し（金より上）。きりのいいスコアで設定
-    const criteria: Record<string, { diamond: number; gold: number; silver: number; bronze: number }> = {
-      '3': { diamond: 350, gold: 230, silver: 150, bronze: 80 },
-      '6': { diamond: 700, gold: 460, silver: 300, bronze: 160 },
-      '9': { diamond: 950, gold: 630, silver: 410, bronze: 220 },
-      '15': { diamond: 1200, gold: 800, silver: 520, bronze: 280 },
-      '20': { diamond: 1500, gold: 1000, silver: 650, bronze: 350 },
-    };
-    const c = criteria[diffId] || criteria['9'];
-    let medal: 'diamond' | 'gold' | 'silver' | 'bronze' | 'clear' = 'clear';
-    if (score >= c.diamond) medal = 'diamond';
-    else if (score >= c.gold) medal = 'gold';
-    else if (score >= c.silver) medal = 'silver';
-    else if (score >= c.bronze) medal = 'bronze';
-    const priority = { diamond: 4, gold: 3, silver: 2, bronze: 1, clear: 0 };
-    const cur = state.stats.towerMedalsPerDiff[diffId] || 'clear';
-    if (priority[medal] > priority[cur as keyof typeof priority]) {
-      state.stats.towerMedalsPerDiff[diffId] = medal;
-    }
+    // メダルは常にベスト高度から現行基準（towerStages の SSOT）で再評価
+    const runMedal = getTowerMedal(diffId, score); // この回の成績（時間ボーナス用）
+    state.stats.towerMedalsPerDiff[diffId] = getTowerMedal(diffId, state.stats.towerBestHeightsPerDiff[diffId] || 0);
     state.kp += Math.floor(score / 10);
     // 1問も解いていなければ時間ボーナス・祝祭は無し（無操作放置の抜け道を防ぐ）
     const max = parseInt(diffId);
     let bonus = 0;
     let festivalLevel = 0;
     if (score > 0) {
-      bonus = _grantScaledBonus(state, max, medal);
+      bonus = _grantScaledBonus(state, max, runMedal);
       festivalLevel = _triggerFestivalRandom(state, rangeLevels(max));
     }
     _updateHabit(state, true);
@@ -674,7 +665,7 @@ export const LearningEngine = {
     return { state, kpGained };
   },
 
-  saveBlankResult(diffId: string, timeMs: number, solvedByLevel?: Record<number, number>): { state: KukuState; kpGained: number; festivalLevel: number } {
+  saveBlankResult(diffId: string, timeMs: number, solvedByLevel?: Record<number, number>): { state: KukuState; kpGained: number; festivalLevel: number; runMedal: Medal } {
     const state = this.loadState();
     this._applySolvedMastery(state, solvedByLevel);
     if (!state.challengeBestTimes) state.challengeBestTimes = {};
@@ -682,24 +673,17 @@ export const LearningEngine = {
     if (timeMs < currentBest) state.challengeBestTimes[diffId] = timeMs;
 
     if (!state.blankMedalsPerDiff) state.blankMedalsPerDiff = {};
-    let medal: 'diamond' | 'gold' | 'silver' | 'bronze' | 'clear' = 'clear';
-    if (timeMs <= 12000) medal = 'diamond';
-    else if (timeMs <= 10 * 1500) medal = 'gold';
-    else if (timeMs <= 10 * 2500) medal = 'silver';
-    else medal = 'bronze';
-    const priority = { diamond: 4, gold: 3, silver: 2, bronze: 1, clear: 0 };
-    const cur = state.blankMedalsPerDiff[diffId] || 'clear';
-    if (priority[medal] > priority[cur as keyof typeof priority]) {
-      state.blankMedalsPerDiff[diffId] = medal;
-    }
+    // メダルは常にベストタイムから現行基準で再評価（ベスト未更新でもダイヤ昇格を反映）
+    const runMedal = _blankBadge(timeMs); // この回の成績（時間ボーナス用）
+    state.blankMedalsPerDiff[diffId] = _blankBadge(state.challengeBestTimes[diffId] ?? timeMs);
     state.kp += 500;
     const max = parseInt(diffId);
-    const bonus = _grantScaledBonus(state, max, medal);
+    const bonus = _grantScaledBonus(state, max, runMedal);
     const festivalLevel = _triggerFestivalRandom(state, rangeLevels(max));
     _updateHabit(state, true);
     _checkAchievements(state);
     this.saveState(state);
-    return { state, kpGained: 500 + bonus, festivalLevel };
+    return { state, kpGained: 500 + bonus, festivalLevel, runMedal };
   },
 
   prestige(): KukuState {

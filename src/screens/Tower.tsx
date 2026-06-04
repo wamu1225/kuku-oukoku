@@ -5,29 +5,9 @@ import { LearningEngine, isGoldOrBetter } from '../utils/LearningEngine';
 import { IdleManager } from '../utils/IdleManager';
 import { Confetti } from '../components/Confetti';
 import { vibrateCorrect, vibrateWrong } from '../utils/haptics';
+import { TOWER_STAGES as STAGES, type TowerStage as Stage } from '../data/towerStages';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
-
-type Stage = {
-  id: string;
-  name: string;
-  max: number;
-  diamond: number;
-  gold: number;
-  silver: number;
-  bronze: number;
-  unlockRank?: number;
-  requiresTrial?: boolean;
-  requiresStage4Gold?: boolean;
-};
-
-const STAGES: Stage[] = [
-  { id: '3', name: 'そよ風の塔', max: 3, unlockRank: 2, diamond: 350, gold: 230, silver: 150, bronze: 80 },
-  { id: '6', name: '雲海の見張り塔', max: 6, unlockRank: 5, diamond: 700, gold: 460, silver: 300, bronze: 160 },
-  { id: '9', name: '迅雷の尖塔', max: 9, unlockRank: 8, diamond: 950, gold: 630, silver: 410, bronze: 220 },
-  { id: '15', name: '月光の天楼', max: 15, diamond: 1200, gold: 800, silver: 520, bronze: 280, requiresTrial: true },
-  { id: '20', name: '星天の頂', max: 20, diamond: 1500, gold: 1000, silver: 650, bronze: 350, requiresTrial: true, requiresStage4Gold: true },
-];
 const BG_TIERS = [
   { from: 2000, name: '深宇宙', bg: 'linear-gradient(180deg, #020617 0%, #1e1b4b 100%)' },
   { from: 1000, name: '宇宙', bg: 'linear-gradient(180deg, #1e1b4b 0%, #312e81 100%)' },

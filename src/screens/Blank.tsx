@@ -164,9 +164,8 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
     endedRef.current = true;
     if (timerRef.current) { window.clearInterval(timerRef.current); timerRef.current = null; }
     const final = Date.now() - (startRef.current || Date.now());
-    const { state: after, kpGained, festivalLevel } = LearningEngine.saveBlankResult(stage!.id, final, solvedRef.current);
-    const medal = after.blankMedalsPerDiff?.[stage!.id] ?? 'clear';
-    setResult({ timeMs: final, medal: BADGE_LABEL[medal] || 'クリア', kpGained, festivalLevel });
+    const { kpGained, festivalLevel, runMedal } = LearningEngine.saveBlankResult(stage!.id, final, solvedRef.current);
+    setResult({ timeMs: final, medal: BADGE_LABEL[runMedal] || 'クリア', kpGained, festivalLevel });
     setPhase('done');
     onComplete();
   };

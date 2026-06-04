@@ -180,11 +180,10 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
     setElapsed(final);
     const rank = selected!;
     const before = state.danRank || 0;
-    const { state: after, kpGained, festivalLevel } = LearningEngine.completeDanTest(rank, final, solvedRef.current);
-    const medal = after.danMedals?.[rank] ?? 'clear';
+    const { state: after, kpGained, festivalLevel, runMedal } = LearningEngine.completeDanTest(rank, final, solvedRef.current);
     setResult({
       timeMs: final,
-      medal: BADGE_LABEL[medal] || 'クリア',
+      medal: BADGE_LABEL[runMedal] || 'クリア',
       newDan: (after.danRank || 0) > before,
       kpGained,
       festivalLevel,

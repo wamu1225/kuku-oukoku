@@ -137,9 +137,8 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
     if (timerRef.current) window.clearInterval(timerRef.current);
     const final = Date.now() - (startRef.current || Date.now());
     setElapsed(final);
-    const { state, isNewBest, kpGained } = LearningEngine.saveTimeAttackResult(level, final);
-    const badge = state.tableBests[level]?.badge ?? 'clear';
-    setResult({ timeMs: final, badge: BADGE_LABEL[badge] || 'クリア', isNewBest, kpGained });
+    const { isNewBest, kpGained, runBadge } = LearningEngine.saveTimeAttackResult(level, final);
+    setResult({ timeMs: final, badge: BADGE_LABEL[runBadge] || 'クリア', isNewBest, kpGained });
     onComplete();
   };
 
