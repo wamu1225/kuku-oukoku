@@ -31,6 +31,15 @@ const STAGES: Stage[] = [
 
 const STAGE4_GOLD_COUNT = BATTLE_GOLD_COUNT;
 
+// 撃破数 → 獲得メダル表示（💎16/金12/銀7/銅1体。ダイヤは隠し上位）
+function battleMedalLabel(count: number): string {
+  if (count >= 16) return '💎 ダイヤ';
+  if (count >= BATTLE_GOLD_COUNT) return '🥇 金';
+  if (count >= 7) return '🥈 銀';
+  if (count >= 1) return '🥉 銅';
+  return 'メダルなし';
+}
+
 const UNLOCK_RANK_NAMES: Record<number, string> = { 1: '10級', 4: '7級', 7: '4級' };
 
 function generateHP(maxTable: number): number {
@@ -261,7 +270,10 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
                 <span className="stage-name">{s.name}</span>
                 <span className="stage-meta">1〜{s.max}の段</span>
                 {unlocked ? (
-                  <span className="stage-best">自己ベスト: {best}体{best >= 16 ? ' 💎' : ''} / 🥇金 {s.goldCount}体</span>
+                  <>
+                    <span className="stage-best">自己ベスト: {best}体（{battleMedalLabel(best)}）</span>
+                    <span className="stage-targets">🥇 金 {s.goldCount}体</span>
+                  </>
                 ) : (
                   <span className="stage-locked">{lockMsg}</span>
                 )}
@@ -284,7 +296,7 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
     const goldGoal = stage?.goldCount ?? 10;
     const evalText =
       result.count >= 16
-        ? `💎 ${stage!.name} でダイヤモンド達成！圧巻だ！`
+        ? `⚡ ${stage!.name} 圧巻の撃破数だ！`
         : result.count >= goldGoal
         ? `🥇 ${stage!.name} の金級達成！`
         : result.count >= Math.floor(goldGoal * 0.7)

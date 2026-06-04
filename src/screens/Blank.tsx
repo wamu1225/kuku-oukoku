@@ -236,7 +236,7 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
     const showConfetti = result.medal === 'ダイヤ' || result.medal === '金' || result.medal === '銀';
     const ms = result.timeMs;
     let goalHint = '';
-    if (result.medal === 'ダイヤ') goalHint = '💎 ダイヤモンド達成！神速！';
+    if (result.medal === 'ダイヤ') goalHint = '⚡ 神速クリア！自己ベスト更新を狙おう';
     else if (ms <= GOLD_MS) goalHint = '🥇 金級！自己ベスト更新を狙おう';
     else if (ms <= SILVER_MS) goalHint = `🥈 銀級。あと ${((ms - GOLD_MS) / 1000).toFixed(2)}秒 縮めれば 🥇 金へ`;
     else goalHint = `🥉 銅級。あと ${((ms - SILVER_MS) / 1000).toFixed(2)}秒 縮めれば 🥈 銀へ`;

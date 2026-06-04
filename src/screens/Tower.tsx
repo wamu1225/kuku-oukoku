@@ -224,7 +224,7 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
     const stg = stage;
     let goalHint = '';
     if (stg) {
-      if (score >= stg.diamond) goalHint = `💎 ダイヤモンド到達！空の頂を極めた！`;
+      if (score >= stg.diamond) goalHint = `⚡ 空の頂を極めた！自己ベスト更新を狙おう`;
       else if (score >= stg.gold) goalHint = `🥇 金級到達！自己ベスト更新を狙おう`;
       else if (score >= stg.silver) goalHint = `🥈 銀級。あと ${stg.gold - score}m で 🥇 金へ`;
       else if (score >= stg.bronze) goalHint = `🥉 銅級。あと ${stg.silver - score}m で 🥈 銀へ`;
