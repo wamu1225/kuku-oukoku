@@ -154,7 +154,7 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
   if (finished && result) {
     const secs = result.timeMs / 1000;
     let nextHint: string;
-    if (secs <= 10) {
+    if (secs <= 13) {
       nextHint = '💎 ダイヤモンド達成！とんでもない速さだ！';
     } else if (secs <= 15) {
       nextHint = result.isNewBest

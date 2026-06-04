@@ -294,12 +294,12 @@ export const QUEST_KP_SECONDS = 180;
 export const isGoldOrBetter = (m: string | null | undefined): boolean => m === 'gold' || m === 'diamond';
 
 export type Medal = 'diamond' | 'gold' | 'silver' | 'bronze' | 'clear';
-// アタックのタイム→バッジ（10/15/25/40秒）。ダイヤは隠し
+// アタックのタイム→バッジ（💎13/金15/銀25/銅40秒）。ダイヤは隠し
 const _attackBadge = (ms: number): Medal =>
-  ms <= 10000 ? 'diamond' : ms <= 15000 ? 'gold' : ms <= 25000 ? 'silver' : ms <= 40000 ? 'bronze' : 'clear';
-// くもくものタイム→メダル（12/15/25秒、クリアは銅）
+  ms <= 13000 ? 'diamond' : ms <= 15000 ? 'gold' : ms <= 25000 ? 'silver' : ms <= 40000 ? 'bronze' : 'clear';
+// くもくものタイム→メダル（💎13/金15/銀25秒、クリアは銅）
 const _blankBadge = (ms: number): Medal =>
-  ms <= 12000 ? 'diamond' : ms <= 15000 ? 'gold' : ms <= 25000 ? 'silver' : 'bronze';
+  ms <= 13000 ? 'diamond' : ms <= 15000 ? 'gold' : ms <= 25000 ? 'silver' : 'bronze';
 
 function _replenishQuests(state: KukuState) {
   if (!state.activeQuests) state.activeQuests = [];
@@ -607,8 +607,8 @@ export const LearningEngine = {
     let bonus = 0;
     let festivalLevel = 0;
     if (count > 0) {
-      // 撃破数からメダル相当を判定（💎20体/金12体/銀7体/銅1体）
-      const battleMedal = count >= 20 ? 'diamond' : count >= 12 ? 'gold' : count >= 7 ? 'silver' : 'bronze';
+      // 撃破数からメダル相当を判定（💎16体/金12体/銀7体/銅1体）
+      const battleMedal = count >= 16 ? 'diamond' : count >= 12 ? 'gold' : count >= 7 ? 'silver' : 'bronze';
       bonus = _grantScaledBonus(state, max, battleMedal);
       festivalLevel = _triggerFestivalRandom(state, rangeLevels(max));
     }

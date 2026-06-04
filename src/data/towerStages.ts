@@ -14,11 +14,11 @@ export interface TowerStage {
 }
 
 export const TOWER_STAGES: TowerStage[] = [
-  { id: '3', name: 'そよ風の塔', max: 3, unlockRank: 2, diamond: 350, gold: 230, silver: 150, bronze: 80 },
-  { id: '6', name: '雲海の見張り塔', max: 6, unlockRank: 5, diamond: 700, gold: 460, silver: 300, bronze: 160 },
-  { id: '9', name: '迅雷の尖塔', max: 9, unlockRank: 8, diamond: 950, gold: 630, silver: 410, bronze: 220 },
-  { id: '15', name: '月光の天楼', max: 15, diamond: 1200, gold: 800, silver: 520, bronze: 280, requiresTrial: true },
-  { id: '20', name: '星天の頂', max: 20, diamond: 1500, gold: 1000, silver: 650, bronze: 350, requiresTrial: true, requiresStage4Gold: true },
+  { id: '3', name: 'そよ風の塔', max: 3, unlockRank: 2, diamond: 300, gold: 230, silver: 150, bronze: 80 },
+  { id: '6', name: '雲海の見張り塔', max: 6, unlockRank: 5, diamond: 600, gold: 460, silver: 300, bronze: 160 },
+  { id: '9', name: '迅雷の尖塔', max: 9, unlockRank: 8, diamond: 800, gold: 630, silver: 410, bronze: 220 },
+  { id: '15', name: '月光の天楼', max: 15, diamond: 1000, gold: 800, silver: 520, bronze: 280, requiresTrial: true },
+  { id: '20', name: '星天の頂', max: 20, diamond: 1250, gold: 1000, silver: 650, bronze: 350, requiresTrial: true, requiresStage4Gold: true },
 ];
 
 export type TowerMedal = 'diamond' | 'gold' | 'silver' | 'bronze' | 'clear';
