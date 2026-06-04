@@ -177,9 +177,9 @@ function _checkAchievements(state: KukuState) {
   const towerBest1000 = Object.values(state.stats?.towerBestHeightsPerDiff || {}).some((v) => v >= 1000);
   if (!hasAny('medal_8') && towerBest1000) add('medal_8');
   if (!hasAny('medal_10') && (state.stats?.battleTotalDefeated || 0) >= 100) add('medal_10');
-  if (!hasAny('relic_4') && state.blankMedalsPerDiff?.['3'] === 'gold') add('relic_4');
-  if (!hasAny('relic_5') && state.blankMedalsPerDiff?.['6'] === 'gold') add('relic_5');
-  if (!hasAny('relic_7') && state.blankMedalsPerDiff?.['9'] === 'gold') add('relic_7');
+  if (!hasAny('relic_4') && isGoldOrBetter(state.blankMedalsPerDiff?.['3'])) add('relic_4');
+  if (!hasAny('relic_5') && isGoldOrBetter(state.blankMedalsPerDiff?.['6'])) add('relic_5');
+  if (!hasAny('relic_7') && isGoldOrBetter(state.blankMedalsPerDiff?.['9'])) add('relic_7');
   if (!hasAny('medal_7') && (state.stats?.totalTrialsCleared || 0) > 0) add('medal_7');
 
   // Title auto-award based on totalMastery
@@ -203,7 +203,7 @@ function _checkAchievements(state: KukuState) {
   if (!hasAny('relic_8') && totalMastery >= 500) add('relic_8');
   if (!hasAny('relic_9') && totalMastery >= 5000) add('relic_9');
   // 1級 (rank 10) を金メダル取得 = 1〜9 段ランダム 15 問を金タイム以内（danLevels.ts 基準）
-  if (!hasAny('relic_10') && state.danMedals?.[10] === 'gold') add('relic_10');
+  if (!hasAny('relic_10') && isGoldOrBetter(state.danMedals?.[10])) add('relic_10');
 }
 
 function _updateHabit(state: KukuState, isActivity: boolean) {
@@ -271,8 +271,9 @@ function _stageDifficultyMult(topLevel: number): number {
   return 2.5;
 }
 
-// メダル倍率（実績）
+// メダル倍率（実績）。ダイヤは隠しの上位だが倍率は金と同等
 function _medalMult(medal: string | null | undefined): number {
+  if (medal === 'diamond') return 2.0;
   if (medal === 'gold') return 2.0;
   if (medal === 'silver') return 1.5;
   if (medal === 'bronze') return 1.2;
@@ -287,6 +288,9 @@ function _grantScaledBonus(state: KukuState, topLevel: number, medal: string | n
 
 // クエスト(KP型)の報酬秒数。KPS連動にして放置収入に埋もれないようにする
 export const QUEST_KP_SECONDS = 180;
+
+// ダイヤは金より上位なので「金以上」判定に含める（解禁・実績の取りこぼし防止）
+export const isGoldOrBetter = (m: string | null | undefined): boolean => m === 'gold' || m === 'diamond';
 
 function _replenishQuests(state: KukuState) {
   if (!state.activeQuests) state.activeQuests = [];
@@ -475,9 +479,9 @@ export const LearningEngine = {
     const currentBest = state.tableBests[level] || {
       level, bestTimeMs: 0, badge: null, isCompleted: false,
     };
-    // 「15秒以内」など desc に合わせて inclusive (<=) 判定で統一
-    const badge: 'gold' | 'silver' | 'bronze' | 'clear' =
-      timeMs <= 15000 ? 'gold' : timeMs <= 25000 ? 'silver' : timeMs <= 40000 ? 'bronze' : 'clear';
+    // 「15秒以内」など desc に合わせて inclusive (<=) 判定で統一。10秒以内は隠しダイヤ
+    const badge: 'diamond' | 'gold' | 'silver' | 'bronze' | 'clear' =
+      timeMs <= 10000 ? 'diamond' : timeMs <= 15000 ? 'gold' : timeMs <= 25000 ? 'silver' : timeMs <= 40000 ? 'bronze' : 'clear';
 
     let isNewBest = false;
     if (currentBest.bestTimeMs === 0 || timeMs < currentBest.bestTimeMs) {
@@ -538,13 +542,14 @@ export const LearningEngine = {
     }
 
     if (!state.danMedals) state.danMedals = {};
-    let medal: 'gold' | 'silver' | 'bronze' | 'clear' = 'bronze';
+    let medal: 'diamond' | 'gold' | 'silver' | 'bronze' | 'clear' = 'bronze';
     // 基準タイム・問題数は danLevels.ts を唯一の正とする（表示と判定のズレを防ぐ）
     const dan = DAN_LEVELS.find((d) => d.rank === rank);
     const problems = dan?.count ?? 15;
-    if (dan && timeTakenMs <= dan.goldTimeMs) medal = 'gold';
+    if (dan && timeTakenMs <= dan.diamondTimeMs) medal = 'diamond';
+    else if (dan && timeTakenMs <= dan.goldTimeMs) medal = 'gold';
     else if (dan && timeTakenMs <= dan.silverTimeMs) medal = 'silver';
-    const medalPriority = { gold: 3, silver: 2, bronze: 1, clear: 0 };
+    const medalPriority = { diamond: 4, gold: 3, silver: 2, bronze: 1, clear: 0 };
     const currentMedal = state.danMedals[rank] || 'clear';
     if (medalPriority[medal] > medalPriority[currentMedal as keyof typeof medalPriority]) {
       state.danMedals[rank] = medal;
@@ -595,8 +600,8 @@ export const LearningEngine = {
     let bonus = 0;
     let festivalLevel = 0;
     if (count > 0) {
-      // 撃破数からメダル相当を判定（金12体/銀7体/銅1体）
-      const battleMedal = count >= 12 ? 'gold' : count >= 7 ? 'silver' : 'bronze';
+      // 撃破数からメダル相当を判定（💎20体/金12体/銀7体/銅1体）
+      const battleMedal = count >= 20 ? 'diamond' : count >= 12 ? 'gold' : count >= 7 ? 'silver' : 'bronze';
       bonus = _grantScaledBonus(state, max, battleMedal);
       festivalLevel = _triggerFestivalRandom(state, rangeLevels(max));
     }
@@ -615,19 +620,21 @@ export const LearningEngine = {
       state.stats.towerBestHeightsPerDiff[diffId] = score;
     }
     if (!state.stats.towerMedalsPerDiff) state.stats.towerMedalsPerDiff = {};
-    const criteria: Record<string, { gold: number; silver: number; bronze: number }> = {
-      '3': { gold: 230, silver: 150, bronze: 80 },
-      '6': { gold: 460, silver: 300, bronze: 160 },
-      '9': { gold: 630, silver: 410, bronze: 220 },
-      '15': { gold: 800, silver: 520, bronze: 280 },
-      '20': { gold: 1000, silver: 650, bronze: 350 },
+    // diamond は隠し（金より上）。きりのいいスコアで設定
+    const criteria: Record<string, { diamond: number; gold: number; silver: number; bronze: number }> = {
+      '3': { diamond: 350, gold: 230, silver: 150, bronze: 80 },
+      '6': { diamond: 700, gold: 460, silver: 300, bronze: 160 },
+      '9': { diamond: 950, gold: 630, silver: 410, bronze: 220 },
+      '15': { diamond: 1200, gold: 800, silver: 520, bronze: 280 },
+      '20': { diamond: 1500, gold: 1000, silver: 650, bronze: 350 },
     };
     const c = criteria[diffId] || criteria['9'];
-    let medal: 'gold' | 'silver' | 'bronze' | 'clear' = 'clear';
-    if (score >= c.gold) medal = 'gold';
+    let medal: 'diamond' | 'gold' | 'silver' | 'bronze' | 'clear' = 'clear';
+    if (score >= c.diamond) medal = 'diamond';
+    else if (score >= c.gold) medal = 'gold';
     else if (score >= c.silver) medal = 'silver';
     else if (score >= c.bronze) medal = 'bronze';
-    const priority = { gold: 3, silver: 2, bronze: 1, clear: 0 };
+    const priority = { diamond: 4, gold: 3, silver: 2, bronze: 1, clear: 0 };
     const cur = state.stats.towerMedalsPerDiff[diffId] || 'clear';
     if (priority[medal] > priority[cur as keyof typeof priority]) {
       state.stats.towerMedalsPerDiff[diffId] = medal;
@@ -675,11 +682,12 @@ export const LearningEngine = {
     if (timeMs < currentBest) state.challengeBestTimes[diffId] = timeMs;
 
     if (!state.blankMedalsPerDiff) state.blankMedalsPerDiff = {};
-    let medal: 'gold' | 'silver' | 'bronze' | 'clear' = 'clear';
-    if (timeMs <= 10 * 1500) medal = 'gold';
+    let medal: 'diamond' | 'gold' | 'silver' | 'bronze' | 'clear' = 'clear';
+    if (timeMs <= 12000) medal = 'diamond';
+    else if (timeMs <= 10 * 1500) medal = 'gold';
     else if (timeMs <= 10 * 2500) medal = 'silver';
     else medal = 'bronze';
-    const priority = { gold: 3, silver: 2, bronze: 1, clear: 0 };
+    const priority = { diamond: 4, gold: 3, silver: 2, bronze: 1, clear: 0 };
     const cur = state.blankMedalsPerDiff[diffId] || 'clear';
     if (priority[medal] > priority[cur as keyof typeof priority]) {
       state.blankMedalsPerDiff[diffId] = medal;

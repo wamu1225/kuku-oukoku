@@ -30,6 +30,7 @@ export const IdleManager = {
     const festivalUntil = state.festivalUntil?.[level] || 0;
     if (festivalUntil <= Date.now()) return 1;
     const badge = state.tableBests?.[level]?.badge;
+    if (badge === 'diamond') return 5.0;
     if (badge === 'gold') return 5.0;
     if (badge === 'silver') return 3.0;
     return 1.5;

@@ -261,7 +261,7 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
                 <span className="stage-name">{s.name}</span>
                 <span className="stage-meta">1〜{s.max}の段</span>
                 {unlocked ? (
-                  <span className="stage-best">自己ベスト: {best}体 / 🥇金 {s.goldCount}体</span>
+                  <span className="stage-best">自己ベスト: {best}体{best >= 20 ? ' 💎' : ''} / 🥇金 {s.goldCount}体</span>
                 ) : (
                   <span className="stage-locked">{lockMsg}</span>
                 )}
@@ -283,7 +283,9 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
     const showConfetti = result.count >= 10 || result.combo >= 5;
     const goldGoal = stage?.goldCount ?? 10;
     const evalText =
-      result.count >= goldGoal
+      result.count >= 20
+        ? `💎 ${stage!.name} でダイヤモンド達成！圧巻だ！`
+        : result.count >= goldGoal
         ? `🥇 ${stage!.name} の金級達成！`
         : result.count >= Math.floor(goldGoal * 0.7)
         ? `あと ${goldGoal - result.count}体 で 🥇 金級！`

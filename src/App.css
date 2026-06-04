@@ -2204,6 +2204,11 @@ main { padding: 20px 16px 40px; }
 .dan-stamp:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
 .dan-stamp-medal { font-size: 22px; }
 .dan-stamp-name { font-weight: 900; font-size: 13px; color: #78350f; }
+.dan-stamp-diamond {
+  background: linear-gradient(135deg, #ecfeff 0%, #67e8f9 50%, #a5f3fc 100%);
+  border-color: #06b6d4;
+  box-shadow: 0 0 8px rgba(34, 211, 238, 0.6);
+}
 .dan-stamp-gold {
   background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 100%);
   border-color: #d97706;

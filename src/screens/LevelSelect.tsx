@@ -2,6 +2,7 @@ import type { KukuState } from '../types';
 import { navigate } from '../App';
 
 const BADGE_LABEL: Record<string, string> = {
+  diamond: 'ダイヤ',
   gold: '金',
   silver: '銀',
   bronze: '銅',
@@ -9,6 +10,7 @@ const BADGE_LABEL: Record<string, string> = {
 };
 
 const BADGE_EMOJI: Record<string, string> = {
+  diamond: '💎',
   gold: '🥇',
   silver: '🥈',
   bronze: '🥉',

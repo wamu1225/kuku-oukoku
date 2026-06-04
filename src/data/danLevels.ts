@@ -3,6 +3,7 @@ export interface DanLevel {
   name: string;
   source: number[];
   count: number;
+  diamondTimeMs: number;
   goldTimeMs: number;
   silverTimeMs: number;
   limitMs: number;
@@ -10,12 +11,14 @@ export interface DanLevel {
 
 // 1問あたりの基準ペース。問題数(15/50/100)を掛けても秒数が整数になる値にする。
 // limit(=銅クリア) も問題数に連動させ、銀タイムが制限時間を超えない（到達不能にならない）ようにする。
+const DIAMOND_PACE = 1200;
 const GOLD_PACE = 1600;
 const SILVER_PACE = 2400;
 const BRONZE_PACE = 6000;
 
 const makeLevel = (rank: number, name: string, source: number[], count: number): DanLevel => ({
   rank, name, source, count,
+  diamondTimeMs: count * DIAMOND_PACE,
   goldTimeMs: count * GOLD_PACE,
   silverTimeMs: count * SILVER_PACE,
   limitMs: count * BRONZE_PACE,

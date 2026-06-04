@@ -10,7 +10,7 @@ export interface KukuResult {
 export interface TableBest {
   level: number;
   bestTimeMs: number;
-  badge: 'gold' | 'silver' | 'bronze' | 'clear' | null;
+  badge: 'diamond' | 'gold' | 'silver' | 'bronze' | 'clear' | null;
   isCompleted?: boolean;
 }
 
@@ -45,7 +45,7 @@ export interface KukuState {
 
   danRank?: number;
   danBestTimes?: Record<number, number>;
-  danMedals?: Record<number, 'gold' | 'silver' | 'bronze' | 'clear'>;
+  danMedals?: Record<number, 'diamond' | 'gold' | 'silver' | 'bronze' | 'clear'>;
 
   wisdomSeals?: string[];
   royalTreasures?: string[];
@@ -65,11 +65,11 @@ export interface KukuState {
     battleWeeklyBestPerDiff?: Record<string, number>;
     towerBestHeightsPerDiff?: Record<string, number>;
     towerWeeklyBestHeightsPerDiff?: Record<string, number>;
-    towerMedalsPerDiff?: Record<string, 'gold' | 'silver' | 'bronze' | 'clear'>;
+    towerMedalsPerDiff?: Record<string, 'diamond' | 'gold' | 'silver' | 'bronze' | 'clear'>;
   };
 
   challengeBestTimes?: Record<string, number>;
-  blankMedalsPerDiff?: Record<string, 'gold' | 'silver' | 'bronze' | 'clear'>;
+  blankMedalsPerDiff?: Record<string, 'diamond' | 'gold' | 'silver' | 'bronze' | 'clear'>;
 
   unlockedModes?: ('learn' | 'attack' | 'empire' | 'dan')[];
   unlockedLevels?: number[];

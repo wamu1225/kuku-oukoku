@@ -6,7 +6,7 @@ import { vibrateCorrect, vibrateWrong } from '../utils/haptics';
 import { Confetti } from '../components/Confetti';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
-const BADGE_LABEL: Record<string, string> = { gold: '金', silver: '銀', bronze: '銅', clear: 'クリア' };
+const BADGE_LABEL: Record<string, string> = { diamond: 'ダイヤ', gold: '金', silver: '銀', bronze: '銅', clear: 'クリア' };
 
 // Fisher-Yates shuffle (unbiased)
 function shuffle<T>(arr: T[]): T[] {
@@ -155,7 +155,9 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
   if (finished && result) {
     const secs = result.timeMs / 1000;
     let nextHint: string;
-    if (secs <= 15) {
+    if (secs <= 10) {
+      nextHint = '💎 ダイヤモンド達成！とんでもない速さだ！';
+    } else if (secs <= 15) {
       nextHint = result.isNewBest
         ? '最速ペース達成！次は自己ベストをさらに更新しよう'
         : '🥇 金メダル！自己ベスト更新を狙おう';
@@ -166,11 +168,11 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
     } else {
       nextHint = `あと ${(secs - 40).toFixed(2)}秒 で 🥉 銅メダル！`;
     }
-    const showConfetti = result.isNewBest || result.badge === '金';
+    const showConfetti = result.isNewBest || result.badge === '金' || result.badge === 'ダイヤ';
     return (
       <div className="screen result-screen">
-        {showConfetti && <Confetti count={45} />}
-        <div className="result-symbol" aria-hidden="true">{result.badge === '金' ? '🥇' : result.badge === '銀' ? '🥈' : result.badge === '銅' ? '🥉' : '✨'}</div>
+        {showConfetti && <Confetti count={result.badge === 'ダイヤ' ? 70 : 45} />}
+        <div className="result-symbol" aria-hidden="true">{result.badge === 'ダイヤ' ? '💎' : result.badge === '金' ? '🥇' : result.badge === '銀' ? '🥈' : result.badge === '銅' ? '🥉' : '✨'}</div>
         <h1 className="result-title">{result.isNewBest ? '自己ベスト更新！' : 'クリア！'}</h1>
         <div className="result-stats">
           <div><span className="result-label">タイム</span><span className="result-value">{secs.toFixed(2)}秒</span></div>

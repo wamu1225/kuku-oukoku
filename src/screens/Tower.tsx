@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { navigate } from '../App';
 import type { KukuState } from '../types';
-import { LearningEngine } from '../utils/LearningEngine';
+import { LearningEngine, isGoldOrBetter } from '../utils/LearningEngine';
 import { IdleManager } from '../utils/IdleManager';
 import { Confetti } from '../components/Confetti';
 import { vibrateCorrect, vibrateWrong } from '../utils/haptics';
@@ -12,6 +12,7 @@ type Stage = {
   id: string;
   name: string;
   max: number;
+  diamond: number;
   gold: number;
   silver: number;
   bronze: number;
@@ -21,11 +22,11 @@ type Stage = {
 };
 
 const STAGES: Stage[] = [
-  { id: '3', name: 'そよ風の塔', max: 3, unlockRank: 2, gold: 230, silver: 150, bronze: 80 },
-  { id: '6', name: '雲海の見張り塔', max: 6, unlockRank: 5, gold: 460, silver: 300, bronze: 160 },
-  { id: '9', name: '迅雷の尖塔', max: 9, unlockRank: 8, gold: 630, silver: 410, bronze: 220 },
-  { id: '15', name: '月光の天楼', max: 15, gold: 800, silver: 520, bronze: 280, requiresTrial: true },
-  { id: '20', name: '星天の頂', max: 20, gold: 1000, silver: 650, bronze: 350, requiresTrial: true, requiresStage4Gold: true },
+  { id: '3', name: 'そよ風の塔', max: 3, unlockRank: 2, diamond: 350, gold: 230, silver: 150, bronze: 80 },
+  { id: '6', name: '雲海の見張り塔', max: 6, unlockRank: 5, diamond: 700, gold: 460, silver: 300, bronze: 160 },
+  { id: '9', name: '迅雷の尖塔', max: 9, unlockRank: 8, diamond: 950, gold: 630, silver: 410, bronze: 220 },
+  { id: '15', name: '月光の天楼', max: 15, diamond: 1200, gold: 800, silver: 520, bronze: 280, requiresTrial: true },
+  { id: '20', name: '星天の頂', max: 20, diamond: 1500, gold: 1000, silver: 650, bronze: 350, requiresTrial: true, requiresStage4Gold: true },
 ];
 const BG_TIERS = [
   { from: 2000, name: '深宇宙', bg: 'linear-gradient(180deg, #020617 0%, #1e1b4b 100%)' },
@@ -182,7 +183,7 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
         <div className="battle-stages">
           {STAGES.filter((s) => !s.requiresTrial || trialCleared).map((s) => {
             const stage4Medal = state.stats?.towerMedalsPerDiff?.['15'];
-            const stage4Gold = stage4Medal === 'gold';
+            const stage4Gold = isGoldOrBetter(stage4Medal);
             let unlocked = true;
             let lockMsg = '';
             if (s.requiresStage4Gold && !stage4Gold) {
@@ -208,7 +209,7 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
                 {unlocked ? (
                   <>
                     <span className="stage-best">
-                      自己ベスト: {best}m {medal && `(${medal === 'gold' ? '🥇金' : medal === 'silver' ? '🥈銀' : '🥉銅'})`}
+                      自己ベスト: {best}m {medal && `(${medal === 'diamond' ? '💎ダイヤ' : medal === 'gold' ? '🥇金' : medal === 'silver' ? '🥈銀' : '🥉銅'})`}
                     </span>
                     <span className="stage-targets">
                       🥇 {s.gold}m / 🥈 {s.silver}m / 🥉 {s.bronze}m
@@ -243,7 +244,8 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
     const stg = stage;
     let goalHint = '';
     if (stg) {
-      if (score >= stg.gold) goalHint = `🥇 金級到達！自己ベスト更新を狙おう`;
+      if (score >= stg.diamond) goalHint = `💎 ダイヤモンド到達！空の頂を極めた！`;
+      else if (score >= stg.gold) goalHint = `🥇 金級到達！自己ベスト更新を狙おう`;
       else if (score >= stg.silver) goalHint = `🥈 銀級。あと ${stg.gold - score}m で 🥇 金へ`;
       else if (score >= stg.bronze) goalHint = `🥉 銅級。あと ${stg.silver - score}m で 🥈 銀へ`;
       else goalHint = `あと ${stg.bronze - score}m で 🥉 銅級！`;

@@ -22,7 +22,7 @@ function unlocksOnRank(rank: number): string[] {
 }
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
-const BADGE_LABEL: Record<string, string> = { gold: '金', silver: '銀', bronze: '銅' };
+const BADGE_LABEL: Record<string, string> = { diamond: 'ダイヤ', gold: '金', silver: '銀', bronze: '銅' };
 
 function pickProblems(source: number[], count: number) {
   const out: { a: number; b: number }[] = [];
@@ -256,7 +256,7 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
             <div className="dan-passport">
               {DAN_LEVELS.filter((d) => d.rank <= currentRank).map((d) => {
                 const medal = state.danMedals?.[d.rank];
-                const medalIcon = medal === 'gold' ? '🥇' : medal === 'silver' ? '🥈' : medal === 'bronze' ? '🥉' : '📜';
+                const medalIcon = medal === 'diamond' ? '💎' : medal === 'gold' ? '🥇' : medal === 'silver' ? '🥈' : medal === 'bronze' ? '🥉' : '📜';
                 return (
                   <button
                     key={d.rank}
@@ -296,7 +296,7 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
     return (
       <div className="screen result-screen">
         {result.newDan && <Confetti count={50} />}
-        <div className="result-symbol" aria-hidden="true">{result.newDan ? '🛡' : result.medal === '金' ? '🥇' : result.medal === '銀' ? '🥈' : '🥉'}</div>
+        <div className="result-symbol" aria-hidden="true">{result.newDan ? '🛡' : result.medal === 'ダイヤ' ? '💎' : result.medal === '金' ? '🥇' : result.medal === '銀' ? '🥈' : '🥉'}</div>
         <h1 className={`result-title ${result.newDan ? 'celebrate' : ''}`}>
           {result.newDan ? '🎉 昇段おめでとう！' : 'クリア！'}
         </h1>

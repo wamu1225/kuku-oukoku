@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { navigate } from '../App';
 import type { KukuState } from '../types';
-import { LearningEngine } from '../utils/LearningEngine';
+import { LearningEngine, isGoldOrBetter } from '../utils/LearningEngine';
 import { IdleManager } from '../utils/IdleManager';
 import { Confetti } from '../components/Confetti';
 import { vibrateCorrect, vibrateWrong } from '../utils/haptics';
@@ -30,7 +30,7 @@ const UNLOCK_RANK_NAMES: Record<number, string> = { 3: '8級', 6: '5級', 9: '2�
 // 金/銀メダルしきい値 (10 問の合計タイム)
 const GOLD_MS = 10 * 1500;  // 15 秒
 const SILVER_MS = 10 * 2500; // 25 秒
-const BADGE_LABEL: Record<string, string> = { gold: '金', silver: '銀', bronze: '銅', clear: 'クリア' };
+const BADGE_LABEL: Record<string, string> = { diamond: 'ダイヤ', gold: '金', silver: '銀', bronze: '銅', clear: 'クリア' };
 const QUESTION_COUNT = 10;
 
 interface BlankProblem {
@@ -186,7 +186,7 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
         <div className="battle-stages">
           {STAGES.filter((s) => !s.requiresTrial || trialCleared).map((s) => {
             const stage4Medal = state.blankMedalsPerDiff?.['15'];
-            const stage4Gold = stage4Medal === 'gold';
+            const stage4Gold = isGoldOrBetter(stage4Medal);
             let unlocked = true;
             let lockMsg = '';
             if (s.requiresStage4Gold && !stage4Gold) {
@@ -234,16 +234,17 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
   }
 
   if (phase === 'done' && result) {
-    const showConfetti = result.medal === '金' || result.medal === '銀';
+    const showConfetti = result.medal === 'ダイヤ' || result.medal === '金' || result.medal === '銀';
     const ms = result.timeMs;
     let goalHint = '';
-    if (ms <= GOLD_MS) goalHint = '🥇 金級！自己ベスト更新を狙おう';
+    if (result.medal === 'ダイヤ') goalHint = '💎 ダイヤモンド達成！神速！';
+    else if (ms <= GOLD_MS) goalHint = '🥇 金級！自己ベスト更新を狙おう';
     else if (ms <= SILVER_MS) goalHint = `🥈 銀級。あと ${((ms - GOLD_MS) / 1000).toFixed(2)}秒 縮めれば 🥇 金へ`;
     else goalHint = `🥉 銅級。あと ${((ms - SILVER_MS) / 1000).toFixed(2)}秒 縮めれば 🥈 銀へ`;
-    const symbol = result.medal === '金' ? '🥇' : result.medal === '銀' ? '🥈' : result.medal === '銅' ? '🥉' : '🌫';
+    const symbol = result.medal === 'ダイヤ' ? '💎' : result.medal === '金' ? '🥇' : result.medal === '銀' ? '🥈' : result.medal === '銅' ? '🥉' : '🌫';
     return (
       <div className="screen result-screen">
-        {showConfetti && <Confetti count={result.medal === '金' ? 50 : 30} />}
+        {showConfetti && <Confetti count={result.medal === 'ダイヤ' ? 70 : result.medal === '金' ? 50 : 30} />}
         <div className="result-symbol" aria-hidden="true">{symbol}</div>
         <h1 className="result-title">クリア！</h1>
         <div className="result-stats">
