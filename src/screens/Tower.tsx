@@ -260,7 +260,7 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
           <div><span className="result-label">獲得 KP</span><span className="result-value">+{IdleManager.formatBigNumber(reward?.kp ?? Math.floor(score / 10))}</span></div>
         </div>
         {goalHint && <p className="result-hint">{goalHint}</p>}
-        {reward && <p className="festival-notice">🎉 {reward.festivalLevel}の段の祝祭が 30分 発動！その段のなかまの生産アップ</p>}
+        {reward && reward.festivalLevel > 0 && <p className="festival-notice">🎉 {reward.festivalLevel}の段の祝祭が 30分 発動！その段のなかまの生産アップ</p>}
         <div className="result-actions">
           <button className="btn-primary" onClick={() => { setPhase('select'); }}>もう一度</button>
           <button className="btn-secondary" onClick={() => navigate('/')}>ホームへ</button>

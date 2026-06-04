@@ -590,11 +590,16 @@ export const LearningEngine = {
     // 10体ごとのゴールデンエネミー累積ボーナス
     const goldenEnemies = Math.floor(count / 10);
     state.kp += goldenEnemies * 10000;
-    // 撃破数からメダル相当を判定（金12体/銀7体/銅1体）
-    const battleMedal = count >= 12 ? 'gold' : count >= 7 ? 'silver' : count >= 1 ? 'bronze' : 'clear';
+    // 1体も倒していなければ時間ボーナス・祝祭は無し（無操作放置の抜け道を防ぐ）
     const max = parseInt(diffId);
-    const bonus = _grantScaledBonus(state, max, battleMedal);
-    const festivalLevel = _triggerFestivalRandom(state, rangeLevels(max));
+    let bonus = 0;
+    let festivalLevel = 0;
+    if (count > 0) {
+      // 撃破数からメダル相当を判定（金12体/銀7体/銅1体）
+      const battleMedal = count >= 12 ? 'gold' : count >= 7 ? 'silver' : 'bronze';
+      bonus = _grantScaledBonus(state, max, battleMedal);
+      festivalLevel = _triggerFestivalRandom(state, rangeLevels(max));
+    }
     _updateHabit(state, true);
     _checkAchievements(state);
     this.saveState(state);
@@ -628,9 +633,14 @@ export const LearningEngine = {
       state.stats.towerMedalsPerDiff[diffId] = medal;
     }
     state.kp += Math.floor(score / 10);
+    // 1問も解いていなければ時間ボーナス・祝祭は無し（無操作放置の抜け道を防ぐ）
     const max = parseInt(diffId);
-    const bonus = _grantScaledBonus(state, max, medal);
-    const festivalLevel = _triggerFestivalRandom(state, rangeLevels(max));
+    let bonus = 0;
+    let festivalLevel = 0;
+    if (score > 0) {
+      bonus = _grantScaledBonus(state, max, medal);
+      festivalLevel = _triggerFestivalRandom(state, rangeLevels(max));
+    }
     _updateHabit(state, true);
     _checkAchievements(state);
     this.saveState(state);

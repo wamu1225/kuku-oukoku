@@ -301,7 +301,7 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
         </div>
         <p className="result-hint">{evalText}</p>
         {comboNote && <p className="result-hint result-hint-combo">{comboNote}</p>}
-        {result.festivalLevel !== null && <p className="festival-notice">🎉 {result.festivalLevel}の段の祝祭が 30分 発動！その段のなかまの生産アップ</p>}
+        {result.festivalLevel ? <p className="festival-notice">🎉 {result.festivalLevel}の段の祝祭が 30分 発動！その段のなかまの生産アップ</p> : null}
         <div className="result-actions">
           <button className="btn-primary" onClick={() => { setPhase('select'); setResult(null); }}>もう一度</button>
           <button className="btn-secondary" onClick={() => navigate('/')}>ホームへ</button>
