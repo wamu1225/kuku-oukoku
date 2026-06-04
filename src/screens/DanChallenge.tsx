@@ -295,10 +295,10 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
     const newRankName = result.newDan && selected ? DAN_LEVELS.find((d) => d.rank === selected)?.name : null;
     return (
       <div className="screen result-screen">
-        {result.newDan && <Confetti count={50} />}
+        {(result.newDan || result.medal === 'ダイヤ') && <Confetti count={result.medal === 'ダイヤ' ? 70 : 50} />}
         <div className="result-symbol" aria-hidden="true">{result.newDan ? '🛡' : result.medal === 'ダイヤ' ? '💎' : result.medal === '金' ? '🥇' : result.medal === '銀' ? '🥈' : '🥉'}</div>
-        <h1 className={`result-title ${result.newDan ? 'celebrate' : ''}`}>
-          {result.newDan ? '🎉 昇段おめでとう！' : 'クリア！'}
+        <h1 className={`result-title ${result.newDan || result.medal === 'ダイヤ' ? 'celebrate' : ''}`}>
+          {result.newDan ? '🎉 昇段おめでとう！' : result.medal === 'ダイヤ' ? '💎 ダイヤモンド達成！' : 'クリア！'}
         </h1>
         {result.newDan && prevRankName && newRankName && (
           <p className="dan-promotion">
