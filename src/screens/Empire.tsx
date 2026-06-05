@@ -121,7 +121,7 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
           </div>
         </div>
         <div className="kingdom-companions" aria-hidden="true">
-          {ownedCompanions.slice(0, 14).map((c) => (
+          {ownedCompanions.map((c) => (
             <span key={c.level} className="kingdom-mate" title={c.name}>{c.emoji}</span>
           ))}
           {ownedCompanions.length === 0 && (
