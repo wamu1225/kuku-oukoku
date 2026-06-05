@@ -17,7 +17,7 @@ const THEMES: SeasonalTheme[] = [
   { name: 'みのりのおうこく', emoji: '🍁', bg: 'linear-gradient(180deg, #fed7aa 0%, #fecaca 100%)', accent: '#ea580c' }, // 9月
   { name: 'こうようの王都', emoji: '🍂', bg: 'linear-gradient(180deg, #fee2e2 0%, #fef3c7 100%)', accent: '#dc2626' }, // 10月
   { name: 'おちばのおうこく', emoji: '🍁', bg: 'linear-gradient(180deg, #fef3c7 0%, #fde68a 100%)', accent: '#b45309' }, // 11月
-  { name: 'せいなる夜', emoji: '🎄', bg: 'linear-gradient(180deg, #d1fae5 0%, #fee2e2 100%)', accent: '#16a34a' }, // 12月
+  { name: 'せいなるおうこく', emoji: '🎄', bg: 'linear-gradient(180deg, #d1fae5 0%, #fee2e2 100%)', accent: '#16a34a' }, // 12月
 ];
 
 export function getCurrentSeasonal(date: Date = new Date()): SeasonalTheme {
