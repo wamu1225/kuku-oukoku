@@ -7,7 +7,7 @@ export interface SeasonalTheme {
 
 const THEMES: SeasonalTheme[] = [
   { name: '雪のおうこく', emoji: '❄️', bg: 'linear-gradient(180deg, #e0f2fe 0%, #f0f9ff 100%)', accent: '#0284c7' }, // 1月
-  { name: '梅と春のはじまり', emoji: '🌸', bg: 'linear-gradient(180deg, #fdf2f8 0%, #fff1f2 100%)', accent: '#db2777' }, // 2月
+  { name: '梅と春のはじまり', emoji: '🌼', bg: 'linear-gradient(180deg, #fdf2f8 0%, #fff1f2 100%)', accent: '#db2777' }, // 2月
   { name: 'はるのおうこく', emoji: '🌷', bg: 'linear-gradient(180deg, #fce7f3 0%, #fdf4ff 100%)', accent: '#c026d3' }, // 3月
   { name: '桜の王都', emoji: '🌸', bg: 'linear-gradient(180deg, #fff1f2 0%, #fef3c7 100%)', accent: '#f43f5e' }, // 4月
   { name: 'みどりのおうこく', emoji: '🌿', bg: 'linear-gradient(180deg, #ecfdf5 0%, #f0fdf4 100%)', accent: '#16a34a' }, // 5月
