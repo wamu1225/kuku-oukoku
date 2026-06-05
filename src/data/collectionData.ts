@@ -41,6 +41,7 @@ export const COLLECTION_ITEMS: CollectionItem[] = [
   { id: 'treasure_8', name: '世界樹の枝', desc: 'おうこくレベル Lv.3 に到達', category: 'treasure', emoji: '🌳', color: '#22c55e' },
   { id: 'treasure_9', name: '虹色の杯', desc: '1兆 KP 集めた証', category: 'treasure', emoji: '🏆', color: '#fb923c', hidden: true },
   { id: 'treasure_10', name: '究極の玉座', desc: '王国の全てを手に入れた証', category: 'treasure', emoji: '👑', color: '#64748b', hidden: true },
+  { id: 'treasure_11', name: '創世の冠', desc: '最後のなかま「九九の神さま」を迎えた証', category: 'treasure', emoji: '🌟', color: '#fbbf24', hidden: true },
 
   { id: 'medal_1', name: 'かけだしのバッジ', desc: 'はなまるスタンプを 10個 集めた', category: 'medal', emoji: '🎯', color: '#67e8f9' },
   { id: 'medal_2', name: '勇気の大剣', desc: 'バトルで 累計20体 撃破した', category: 'medal', emoji: '⚔️', color: '#22c55e' },

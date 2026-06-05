@@ -960,6 +960,22 @@ main { padding: 20px 16px 40px; }
 .btn-invite-max:disabled { color: #9ca3af; border-color: #d1d5db; }
 .empire-hint { color: var(--text-muted); font-size: 13px; text-align: center; margin-top: 16px; }
 
+/* 最後のなかま（クリアの証） */
+.companion-card-final {
+  border-color: #fbbf24 !important;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.5);
+}
+.companion-card-final.final-done {
+  box-shadow: 0 0 16px rgba(251, 191, 36, 0.8);
+}
+.final-achieved {
+  font-weight: 900;
+  color: #b45309;
+  font-size: 15px;
+}
+.final-achieved-note { color: #b45309; font-weight: 700; }
+
 /* === Collection === */
 .collection-section { margin-bottom: 32px; }
 .collection-grid {

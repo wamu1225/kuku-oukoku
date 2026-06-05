@@ -3,8 +3,14 @@ import { getDanRankName } from '../data/danLevels';
 
 export const MAX_KP = 1e36;
 
+// 最後のなかま（段21相当）。生産はせず、招待は一度きり。一秭(1e24) KP の最終目標
+export const FINAL_COMPANION_LEVEL = 21;
+export const FINAL_COMPANION_COST = 1e24;
+
 export const IdleManager = {
   getIndividualProduction(state: KukuState, level: number): number {
+    // 最後のなかま（段21〜）は生産しない（クリアの証）
+    if (level >= FINAL_COMPANION_LEVEL) return 0;
     const count = state.companions[level] || 0;
     if (count === 0) return 0;
 

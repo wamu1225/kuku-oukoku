@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { navigate } from '../App';
 import type { KukuState } from '../types';
-import { LearningEngine, QUEST_KP_SECONDS } from '../utils/LearningEngine';
-import { IdleManager } from '../utils/IdleManager';
+import { LearningEngine, QUEST_KP_SECONDS, silverCompletion } from '../utils/LearningEngine';
+import { IdleManager, FINAL_COMPANION_COST } from '../utils/IdleManager';
 import { COMPANIONS } from '../data/companions';
 import { getCurrentSeasonal } from '../utils/seasonal';
 
@@ -72,6 +72,16 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
     const updated = LearningEngine.inviteCompanion(level, cost);
     setState(updated);
     triggerPop(level);
+    onUpdate();
+  };
+
+  const inviteFinal = () => {
+    if ((state.companions[21] || 0) > 0) return;
+    if (silverCompletion(state).missing > 0) return;
+    if (state.kp < FINAL_COMPANION_COST) return;
+    const updated = LearningEngine.inviteCompanion(21, FINAL_COMPANION_COST);
+    setState(updated);
+    triggerPop(21);
     onUpdate();
   };
 
@@ -246,6 +256,40 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
 
       <div className="companion-list">
         {visibleLevels.map((comp) => {
+          // 最後のなかま（段21・生産なし・1回だけ・全モード銀以上が条件）
+          if (comp.type === 'final') {
+            const owned21 = state.companions[comp.level] || 0;
+            const prog = silverCompletion(state);
+            const canInvite = owned21 === 0 && prog.missing === 0 && state.kp >= FINAL_COMPANION_COST;
+            return (
+              <div key={comp.level} className={`companion-card companion-card-final ${owned21 > 0 ? 'final-done' : ''}`} style={{ borderColor: comp.color }}>
+                <div className="companion-icon" aria-hidden="true" style={{ background: comp.color }}>{comp.emoji}</div>
+                <div className="companion-info">
+                  <div className="companion-name">✨ 最後のなかま：{comp.name}</div>
+                  <div className="companion-stats">
+                    {owned21 > 0
+                      ? <span className="final-achieved-note">👑 即位ずみ！九九おうこくを極めた証</span>
+                      : <span>クリアの証（生産はしない）</span>}
+                  </div>
+                </div>
+                <div className="companion-actions">
+                  {owned21 > 0 ? (
+                    <span className="final-achieved">✨ 達成</span>
+                  ) : prog.missing > 0 ? (
+                    <span className="stage-locked">🔒 全モード・全ステージで銀メダル以上（あと {prog.missing} 個）</span>
+                  ) : (
+                    <button
+                      className={`btn-invite ${state.kp >= FINAL_COMPANION_COST ? '' : 'disabled'}`}
+                      disabled={!canInvite}
+                      onClick={inviteFinal}
+                    >
+                      即位 {IdleManager.formatBigNumber(FINAL_COMPANION_COST)} KP
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          }
           const owned = state.companions[comp.level] || 0;
           const cost = IdleManager.getUpgradeCost(comp.level, owned);
           const canBuy = state.kp >= cost;

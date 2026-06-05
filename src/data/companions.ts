@@ -3,7 +3,7 @@ export interface CompanionMeta {
   name: string;
   emoji: string;
   color: string;
-  type: 'fairy' | 'bird' | 'spirit' | 'star' | 'animal' | 'guardian' | 'legend' | 'god';
+  type: 'fairy' | 'bird' | 'spirit' | 'star' | 'animal' | 'guardian' | 'legend' | 'god' | 'final';
 }
 
 export const COMPANIONS: CompanionMeta[] = [
@@ -26,7 +26,9 @@ export const COMPANIONS: CompanionMeta[] = [
   { level: 17, name: '焔の鳳凰', emoji: '🔥', color: '#ef4444', type: 'legend' },
   { level: 18, name: '天界の麒麟', emoji: '🦄', color: '#fcd34d', type: 'legend' },
   { level: 19, name: '次元の旅人', emoji: '🌌', color: '#6366f1', type: 'legend' },
-  { level: 20, name: '九九の神さま', emoji: '👑', color: '#fbbf24', type: 'god' },
+  { level: 20, name: '九九の大賢者', emoji: '🧙', color: '#7c3aed', type: 'god' },
+  // 最後のなかま（段21相当）。生産はせず、クリアの証となる特別な存在
+  { level: 21, name: '九九の神さま', emoji: '👑', color: '#fbbf24', type: 'final' },
 ];
 
 export const getCompanion = (level: number): CompanionMeta => {

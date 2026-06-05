@@ -160,6 +160,8 @@ function _checkAchievements(state: KukuState) {
   if (!hasAny('treasure_8') && (state.prestigeCount || 0) >= 2) add('treasure_8');
   if (!hasAny('treasure_9') && state.kp >= 1e12) add('treasure_9');
   if (!hasAny('treasure_10') && state.kp >= 1e15) add('treasure_10');
+  // 最後のなかま（段21）を迎えたら「創世の冠」
+  if (!hasAny('treasure_11') && (state.companions?.[21] || 0) > 0) add('treasure_11');
 
   const totalMastery = Object.values(state.mastery || {}).reduce((a, b) => a + (b as number), 0);
   if (!hasAny('medal_1') && state.totalStamps >= 10) add('medal_1');
@@ -292,6 +294,30 @@ export const QUEST_KP_SECONDS = 180;
 
 // ダイヤは金より上位なので「金以上」判定に含める（解禁・実績の取りこぼし防止）
 export const isGoldOrBetter = (m: string | null | undefined): boolean => m === 'gold' || m === 'diamond';
+
+// 銀以上（銀・金・ダイヤ）
+const isSilverOrBetter = (m: string | null | undefined): boolean => m === 'silver' || m === 'gold' || m === 'diamond';
+const STAGE_IDS = ['3', '6', '9', '15', '20'];
+const BATTLE_SILVER_COUNT = 7; // バトルの銀相当（撃破数）
+
+// 「最後のなかま」招待条件：全モード・全段/全ステージで銀以上のコンプリート進捗
+export function silverCompletion(state: KukuState): { done: number; total: number; missing: number } {
+  let total = 0;
+  let done = 0;
+  const check = (ok: boolean) => { total++; if (ok) done++; };
+  // アタック：段1〜20
+  for (let l = 1; l <= 20; l++) check(isSilverOrBetter(state.tableBests?.[l]?.badge));
+  // だん：rank1〜23（10級〜伝説）
+  for (let r = 1; r <= 23; r++) check(isSilverOrBetter(state.danMedals?.[r]));
+  // タワー・くもくも・バトル：各5ステージ
+  for (const id of STAGE_IDS) {
+    check(isSilverOrBetter(state.stats?.towerMedalsPerDiff?.[id]));
+    check(isSilverOrBetter(state.blankMedalsPerDiff?.[id]));
+    check((state.stats?.battleMaxDefeatedPerDiff?.[id] || 0) >= BATTLE_SILVER_COUNT);
+  }
+  return { done, total, missing: total - done };
+}
+export const hasAllSilver = (state: KukuState): boolean => silverCompletion(state).missing === 0;
 
 export type Medal = 'diamond' | 'gold' | 'silver' | 'bronze' | 'clear';
 // アタックのタイム→バッジ（💎13/金15/銀25/銅40秒）。ダイヤは隠し
