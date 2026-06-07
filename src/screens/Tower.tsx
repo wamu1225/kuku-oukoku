@@ -64,17 +64,26 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
     };
   }, []);
 
+  const lastKeyRef = useRef('');
   const nextProblem = (max: number) => {
     const prevMax = prevMaxFor(max);
-    let a: number;
-    // 確率 NEW_TIER_BIAS で「このステージで初めて出る段（prevMax+1〜max）」から抽選
-    if (prevMax > 0 && Math.random() < NEW_TIER_BIAS) {
-      a = prevMax + 1 + Math.floor(Math.random() * (max - prevMax));
-    } else {
-      a = Math.floor(Math.random() * max) + 1;
-    }
+    let a = 1, b = 1, key = '';
+    let tries = 0;
+    // 直前と同じ問題（a×b）が二連続で出ないようにする
+    do {
+      // 確率 NEW_TIER_BIAS で「このステージで初めて出る段（prevMax+1〜max）」から抽選
+      if (prevMax > 0 && Math.random() < NEW_TIER_BIAS) {
+        a = prevMax + 1 + Math.floor(Math.random() * (max - prevMax));
+      } else {
+        a = Math.floor(Math.random() * max) + 1;
+      }
+      b = Math.floor(Math.random() * 9) + 1;
+      key = `${a}x${b}`;
+      tries++;
+    } while (key === lastKeyRef.current && tries < 8);
+    lastKeyRef.current = key;
     setA(a);
-    setB(Math.floor(Math.random() * 9) + 1);
+    setB(b);
     setInput('');
   };
 
@@ -86,6 +95,7 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
     setScore(0); scoreRef.current = 0;
     setProblemCount(0);
     solvedRef.current = {};
+    lastKeyRef.current = '';
     endedRef.current = false;
     nextProblem(s.max);
   };

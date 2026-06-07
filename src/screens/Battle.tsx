@@ -49,18 +49,25 @@ const prevMaxFor = (max: number): number => {
 };
 const NEW_TIER_BIAS = 0.5; // 確率0.5で新段から抽選
 
-function generateHP(maxTable: number): number {
+function generateHP(maxTable: number, avoid = 0): number {
   // a×b: a in [1..maxTable], b in [1..9]。少なくとも片方が maxTable 内にある
   const prevMax = prevMaxFor(maxTable);
-  let a: number;
-  // 確率 NEW_TIER_BIAS で「このステージで初めて出る段（prevMax+1〜maxTable）」から抽選
-  if (prevMax > 0 && Math.random() < NEW_TIER_BIAS) {
-    a = prevMax + 1 + Math.floor(Math.random() * (maxTable - prevMax));
-  } else {
-    a = Math.floor(Math.random() * maxTable) + 1;
-  }
-  const b = Math.floor(Math.random() * 9) + 1;
-  return a * b;
+  let hp = 0;
+  let tries = 0;
+  // 直前と同じ HP（問題）が二連続で出ないようにする
+  do {
+    let a: number;
+    // 確率 NEW_TIER_BIAS で「このステージで初めて出る段（prevMax+1〜maxTable）」から抽選
+    if (prevMax > 0 && Math.random() < NEW_TIER_BIAS) {
+      a = prevMax + 1 + Math.floor(Math.random() * (maxTable - prevMax));
+    } else {
+      a = Math.floor(Math.random() * maxTable) + 1;
+    }
+    const b = Math.floor(Math.random() * 9) + 1;
+    hp = a * b;
+    tries++;
+  } while (hp === avoid && tries < 8);
+  return hp;
 }
 
 function generateCards(hp: number, maxTable: number, count: number): number[] {
@@ -216,7 +223,7 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
           feedbackTimerRef.current = null;
           setFeedback(null);
           setSelected([]);
-          const newHp = generateHP(stage!.max);
+          const newHp = generateHP(stage!.max, hp);
           setHp(newHp);
           setCards(generateCards(newHp, stage!.max, stage!.cards));
         }, 700);
