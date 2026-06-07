@@ -7,6 +7,9 @@ export const MAX_KP = 1e36;
 export const FINAL_COMPANION_LEVEL = 21;
 export const FINAL_COMPANION_COST = 1e24;
 
+// 王国レベルの上限。プレステージ回数の最大（レベル = 回数 + 1 なので Lv.30 が上限）
+export const MAX_PRESTIGE_COUNT = 29;
+
 export const IdleManager = {
   getIndividualProduction(state: KukuState, level: number): number {
     // 最後のなかま（段21〜）は生産しない（クリアの証）

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { navigate } from '../App';
 import type { KukuState } from '../types';
 import { LearningEngine, QUEST_KP_SECONDS, silverCompletion } from '../utils/LearningEngine';
-import { IdleManager, FINAL_COMPANION_COST } from '../utils/IdleManager';
+import { IdleManager, FINAL_COMPANION_COST, MAX_PRESTIGE_COUNT } from '../utils/IdleManager';
 import { COMPANIONS } from '../data/companions';
 import { getCurrentSeasonal } from '../utils/seasonal';
 
@@ -222,9 +222,17 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
         </div>
       )}
 
-      {state.kp >= IdleManager.getPrestigeCost(state.prestigeCount || 0) && (
+      {(state.prestigeCount || 0) >= MAX_PRESTIGE_COUNT ? (
+        <div className="prestige-banner prestige-max">
+          <div className="prestige-emoji" aria-hidden="true">👑</div>
+          <div>
+            <h2>👑 最高ランク到達！</h2>
+            <p>伝説の帝国 Lv.{MAX_PRESTIGE_COUNT + 1}（×{IdleManager.formatBigNumber(Math.pow(2, MAX_PRESTIGE_COUNT))}）<br />九九おうこくの頂点を極めた！</p>
+          </div>
+        </div>
+      ) : state.kp >= IdleManager.getPrestigeCost(state.prestigeCount || 0) ? (
         <PrestigeBanner state={state} onPrestige={() => setShowPrestigeConfirm(true)} />
-      )}
+      ) : null}
 
       {showPrestigeConfirm && (
         <div className="quit-confirm-overlay" role="alertdialog" aria-label="ランクアップ確認">

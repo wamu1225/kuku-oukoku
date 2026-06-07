@@ -1507,6 +1507,10 @@ main { padding: 20px 16px 40px; }
 .prestige-banner h2 { margin: 0 0 6px; font-size: 18px; }
 .prestige-banner p { margin: 0 0 8px; font-size: 14px; line-height: 1.6; }
 .prestige-warn { color: #b91c1c; font-size: 12px; }
+.prestige-max {
+  background: linear-gradient(135deg, #fde68a 0%, #fbbf24 60%, #f59e0b 100%);
+  box-shadow: 0 0 16px rgba(251, 191, 36, 0.8);
+}
 
 /* === Trial intro / screen === */
 .trial-intro {

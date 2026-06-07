@@ -1,6 +1,6 @@
 import type { KukuState } from '../types';
 import { DateUtils } from './DateUtils';
-import { IdleManager, MAX_KP } from './IdleManager';
+import { IdleManager, MAX_KP, MAX_PRESTIGE_COUNT } from './IdleManager';
 import { getDanRankName, DAN_LEVELS } from '../data/danLevels';
 import { getTowerMedal } from '../data/towerStages';
 import { KUKU_READINGS } from '../data/kukuReadings';
@@ -714,6 +714,8 @@ export const LearningEngine = {
 
   prestige(): KukuState {
     const state = this.loadState();
+    // 王国レベル上限（Lv.30＝プレステージ29回）を超えない
+    if ((state.prestigeCount || 0) >= MAX_PRESTIGE_COUNT) return state;
     state.prestigeCount = (state.prestigeCount || 0) + 1;
     state.kp = 0;
     _checkAchievements(state);
