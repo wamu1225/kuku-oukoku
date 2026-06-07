@@ -8,6 +8,13 @@ import { vibrateCorrect, vibrateWrong } from '../utils/haptics';
 import { TOWER_STAGES as STAGES, type TowerStage as Stage } from '../data/towerStages';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
+
+// このステージで「初めて出る段」を多めに出すための前ステージ上限（並び順から算出）
+const prevMaxFor = (max: number): number => {
+  const idx = STAGES.findIndex((s) => s.max === max);
+  return idx > 0 ? STAGES[idx - 1].max : 0;
+};
+const NEW_TIER_BIAS = 0.5; // 確率0.5で新段から抽選
 const BG_TIERS = [
   { from: 2000, name: '深宇宙', bg: 'linear-gradient(180deg, #020617 0%, #1e1b4b 100%)' },
   { from: 1000, name: '宇宙', bg: 'linear-gradient(180deg, #1e1b4b 0%, #312e81 100%)' },
@@ -58,7 +65,15 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
   }, []);
 
   const nextProblem = (max: number) => {
-    setA(Math.floor(Math.random() * max) + 1);
+    const prevMax = prevMaxFor(max);
+    let a: number;
+    // 確率 NEW_TIER_BIAS で「このステージで初めて出る段（prevMax+1〜max）」から抽選
+    if (prevMax > 0 && Math.random() < NEW_TIER_BIAS) {
+      a = prevMax + 1 + Math.floor(Math.random() * (max - prevMax));
+    } else {
+      a = Math.floor(Math.random() * max) + 1;
+    }
+    setA(a);
     setB(Math.floor(Math.random() * 9) + 1);
     setInput('');
   };
