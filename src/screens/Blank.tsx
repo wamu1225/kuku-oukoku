@@ -211,7 +211,7 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
                   <>
                     <span className="stage-best">
                       {best ? `自己ベスト: ${(best / 1000).toFixed(2)}秒` : '未挑戦'}
-                      {medal && ` (${BADGE_LABEL[medal]})`}
+                      {medal && ` (${medal === 'diamond' ? '💎ダイヤ' : medal === 'gold' ? '🥇金' : medal === 'silver' ? '🥈銀' : medal === 'bronze' ? '🥉銅' : 'クリア'})`}
                     </span>
                     <span className="stage-targets">
                       🥇 {(GOLD_MS / 1000).toFixed(1)}秒 / 🥈 {(SILVER_MS / 1000).toFixed(1)}秒 / 🥉 クリア
