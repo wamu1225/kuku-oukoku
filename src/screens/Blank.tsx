@@ -27,6 +27,17 @@ const STAGES: Stage[] = [
 
 const UNLOCK_RANK_NAMES: Record<number, string> = { 3: '8級', 6: '5級', 9: '2級' };
 
+// このステージで「初めて出る段」を多めに出すための前ステージ上限（並び順から算出）
+const prevMaxFor = (max: number): number => {
+  const idx = STAGES.findIndex((s) => s.max === max);
+  return idx > 0 ? STAGES[idx - 1].max : 0;
+};
+const NEW_TIER_BIAS = 0.5; // 確率0.5で新段から抽選
+const pickSegment = (max: number, prevMax: number): number =>
+  prevMax > 0 && Math.random() < NEW_TIER_BIAS
+    ? prevMax + 1 + Math.floor(Math.random() * (max - prevMax))
+    : Math.floor(Math.random() * max) + 1;
+
 // 金/銀メダルしきい値 (10 問の合計タイム)
 const GOLD_MS = 10 * 1500;  // 15 秒
 const SILVER_MS = 10 * 2500; // 25 秒
@@ -43,12 +54,13 @@ interface BlankProblem {
 
 function generate(max: number): BlankProblem[] {
   const out: BlankProblem[] = [];
+  const prevMax = prevMaxFor(max);
   let prev = '';
   for (let i = 0; i < QUESTION_COUNT; i++) {
     let a = 0, b = 0, key = '';
     let tries = 0;
     do {
-      a = Math.floor(Math.random() * max) + 1;
+      a = pickSegment(max, prevMax);
       b = Math.floor(Math.random() * 9) + 1;
       key = `${a}x${b}`;
       tries++;
