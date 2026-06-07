@@ -42,9 +42,23 @@ function battleMedalLabel(count: number): string {
 
 const UNLOCK_RANK_NAMES: Record<number, string> = { 1: '10級', 4: '7級', 7: '4級' };
 
+// このステージで「初めて出る段」を多めに出すための前ステージ上限（並び順から算出）
+const prevMaxFor = (max: number): number => {
+  const idx = STAGES.findIndex((s) => s.max === max);
+  return idx > 0 ? STAGES[idx - 1].max : 0;
+};
+const NEW_TIER_BIAS = 0.5; // 確率0.5で新段から抽選
+
 function generateHP(maxTable: number): number {
   // a×b: a in [1..maxTable], b in [1..9]。少なくとも片方が maxTable 内にある
-  const a = Math.floor(Math.random() * maxTable) + 1;
+  const prevMax = prevMaxFor(maxTable);
+  let a: number;
+  // 確率 NEW_TIER_BIAS で「このステージで初めて出る段（prevMax+1〜maxTable）」から抽選
+  if (prevMax > 0 && Math.random() < NEW_TIER_BIAS) {
+    a = prevMax + 1 + Math.floor(Math.random() * (maxTable - prevMax));
+  } else {
+    a = Math.floor(Math.random() * maxTable) + 1;
+  }
   const b = Math.floor(Math.random() * 9) + 1;
   return a * b;
 }
