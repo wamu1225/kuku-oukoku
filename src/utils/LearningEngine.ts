@@ -633,8 +633,8 @@ export const LearningEngine = {
     let bonus = 0;
     let festivalLevel = 0;
     if (count > 0) {
-      // 撃破数からメダル相当を判定（💎16体/金12体/銀7体/銅1体）
-      const battleMedal = count >= 16 ? 'diamond' : count >= 12 ? 'gold' : count >= 7 ? 'silver' : 'bronze';
+      // 撃破数からメダル相当を判定（💎14体/金12体/銀7体/銅1体）
+      const battleMedal = count >= 14 ? 'diamond' : count >= 12 ? 'gold' : count >= 7 ? 'silver' : 'bronze';
       bonus = _grantScaledBonus(state, max, battleMedal);
       festivalLevel = _triggerFestivalRandom(state, rangeLevels(max));
     }
