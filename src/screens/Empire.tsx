@@ -175,7 +175,7 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
 
       {(state.activeQuests?.length ?? 0) > 0 && (
         <section className="quests-section">
-          <h2 className="section-h">📜 きょうの任務</h2>
+          <h2 className="section-h">📜 任務</h2>
           <ul className="quests-list">
             {state.activeQuests?.map((q) => {
               const ratio = Math.min(q.progress / q.target, 1);

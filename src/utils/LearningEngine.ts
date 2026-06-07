@@ -342,7 +342,8 @@ function _replenishQuests(state: KukuState) {
     attempts++;
     const useMastery = Math.random() < 0.66; // bias toward mastery quests
     if (useMastery) {
-      const available = (state.unlockedLevels ?? [1]).filter((l) => l <= 9);
+      // 解禁済みの段すべて（でんせつ段 10〜20 も対象。最後のなかま枠 21 は除外）
+      const available = (state.unlockedLevels ?? [1]).filter((l) => l >= 1 && l <= 20);
       const level = available[Math.floor(Math.random() * available.length)];
       const title = `${level}の段 特訓！`;
       if (state.activeQuests.some((q) => q.title === title)) continue;
