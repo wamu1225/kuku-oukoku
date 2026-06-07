@@ -26,17 +26,26 @@ const BADGE_LABEL: Record<string, string> = { diamond: 'ダイヤ', gold: '金',
 
 function pickProblems(source: number[], count: number) {
   const out: { a: number; b: number }[] = [];
+  // 単一段の段位（a固定）は、まず九九を順に覚えてもらうため 1〜9問目を b=1→9 の順で出す
+  const singleSegment = source.length === 1;
   let prev = '';
   for (let i = 0; i < count; i++) {
     let a = 0, b = 0, key = '';
-    let tries = 0;
-    do {
-      a = source[Math.floor(Math.random() * source.length)];
-      b = Math.floor(Math.random() * 9) + 1;
-      key = `${a}x${b}`;
-      tries++;
-    } while (key === prev && tries < 5);
-    prev = key;
+    if (singleSegment && i < 9) {
+      // 1〜9問目：a固定・b を 1,2,…,9 の順番
+      a = source[0];
+      b = i + 1;
+    } else {
+      // 範囲段位、または単一段の10問目以降：ランダム。直前と同じ問題は避ける
+      let tries = 0;
+      do {
+        a = source[Math.floor(Math.random() * source.length)];
+        b = Math.floor(Math.random() * 9) + 1;
+        key = `${a}x${b}`;
+        tries++;
+      } while (key === prev && tries < 5);
+    }
+    prev = `${a}x${b}`;
     out.push({ a, b });
   }
   return out;
