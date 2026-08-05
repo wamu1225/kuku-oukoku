@@ -461,11 +461,15 @@ export const LearningEngine = {
     return state;
   },
 
-  inviteCompanionsBulk(updates: Record<number, number>, totalCost: number): KukuState {
+  // deltas: { [level]: 追加人数 }（絶対値ではなく差分）
+  inviteCompanionsBulk(deltas: Record<number, number>, totalCost: number): KukuState {
     const state = this.loadState();
     if (state.kp < totalCost) return state;
     state.kp -= totalCost;
-    state.companions = { ...state.companions, ...updates };
+    for (const key in deltas) {
+      const lvl = parseInt(key);
+      state.companions[lvl] = (state.companions[lvl] || 0) + deltas[lvl];
+    }
     _syncUnlockedLevels(state);
     _checkAchievements(state);
     this.saveState(state);

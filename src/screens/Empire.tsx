@@ -89,7 +89,7 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
     const owned = state.companions[level] || 0;
     const { count, totalCost } = IdleManager.calculateMaxBuy(level, owned, state.kp);
     if (count === 0) return;
-    const updated = LearningEngine.inviteCompanionsBulk({ [level]: owned + count }, totalCost);
+    const updated = LearningEngine.inviteCompanionsBulk({ [level]: count }, totalCost);
     setState(updated);
     triggerPop(level);
     onUpdate();
