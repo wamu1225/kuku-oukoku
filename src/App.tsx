@@ -166,14 +166,16 @@ function Header({ state, pathname }: { state: KukuState; pathname: string }) {
           </button>
         )}
         <div className="header-stats">
-          <span className="stat-badge stat-rank" title="段位">
-            <span aria-hidden="true">🛡️</span> {state.rank}
+          {/* 絵文字ラベルをひらがなに（2026-08-05）。🛡️＝段位・✨＝KP・🌼＝スタンプは
+              小2の読者には解読できず、title 属性はタッチ端末で出ないため意味が伝わっていなかった。 */}
+          <span className="stat-badge stat-rank">
+            <span className="stat-label">だんい</span> {state.rank}
           </span>
-          <span className="stat-badge stat-kp" title="知識ポイント">
-            <span aria-hidden="true">✨</span> {IdleManager.formatBigNumber(state.kp)} KP
+          <span className="stat-badge stat-kp">
+            <span className="stat-label">ちしき</span> {IdleManager.formatBigNumber(state.kp)} KP
           </span>
-          <span className="stat-badge stat-stamp" title="はなまるスタンプ">
-            <span aria-hidden="true">🌼</span> {state.totalStamps}
+          <span className="stat-badge stat-stamp">
+            <span className="stat-label">はなまる</span> {state.totalStamps}
           </span>
         </div>
       </div>

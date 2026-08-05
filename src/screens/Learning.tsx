@@ -123,8 +123,8 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
       <div className="screen">
         <h1 className="screen-title">{level}の段を まなぼう！</h1>
         <p className="screen-desc">
-          まずは九九を <strong>声に出して 🗣️</strong> 読んで覚えよう。{level < 10 && <>右側のドットは答えの数を表しているよ。</>}
-          おぼえたら下のボタンで <strong>クイズ</strong>に進もう。
+          まずは九九を <strong>声に出して</strong> よんで おぼえよう。{level < 10 && <>みぎがわの ドットは、{level}こずつの まとまりが よこに ならんでいるよ。</>}
+          おぼえたら 下のボタンで <strong>クイズ</strong>に すすもう。
         </p>
         <div className="kuku-list">
           {problems.map((p) => (

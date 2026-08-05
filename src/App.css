@@ -42,6 +42,8 @@
   gap: 8px;
   flex-wrap: wrap;
 }
+/* ヘッダーの数値ラベル（絵文字から置換・2026-08-05）。値より控えめに見せる。 */
+.stat-label { font-size: 0.82em; font-weight: 600; opacity: 0.82; }
 .stat-badge {
   display: inline-flex;
   align-items: center;
@@ -2431,6 +2433,7 @@ main { padding: 20px 16px 40px; }
   .site-title-emoji { font-size: 20px; }
   .stat-badge { font-size: 10px; padding: 3px 7px; gap: 2px; }
   .stat-badge .stat-name { display: none; }
+  .stat-label { font-size: 0.8em; }
   .header-stats { gap: 4px; }
   .site-nav { padding: 0 12px 8px; gap: 2px; }
   .site-nav a { font-size: 12px; padding: 4px 8px; }
