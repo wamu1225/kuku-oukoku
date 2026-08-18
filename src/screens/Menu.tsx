@@ -40,7 +40,7 @@ const GROUPS: { title: string; tiles: Tile[] }[] = [
   {
     title: '📊 きろく',
     tiles: [
-      { id: 'collection', label: 'ずかん', emoji: '📚', color: '#2ecc71', path: '/collection/', desc: '集めた 印・秘宝・メダル' },
+      { id: 'collection', label: 'ずかん', emoji: '📚', color: '#2ecc71', path: '/collection/', desc: 'あつめた しるし・たからもの' },
       { id: 'calendar', label: 'カレンダー', emoji: '📅', color: '#14b8a6', path: '/calendar/', desc: 'がくしゅうの きろく' },
     ],
   },
@@ -73,11 +73,11 @@ export function Menu({ state }: { state: KukuState }) {
   };
 
   const lockMessage = (tile: Tile): string => {
-    if (tile.id === 'attack') return '1の段の「まなぶ」をクリアするとあそべるよ';
-    if (tile.id === 'dan' || tile.id === 'empire') return '1の段の「アタック」をクリアするとあそべるよ';
+    if (tile.id === 'attack') return '1のだんの「まなぶ」をクリアするとあそべるよ';
+    if (tile.id === 'dan' || tile.id === 'empire') return '1のだんの「アタック」をクリアするとあそべるよ';
     if (tile.danReq) {
       const danLabel: Record<number, string> = { 1: '10級', 2: '9級', 3: '8級' };
-      return `だんいにんていで ${danLabel[tile.danReq] || tile.danReq + '級'} に合格するとあそべるよ`;
+      return `だんいにんていで ${danLabel[tile.danReq] || tile.danReq + '級'} に なると あそべるよ`;
     }
     return 'まだ あそべないよ';
   };
@@ -89,11 +89,11 @@ export function Menu({ state }: { state: KukuState }) {
     const danRank = state.danRank || 0;
     // 1. アタック未解禁
     if (!state.unlockedModes?.includes('attack' as never)) {
-      return { icon: '⚡', text: '1の段の「まなぶ」を全問正解で「アタック」解禁！', path: '/learn/' };
+      return { icon: '⚡', text: '1のだんの「まなぶ」を ぜんぶ せいかいすると「アタック」が あそべるよ！', path: '/learn/' };
     }
     // 2. だんいにんてい未解禁
     if (!state.unlockedModes?.includes('dan' as never)) {
-      return { icon: '🛡️', text: '「アタック」を1回クリアで「だんいにんてい」解禁！', path: '/attack/' };
+      return { icon: '🛡️', text: '「アタック」を1かい クリアすると「だんいにんてい」が あそべるよ！', path: '/attack/' };
     }
     // 3. danReq タイルで未解禁あり
     const lockedChallenge = GROUPS.flatMap((g) => g.tiles).find((t) => t.danReq && danRank < t.danReq);
@@ -101,25 +101,25 @@ export function Menu({ state }: { state: KukuState }) {
       const danLabel: Record<number, string> = { 1: '10級', 2: '9級', 3: '8級' };
       return {
         icon: lockedChallenge.emoji,
-        text: `だんいにんていで ${danLabel[lockedChallenge.danReq!]} 合格で「${lockedChallenge.label}」解禁！`,
+        text: `だんいにんていで ${danLabel[lockedChallenge.danReq!]} に なると「${lockedChallenge.label}」が あそべるよ！`,
         path: '/dan/',
       };
     }
     // 4. すべて解禁済 → 次の段位
     if (danRank < 10) {
-      return { icon: '🛡️', text: 'だんいにんていで次の段位を目指そう！', path: '/dan/' };
+      return { icon: '🛡️', text: 'だんいにんていで つぎの くらいを めざそう！', path: '/dan/' };
     }
     if (danRank === 10 && (state.stats?.totalTrialsCleared || 0) === 0) {
-      return { icon: '🌑', text: '暗黒の試練を突破して、伝説の段へ！', path: '/empire/' };
+      return { icon: '🌑', text: 'くらやみの しれんを のりこえて、でんせつの だんへ！', path: '/empire/' };
     }
     if (danRank > 10 && danRank < 21) {
-      return { icon: '🌟', text: '伝説の段を進めて皆伝を目指そう！', path: '/dan/' };
+      return { icon: '🌟', text: 'でんせつの だんを すすめて かいでんを めざそう！', path: '/dan/' };
     }
     if (danRank === 21) {
-      return { icon: '🏆', text: '名人（50問連続）にちょうせん！', path: '/dan/' };
+      return { icon: '🏆', text: '名人（50もん つづけて せいかい）に ちょうせん！', path: '/dan/' };
     }
     if (danRank === 22) {
-      return { icon: '👑', text: '伝説（100問連続）にちょうせん！', path: '/dan/' };
+      return { icon: '👑', text: '伝説（100もん つづけて せいかい）に ちょうせん！', path: '/dan/' };
     }
     return null;
   }, [state]);
@@ -189,6 +189,9 @@ export function Menu({ state }: { state: KukuState }) {
         </section>
       ))}
 
+      {/* 「はじめての人へ」は保護者向け文体（漢字混じり・「お子さんが」等）だったが、
+          子ども自身がトップ画面で押す位置にあり宛先が混在していた。
+          ラベルで対象を明示し、誤って開いた子どもが読めない文章に困惑しないようにする（2026-08-19・O-3-10）。 */}
       <section className="menu-intro" aria-labelledby="menu-intro-h">
         <button
           className="menu-intro-toggle"
@@ -196,7 +199,7 @@ export function Menu({ state }: { state: KukuState }) {
           aria-expanded={introOpen}
           aria-controls="menu-intro-body"
         >
-          <span id="menu-intro-h">📘 はじめての人へ</span>
+          <span id="menu-intro-h">👪 保護者の方へ</span>
           <span className="menu-intro-chevron" aria-hidden="true">{introOpen ? '▲' : '▼'}</span>
         </button>
         {introOpen && (

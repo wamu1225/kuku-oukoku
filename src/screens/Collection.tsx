@@ -4,10 +4,10 @@ import { navigate } from '../App';
 import { COLLECTION_ITEMS, type CollectionItem } from '../data/collectionData';
 
 const CATEGORY_LABEL: Record<string, string> = {
-  seal: '賢者の印（段位）',
-  treasure: '王国の秘宝',
-  medal: '挑戦の記録',
-  relic: '探索の証明',
+  seal: 'だんいの しるし',
+  treasure: 'おうこくの たからもの',
+  medal: 'ちょうせんの きろく',
+  relic: 'みつけた あかし',
 };
 
 export function Collection({ state }: { state: KukuState }) {
@@ -32,7 +32,7 @@ export function Collection({ state }: { state: KukuState }) {
     <div className="screen">
       <h1 className="screen-title">📚 ずかん</h1>
       <p className="screen-desc">
-        集めた印・秘宝・記録・遺物：<strong>{ownedCount} / {COLLECTION_ITEMS.length}</strong>
+        あつめた しるし・たからもの・きろく：<strong>{ownedCount} / {COLLECTION_ITEMS.length}</strong>
       </p>
 
       {Object.entries(grouped).map(([cat, items]) => {
@@ -46,7 +46,7 @@ export function Collection({ state }: { state: KukuState }) {
               <span>{CATEGORY_LABEL[cat] ?? cat}</span>
               <span className="collection-section-count">
                 {catOwned} / {items.length}
-                {isComplete && <span className="collection-complete-badge">✨ 完全制覇</span>}
+                {isComplete && <span className="collection-complete-badge">✨ ぜんぶ あつめた！</span>}
               </span>
             </h2>
             <div className="collection-section-progress" aria-hidden="true">
