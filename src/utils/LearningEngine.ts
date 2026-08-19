@@ -345,7 +345,7 @@ function _replenishQuests(state: KukuState) {
       // 解禁済みの段すべて（でんせつ段 10〜20 も対象。最後のなかま枠 21 は除外）
       const available = (state.unlockedLevels ?? [1]).filter((l) => l >= 1 && l <= 20);
       const level = available[Math.floor(Math.random() * available.length)];
-      const title = `${level}の段 特訓！`;
+      const title = `${level}のだん れんしゅう！`;
       if (state.activeQuests.some((q) => q.title === title)) continue;
       const current = state.mastery?.[level] || 0;
       let target = 50;
@@ -356,7 +356,7 @@ function _replenishQuests(state: KukuState) {
       state.activeQuests.push({
         id: `q_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
         title,
-        description: `${level}の段を 合計${target}回 とこう！`,
+        description: `${level}のだんを あわせて${target}回 とこう！`,
         type: 'mastery_count',
         target,
         level,
@@ -376,7 +376,7 @@ function _replenishQuests(state: KukuState) {
       state.activeQuests.push({
         id: `q_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
         title,
-        description: `九九を 合計で ${target}回 とこう！\n（どのモードでも OK）`,
+        description: `九九を あわせて ${target}回 とこう！\n（どのモードでも OK）`,
         type: 'total_correct',
         target,
         progress: total,

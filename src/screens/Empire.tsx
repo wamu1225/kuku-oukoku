@@ -14,13 +14,13 @@ function PrestigeBanner({ state, onPrestige }: { state: KukuState; onPrestige: (
     <div className="prestige-banner">
       <div className="prestige-emoji" aria-hidden="true">👑</div>
       <div>
-        <h2>おうこくランクアップ可能！</h2>
+        <h2>おうこく ランクアップ できるよ！</h2>
         <p>
-          現在：{currentRank}（×{Math.pow(2, state.prestigeCount || 0)}）<br />
-          次：{nextRank}（×{nextMultiplier}）
+          いま：{currentRank}（×{Math.pow(2, state.prestigeCount || 0)}）<br />
+          つぎ：{nextRank}（×{nextMultiplier}）
         </p>
-        <p className="prestige-warn">※ KP は 0 にリセットされますが、なかまは維持されます</p>
-        <button className="btn-primary" onClick={onPrestige}>王国をランクアップする</button>
+        <p className="prestige-warn">※ ポイントは 0 に もどりますが、なかまは そのままです</p>
+        <button className="btn-primary" onClick={onPrestige}>おうこくを ランクアップする</button>
       </div>
     </div>
   );
@@ -142,9 +142,9 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
 
       <div className="empire-stats-v3">
         <div className="empire-stat-primary">
-          <span className="empire-stat-primary-label">所持 KP</span>
+          <span className="empire-stat-primary-label">もっている ポイント</span>
           <span className="empire-stat-primary-value">{IdleManager.formatBigNumber(state.kp)}</span>
-          <span className="empire-stat-primary-sub">+ {IdleManager.formatBigNumber(kps)} / 秒　・　なかま {totalCompanions}人</span>
+          <span className="empire-stat-primary-sub">+ {IdleManager.formatBigNumber(kps)} / びょう　・　なかま {totalCompanions}人</span>
         </div>
       </div>
 
@@ -163,19 +163,19 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
         </button>
         {helpOpen && (
           <ul>
-            <li><strong>招待 X KP</strong>：そのなかまを 1 人呼ぶ。コストは段ごと・所持数で増加</li>
-            <li><strong>まとめて招待</strong>：今の KP で買えるだけまとめて呼ぶ（最大 100 まで）</li>
-            <li><strong>熟練度バッジ</strong>：その段の九九を解いた数で銅→銀→金。生産力に倍率（最大 ×2.5）</li>
-            <li><strong>🎉 祝祭</strong>：いろいろなモードのクリアで、ある段の生産が <strong>30 分間</strong> アップ</li>
-            <li><strong>段位ボーナス</strong>：だんいにんていに合格した段は ×2 ボーナス</li>
-            <li>オフライン中も最大 <strong>12 時間</strong> KP がたまる</li>
+            <li><strong>よぶ X ポイント</strong>：そのなかまを 1 人 よぶ。ねだんは だんごと・もっている人数で 上がっていく</li>
+            <li><strong>まとめて よぶ</strong>：今の ポイントで よべるだけ まとめて よぶ（さいだい 100 人まで）</li>
+            <li><strong>なれているど バッジ</strong>：そのだんの 九九を といた かずで 銅→銀→金。つくる ちからが 上がる（さいだい ×2.5）</li>
+            <li><strong>🎉 おまつり</strong>：いろいろな モードの クリアで、あるだんの つくる りょうが <strong>30 ふんかん</strong> アップ</li>
+            <li><strong>だんいの ボーナス</strong>：だんいにんていで クリアした だんは ×2 ボーナス</li>
+            <li>あそんでいない ときも さいだい <strong>12 じかん</strong> ポイントが たまる</li>
           </ul>
         )}
       </div>
 
       {(state.activeQuests?.length ?? 0) > 0 && (
         <section className="quests-section">
-          <h2 className="section-h">📜 任務</h2>
+          <h2 className="section-h">📜 やること</h2>
           <ul className="quests-list">
             {state.activeQuests?.map((q) => {
               const ratio = Math.min(q.progress / q.target, 1);
@@ -215,9 +215,9 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
         <div className="trial-gate">
           <div className="trial-gate-emoji" aria-hidden="true">🌑</div>
           <div className="trial-gate-body">
-            <h2>暗黒の試練の門</h2>
-            <p>9 の段のなかまを得たあなたを認める、特別な門が王国に現れました。挑んで何が起きるか確かめよう！</p>
-            <button className="btn-primary" onClick={() => navigate('/trial/')}>門に挑む</button>
+            <h2>くらやみの しれんの もん</h2>
+            <p>9のだんの なかまを えた あなたの前に、とくべつな もんが あらわれました。ちょうせんして なにが おきるか たしかめよう！</p>
+            <button className="btn-primary" onClick={() => navigate('/trial/')}>もんに ちょうせんする</button>
           </div>
         </div>
       )}
@@ -226,8 +226,8 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
         <div className="prestige-banner prestige-max">
           <div className="prestige-emoji" aria-hidden="true">👑</div>
           <div>
-            <h2>👑 最高ランク到達！</h2>
-            <p>伝説の帝国 Lv.{MAX_PRESTIGE_COUNT + 1}（×{IdleManager.formatBigNumber(Math.pow(2, MAX_PRESTIGE_COUNT))}）<br />九九おうこくの頂点を極めた！</p>
+            <h2>👑 さいこうランクに なった！</h2>
+            <p>でんせつの おうこく Lv.{MAX_PRESTIGE_COUNT + 1}（×{IdleManager.formatBigNumber(Math.pow(2, MAX_PRESTIGE_COUNT))}）<br />九九おうこくの いちばん うえまで きた！</p>
           </div>
         </div>
       ) : state.kp >= IdleManager.getPrestigeCost(state.prestigeCount || 0) ? (
@@ -237,12 +237,12 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
       {showPrestigeConfirm && (
         <div className="quit-confirm-overlay" role="alertdialog" aria-label="ランクアップ確認">
           <div className="quit-confirm-card">
-            <h2 className="prestige-confirm-title">👑 王国をランクアップしますか？</h2>
+            <h2 className="prestige-confirm-title">👑 おうこくを ランクアップしますか？</h2>
             <ul className="prestige-confirm-list">
-              <li>現在の KP <strong>{IdleManager.formatBigNumber(state.kp)}</strong> がリセット</li>
-              <li>必要 KP：<strong>{IdleManager.formatBigNumber(IdleManager.getPrestigeCost(state.prestigeCount || 0))}</strong></li>
-              <li>なかまは <strong>維持</strong> されます</li>
-              <li>生産力が <strong>永続的に ×2</strong></li>
+              <li>いまの ポイント <strong>{IdleManager.formatBigNumber(state.kp)}</strong> が 0に もどる</li>
+              <li>ひつような ポイント：<strong>{IdleManager.formatBigNumber(IdleManager.getPrestigeCost(state.prestigeCount || 0))}</strong></li>
+              <li>なかまは <strong>そのまま</strong></li>
+              <li>つくる ちからが <strong>ずっと ×2</strong></li>
             </ul>
             <div className="quit-confirm-actions">
               <button className="btn-primary" onClick={() => {
@@ -250,7 +250,7 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
                 setState(after);
                 onUpdate();
                 setShowPrestigeConfirm(false);
-                setPrestigeNotice('🎉 王国がランクアップした！生産力が永続的にアップ');
+                setPrestigeNotice('🎉 おうこくが ランクアップした！つくる ちからが ずっと アップ');
                 window.setTimeout(() => setPrestigeNotice(null), 4500);
               }}>ランクアップ</button>
               <button className="btn-secondary" onClick={() => setShowPrestigeConfirm(false)}>キャンセル</button>
@@ -273,25 +273,25 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
               <div key={comp.level} className={`companion-card companion-card-final ${owned21 > 0 ? 'final-done' : ''}`} style={{ borderColor: comp.color }}>
                 <div className="companion-icon" aria-hidden="true" style={{ background: comp.color }}>{comp.emoji}</div>
                 <div className="companion-info">
-                  <div className="companion-name">✨ 最後のなかま：{comp.name}</div>
+                  <div className="companion-name">✨ さいごの なかま：{comp.name}</div>
                   <div className="companion-stats">
                     {owned21 > 0
-                      ? <span className="final-achieved-note">👑 即位ずみ！九九おうこくを極めた証</span>
-                      : <span>クリアの証（生産はしない）</span>}
+                      ? <span className="final-achieved-note">👑 むかえた！九九おうこくを きわめた あかし</span>
+                      : <span>クリアした あかし（つくる りょうは ふえない）</span>}
                   </div>
                 </div>
                 <div className="companion-actions">
                   {owned21 > 0 ? (
-                    <span className="final-achieved">✨ 達成</span>
+                    <span className="final-achieved">✨ できた</span>
                   ) : prog.missing > 0 ? (
-                    <span className="stage-locked">🔒 全モード・全ステージで銀メダル以上（あと {prog.missing} 個）</span>
+                    <span className="stage-locked">🔒 ぜんぶの モード・ぜんぶの ステージで 銀メダル いじょう（あと {prog.missing} 個）</span>
                   ) : (
                     <button
                       className={`btn-invite ${state.kp >= FINAL_COMPANION_COST ? '' : 'disabled'}`}
                       disabled={!canInvite}
                       onClick={inviteFinal}
                     >
-                      即位 {IdleManager.formatBigNumber(FINAL_COMPANION_COST)} KP
+                      むかえる {IdleManager.formatBigNumber(FINAL_COMPANION_COST)} KP
                     </button>
                   )}
                 </div>
@@ -318,17 +318,17 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
                 {comp.emoji}
               </div>
               <div className="companion-info">
-                <div className="companion-name">{comp.level}の段：{comp.name}</div>
+                <div className="companion-name">{comp.level}のだん：{comp.name}</div>
                 <div className="companion-stats">
-                  <span>所持：{owned}人</span>
-                  <span>生産：+{IdleManager.formatBigNumber(production)}/秒</span>
+                  <span>もっている：{owned}人</span>
+                  <span>つくる りょう：+{IdleManager.formatBigNumber(production)}/びょう</span>
                   {masteryInfo.badge !== 'none' && (
                     <span className={`mastery-badge mastery-${masteryInfo.badge}`}>
-                      熟練度 {masteryInfo.badge === 'gold' ? '金' : masteryInfo.badge === 'silver' ? '銀' : '銅'}（×{masteryInfo.multiplier.toFixed(1)}）
+                      なれているど {masteryInfo.badge === 'gold' ? '金' : masteryInfo.badge === 'silver' ? '銀' : '銅'}（×{masteryInfo.multiplier.toFixed(1)}）
                     </span>
                   )}
                   {festivalActive && (
-                    <span className="festival-badge">🎉 祝祭中 ×{IdleManager.getFestivalMultiplier(state, comp.level).toFixed(1)}（残り {String(festivalMM).padStart(2, '0')}:{String(festivalSS).padStart(2, '0')}）</span>
+                    <span className="festival-badge">🎉 おまつり中 ×{IdleManager.getFestivalMultiplier(state, comp.level).toFixed(1)}（のこり {String(festivalMM).padStart(2, '0')}:{String(festivalSS).padStart(2, '0')}）</span>
                   )}
                 </div>
               </div>
@@ -338,11 +338,11 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
                   disabled={!canBuy}
                   onClick={() => invite(comp.level)}
                 >
-                  招待 {IdleManager.formatBigNumber(cost)} KP
+                  よぶ {IdleManager.formatBigNumber(cost)} KP
                 </button>
                 {owned > 0 && maxBuyInfo.count > 1 && (
                   <button className="btn-invite-max" onClick={() => inviteMax(comp.level)} disabled={!canBuy}>
-                    まとめて招待 ({maxBuyInfo.count}人)
+                    まとめて よぶ ({maxBuyInfo.count}人)
                   </button>
                 )}
               </div>
