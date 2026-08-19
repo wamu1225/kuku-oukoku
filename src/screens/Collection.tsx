@@ -69,13 +69,13 @@ export function Collection({ state }: { state: KukuState }) {
                     className={`collection-item ${has ? 'owned' : 'locked'} ${isSelected ? 'selected' : ''}`}
                     onClick={() => setSelectedId(item.id)}
                     style={has ? { borderColor: item.color } : { borderColor: item.color + '33' }}
-                    aria-label={has ? `${item.name}：${item.desc}` : `未獲得：${item.hidden ? '？？？' : item.desc}`}
+                    aria-label={has ? `${item.name}：${item.desc}` : `まだ とっていない：${item.hidden ? '？？？' : item.desc}`}
                   >
                     {has && <span className="collection-shine" aria-hidden="true" />}
                     <span className="collection-emoji" aria-hidden="true">{has ? item.emoji : '🔒'}</span>
                     <span className="collection-name">{has ? item.name : '？？？'}</span>
                     <span className="collection-desc">
-                      {has ? item.desc : (item.hidden ? '？？？（高難度）' : `条件：${item.desc}`)}
+                      {has ? item.desc : (item.hidden ? '？？？（むずかしい）' : `じょうけん：${item.desc}`)}
                     </span>
                   </button>
                 );
@@ -101,8 +101,8 @@ export function Collection({ state }: { state: KukuState }) {
                 {selectedOwned
                   ? <>✅ {selected.desc}</>
                   : (selected.hidden
-                      ? '👀 獲得条件は秘密。極めた者にだけ分かる…'
-                      : <>💡 条件：{selected.desc}</>
+                      ? '👀 とりかたは ないしょ。うんとがんばると わかるよ…'
+                      : <>💡 じょうけん：{selected.desc}</>
                     )}
               </div>
             </div>
