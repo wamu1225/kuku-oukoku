@@ -247,8 +247,8 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
       <div className="screen">
         <h1 className="screen-title">⚔️ 九九バトル</h1>
         <p className="screen-desc">
-          敵が <strong>HP（つくる数）</strong> を持って現れます。
-          ならんだカードから <strong>2 まい</strong> を選び、その <strong>かけ算の答えが HP と同じ</strong> になったら撃破！
+          てきが <strong>HP（つくる数）</strong> を持って現れます。
+          ならんだカードから <strong>2 まい</strong> を選び、その <strong>かけ算の答えが HP と同じ</strong> になったら たおせる！
         </p>
         <div className="battle-howto">
           <div className="battle-howto-example">
@@ -262,7 +262,7 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
             </span>
           </div>
           <p className="battle-howto-tip">
-            30 秒以内にできるだけ多く倒そう。連続撃破でコンボがつながると、ますます熱くなる！
+            30 びょうより はやく できるだけ たくさん たおそう。つづけて たおすと コンボが つながって、ますます あつくなる！
           </p>
         </div>
 
@@ -274,10 +274,10 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
             let lockMsg = '';
             if (s.requiresStage4Gold && !stage4Gold) {
               unlocked = false;
-              lockMsg = `🔒 月夜の古城で 🥇 金級（${STAGE4_GOLD_COUNT}体撃破）で解禁`;
+              lockMsg = `🔒 月夜の古城で 🥇 金級（${STAGE4_GOLD_COUNT}たい たおす）に なると あそべるよ`;
             } else if (s.unlockRank != null && danRank < s.unlockRank) {
               unlocked = false;
-              lockMsg = `🔒 だんいにんてい ${UNLOCK_RANK_NAMES[s.unlockRank]}合格で解禁`;
+              lockMsg = `🔒 だんいにんてい ${UNLOCK_RANK_NAMES[s.unlockRank]}に なると あそべるよ`;
             }
             const best = state.stats?.battleMaxDefeatedPerDiff?.[s.id] || 0;
             return (
@@ -289,11 +289,11 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
                 onClick={() => start(s)}
               >
                 <span className="stage-name">{s.name}</span>
-                <span className="stage-meta">1〜{s.max}の段</span>
+                <span className="stage-meta">1〜{s.max}のだん</span>
                 {unlocked ? (
                   <>
-                    <span className="stage-best">自己ベスト: {best}体（{battleMedalLabel(best)}）</span>
-                    <span className="stage-targets">🥇 金 {s.goldCount}体</span>
+                    <span className="stage-best">じぶんの きろく: {best}たい（{battleMedalLabel(best)}）</span>
+                    <span className="stage-targets">🥇 金 {s.goldCount}たい</span>
                   </>
                 ) : (
                   <span className="stage-locked">{lockMsg}</span>
@@ -317,26 +317,26 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
     const goldGoal = stage?.goldCount ?? 10;
     const evalText =
       result.count >= 14
-        ? `⚡ ${stage!.name} 圧巻の撃破数だ！`
+        ? `⚡ ${stage!.name} すごい たおした かずだ！`
         : result.count >= goldGoal
-        ? `🥇 ${stage!.name} の金級達成！`
+        ? `🥇 ${stage!.name} で 金級に なったよ！`
         : result.count >= Math.floor(goldGoal * 0.7)
-        ? `あと ${goldGoal - result.count}体 で 🥇 金級！`
-        : `次は ${goldGoal}体 撃破を狙おう（🥇 金級ライン）`;
-    const comboNote = result.combo >= 5 ? `🔥 ${result.combo} 連続コンボ！` : null;
+        ? `あと ${goldGoal - result.count}たい で 🥇 金級！`
+        : `次は ${goldGoal}たい たおすことを めざそう（🥇 金級ライン）`;
+    const comboNote = result.combo >= 5 ? `🔥 ${result.combo} れんぞくコンボ！` : null;
     return (
       <div className="screen result-screen">
         {showConfetti && <Confetti count={40} />}
         <div className="result-symbol" aria-hidden="true">⚔️</div>
-        <h1 className="result-title">{stage!.name} 終了！</h1>
+        <h1 className="result-title">{stage!.name} おわり！</h1>
         <div className="result-stats">
-          <div><span className="result-label">撃破数</span><span className="result-value">{result.count}体</span></div>
-          <div><span className="result-label">最大コンボ</span><span className="result-value">{result.combo}</span></div>
-          <div><span className="result-label">獲得 KP</span><span className="result-value">+{IdleManager.formatBigNumber(result.kpGain)}</span></div>
+          <div><span className="result-label">たおした かず</span><span className="result-value">{result.count}たい</span></div>
+          <div><span className="result-label">いちばん つづいた コンボ</span><span className="result-value">{result.combo}</span></div>
+          <div><span className="result-label">もらった ポイント</span><span className="result-value">+{IdleManager.formatBigNumber(result.kpGain)}</span></div>
         </div>
         <p className="result-hint">{evalText}</p>
         {comboNote && <p className="result-hint result-hint-combo">{comboNote}</p>}
-        {result.festivalLevel ? <p className="festival-notice">🎉 {result.festivalLevel}の段の祝祭が 30分 発動！その段のなかまの生産アップ</p> : null}
+        {result.festivalLevel ? <p className="festival-notice">🎉 {result.festivalLevel}のだんの おまつりが 30ぷん はじまった！そのだんの なかまが たくさん つくってくれるよ</p> : null}
         <div className="result-actions">
           <button className="btn-primary" onClick={() => { setPhase('select'); setResult(null); }}>もう一度</button>
           <button className="btn-secondary" onClick={() => navigate('/')}>ホームへ</button>
@@ -399,7 +399,7 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
         {selected.length === 1 && 'もう 1 まい選ぼう（× するとどうなる？）'}
         {selected.length === 2 && (
           cards[selected[0]] * cards[selected[1]] === hp
-            ? '⚔️ 撃破！次の敵が来るよ'
+            ? '⚔️ たおした！つぎの てきが くるよ'
             : 'HP と合わない… 1 まい選び直そう'
         )}
       </p>
