@@ -128,7 +128,7 @@ export function Menu({ state }: { state: KukuState }) {
     <div className="menu-screen">
       <div className="menu-hero">
         <h1 className="menu-title">九九おうこく</h1>
-        <p className="menu-subtitle">九九を とけば、おうこくが ひろがるよ ✨</p>
+        <p className="menu-subtitle">九九を とけば、おうこくが ひろがるよ</p>
       </div>
 
       {kps > 0 && (
