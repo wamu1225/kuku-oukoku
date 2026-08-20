@@ -210,7 +210,7 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
                 onClick={() => start(s)}
               >
                 <span className="stage-name">{s.name}</span>
-                <span className="stage-meta">1〜{s.max}の段</span>
+                <span className="stage-meta">1〜{s.max}のだん</span>
                 {unlocked ? (
                   <>
                     <span className="stage-best">

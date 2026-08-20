@@ -108,10 +108,10 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
         <p className="result-msg">{resultMsg.split('\n').map((line, i) => (
           <span key={i}>{i > 0 && <br />}{line}</span>
         ))}</p>
-        <p className="result-hint">⚡ アタックモードで腕試しもできるよ</p>
+        <p className="result-hint">⚡ アタックモードで ちからだめしも できるよ</p>
         <div className="result-actions">
-          <button className="btn-primary" onClick={() => navigate(`/attack/${level}/`)}>⚡ {level}の段でアタック</button>
-          <button className="btn-secondary" onClick={() => navigate('/learn/')}>別の段</button>
+          <button className="btn-primary" onClick={() => navigate(`/attack/${level}/`)}>⚡ {level}のだんで アタック</button>
+          <button className="btn-secondary" onClick={() => navigate('/learn/')}>べつの だん</button>
           <button className="btn-secondary" onClick={() => navigate('/')}>ホームへ</button>
         </div>
       </div>
@@ -121,7 +121,7 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
   if (phase === 'list') {
     return (
       <div className="screen">
-        <h1 className="screen-title">{level}の段を まなぼう！</h1>
+        <h1 className="screen-title">{level}のだんを まなぼう！</h1>
         <p className="screen-desc">
           まずは九九を <strong>声に出して</strong> よんで おぼえよう。{level < 10 && <>みぎがわの ドットは、{level}こずつの まとまりが よこに ならんでいるよ。</>}
           おぼえたら 下のボタンで <strong>クイズ</strong>に すすもう。
@@ -147,7 +147,7 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
         </div>
         <div className="action-row action-row-stacked">
           <button className="btn-primary big" onClick={startQuiz}>もんだいをといてみる →</button>
-          <button className="btn-link" onClick={() => navigate('/learn/')}>← 別の段を選ぶ</button>
+          <button className="btn-link" onClick={() => navigate('/learn/')}>← べつの だんを えらぶ</button>
         </div>
       </div>
     );
@@ -159,8 +159,8 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
         <button
           className="quiz-back-icon"
           onClick={() => setPhase('list')}
-          aria-label="かくにんに戻る"
-          title="かくにんに戻る"
+          aria-label="かくにんに もどる"
+          title="かくにんに もどる"
         >←</button>
         <span className="quiz-counter">{index + 1} / {problems.length}</span>
         {level < 10 && <span className="quiz-reading">🗣️ {KUKU_READINGS[`${current.a}x${current.b}`] || ''}</span>}

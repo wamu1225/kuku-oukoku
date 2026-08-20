@@ -21,7 +21,7 @@ export function LevelSelect({ mode, state }: { mode: 'learn' | 'attack'; state: 
   const isLearn = mode === 'learn';
   const title = isLearn ? 'まなぶ' : 'タイムアタック';
   const description = isLearn
-    ? '段を選んで、ゆっくり九九を確認してから問題にちょうせんしよう'
+    ? 'だんを えらんで、ゆっくり九九を確認してから問題にちょうせんしよう'
     : 'タイムを競って、金メダルをめざそう';
 
   const unlocked = state.unlockedLevels ?? [1];
@@ -47,9 +47,9 @@ export function LevelSelect({ mode, state }: { mode: 'learn' | 'attack'; state: 
               className={`level-card ${isUnlocked ? '' : 'locked'}`}
               disabled={!isUnlocked}
               onClick={() => navigate(`/${mode}/${level}/`)}
-              aria-label={`${level}の段${isUnlocked ? '' : '（ロック中）'}`}
+              aria-label={`${level}のだん${isUnlocked ? '' : '（ロック中）'}`}
             >
-              <span className="level-number">{level}の段</span>
+              <span className="level-number">{level}のだん</span>
               {showLearnCompleted && (
                 <span className="level-status" title="クリア済み">💮</span>
               )}

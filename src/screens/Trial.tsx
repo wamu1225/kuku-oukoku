@@ -208,14 +208,14 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
           {isFirstClear ? '🌟 しれんの もんが ひらいた！' : '🌟 しれん クリア！'}
         </h1>
         {isFirstClear ? (
-          <p>あたらしい みちが 見えた。<strong>10 の段</strong> が あそべるようになったよ。</p>
+          <p>あたらしい みちが 見えた。<strong>10 のだん</strong> が あそべるようになったよ。</p>
         ) : (
           <p>もう一度 しれんを クリアした。ポイントを もらったよ！</p>
         )}
         <div className="result-stats">
           <div><span className="result-label">もらった ポイント</span><span className="result-value">+{IdleManager.formatBigNumber(rewardKp)} KP</span></div>
           {isFirstClear && (
-            <div><span className="result-label">あそべるように なった</span><span className="result-value">10 の段</span></div>
+            <div><span className="result-label">あそべるように なった</span><span className="result-value">10 のだん</span></div>
           )}
         </div>
         <div className="result-actions">

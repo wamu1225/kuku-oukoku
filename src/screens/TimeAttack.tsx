@@ -184,7 +184,7 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
         </p>
         <div className="result-actions">
           <button className="btn-primary" onClick={retry}>もう一度</button>
-          <button className="btn-secondary" onClick={() => navigate('/attack/')}>別の段</button>
+          <button className="btn-secondary" onClick={() => navigate('/attack/')}>べつの だん</button>
           <button className="btn-secondary" onClick={() => navigate('/')}>ホームへ</button>
         </div>
       </div>

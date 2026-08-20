@@ -353,7 +353,7 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
 
       {visibleLevels.length < 9 && (
         <p className="empire-hint">
-          ※ 1つ前の段のなかまを呼ぶと、次の段のなかまが現れるよ
+          ※ 1つ前の だんの なかまを よぶと、次の だんの なかまが でてくるよ
         </p>
       )}
 

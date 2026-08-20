@@ -11,10 +11,10 @@ function unlocksOnRank(rank: number): string[] {
   const u: string[] = [];
   if (rank === 1) u.push('⚔️ 九九バトル（はじまりの草原）');
   if (rank === 2) u.push('🗼 九九のタワー（そよ風の塔）');
-  if (rank === 3) { u.push('🌫 くもくも（しんキロウの森）'); u.push('📖 まなぶ・アタック：4〜6 の段'); }
+  if (rank === 3) { u.push('🌫 くもくも（しんキロウの森）'); u.push('📖 まなぶ・アタック：4〜6 のだん'); }
   if (rank === 4) u.push('⚔️ 九九バトル（しずかな森）');
   if (rank === 5) u.push('🗼 九九のタワー（雲海の見張り塔）');
-  if (rank === 6) { u.push('🌫 くもくも（そらの雲海）'); u.push('📖 まなぶ・アタック：7〜9 の段'); }
+  if (rank === 6) { u.push('🌫 くもくも（そらの雲海）'); u.push('📖 まなぶ・アタック：7〜9 のだん'); }
   if (rank === 7) u.push('⚔️ 九九バトル（ゴツゴツ洞窟）');
   if (rank === 8) u.push('🗼 九九のタワー（迅雷の尖塔）');
   if (rank === 9) u.push('🌫 くもくも（かみなりの山）');
@@ -224,10 +224,10 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
           <div className="dan-card dan-card-locked">
             <h2>🌑 初段への道</h2>
             <p>
-              初段は <strong>10の段</strong> の テストです。挑む前に「<strong>くらやみの しれん</strong>」をクリアして、10 の段を あそべるようにしましょう。
+              初段は <strong>10のだん</strong> の テストです。ちょうせんする前に「<strong>くらやみの しれん</strong>」をクリアして、10 のだんを あそべるようにしましょう。
             </p>
             <p className="dan-trial-hint">
-              💡 くらやみの しれんは <a href="/kuku-oukoku/empire/" onClick={(e) => { e.preventDefault(); navigate('/empire/'); }}>おうこく</a> で 9 の段のなかまを呼ぶと ちょうせんできるように なります。
+              💡 くらやみの しれんは <a href="/kuku-oukoku/empire/" onClick={(e) => { e.preventDefault(); navigate('/empire/'); }}>おうこく</a> で 9 のだんの なかまを よぶと ちょうせんできるように なります。
             </p>
             <div className="cta-row">
               <button className="btn-primary big" onClick={() => navigate('/trial/')}>⚔️ しれんの もんへ</button>
@@ -237,7 +237,7 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
         ) : nextDan ? (
           <div className="dan-card">
             <h2>{nextDan.name} に ちょうせん</h2>
-            <p>もんだいの はんい：{nextDan.source.length === 1 ? `${nextDan.source[0]}の段` : `${Math.min(...nextDan.source)}〜${Math.max(...nextDan.source)}の段ランダム`}</p>
+            <p>もんだいの はんい：{nextDan.source.length === 1 ? `${nextDan.source[0]}のだん` : `${Math.min(...nextDan.source)}〜${Math.max(...nextDan.source)}のだんランダム`}</p>
             <p>問題数：{nextDan.count}問　／　じかん：{nextDan.limitMs / 1000}びょう</p>
             <div className="dan-medal-targets">
               <span className="dan-medal-target dan-medal-gold">🥇 金：{nextDan.goldTimeMs / 1000}びょうより はやく</span>
@@ -246,9 +246,9 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
             </div>
             {unmasteredHint !== null && (
               <p className="dan-prep-hint">
-                💡 <strong>{unmasteredHint}の段</strong> がまだの場合は、先に
+                💡 <strong>{unmasteredHint}のだん</strong> が まだの ばあいは、先に
                 <a href={`/kuku-oukoku/learn/${unmasteredHint}/`} onClick={(e) => { e.preventDefault(); navigate(`/learn/${unmasteredHint}/`); }}>まなぶ</a>
-                で覚えてから ちょうせんすると ゆうり！
+                で おぼえてから ちょうせんすると ゆうり！
               </p>
             )}
             <button className="btn-primary big" onClick={() => start(nextDan.rank)}>ちょうせんする</button>
@@ -347,7 +347,7 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
           <button className="btn-primary" onClick={() => { setPhase('select'); }}>もう一度</button>
           {reviewLevel && reviewLevel <= 9 && (
             <button className="btn-secondary" onClick={() => navigate(`/learn/${reviewLevel}/`)}>
-              {reviewLevel}の段を もう一度 見なおす
+              {reviewLevel}のだんを もう一度 見なおす
             </button>
           )}
           <button className="btn-secondary" onClick={() => navigate('/')}>ホームへ</button>

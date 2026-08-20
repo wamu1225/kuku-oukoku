@@ -43,11 +43,11 @@ export function Settings({ state, onUpdate }: { state: KukuState; onUpdate: () =
       <h1 className="screen-title">⚙️ せってい</h1>
 
       <section className="settings-section">
-        <h2 className="section-h">学習設定</h2>
+        <h2 className="section-h">がくしゅうの せってい</h2>
         <label className="settings-row">
           <span>
             <strong>答えのヒント</strong>
-            <small className="settings-row-hint">まなぶで こたえを うすく ヒント表示</small>
+            <small className="settings-row-hint">まなぶで こたえを うすく 出す</small>
           </span>
           <input
             type="checkbox"
@@ -58,9 +58,9 @@ export function Settings({ state, onUpdate }: { state: KukuState; onUpdate: () =
       </section>
 
       <section className="settings-section">
-        <h2 className="section-h">称号 (タイトル)</h2>
+        <h2 className="section-h">🎖 タイトル</h2>
         <p className="screen-desc" style={{ marginTop: 0 }}>
-          九九を解いた合計数に応じて称号が解放されます。今の称号：<strong>{state.currentTitle ?? '九九のみならい'}</strong>
+          九九を といた かずが ふえると、あたらしい タイトルに なるよ。今の タイトル：<strong>{state.currentTitle ?? '九九のみならい'}</strong>
         </p>
         <div className="title-list">
           {(state.unlockedTitles ?? ['九九のみならい']).map((title) => (
@@ -75,7 +75,7 @@ export function Settings({ state, onUpdate }: { state: KukuState; onUpdate: () =
         </div>
         {upcomingTitles.length > 0 && (
           <div className="title-hint-box">
-            <div className="title-hint-h">次の称号は…</div>
+            <div className="title-hint-h">つぎの タイトルは…</div>
             <ul className="title-hint-list">
               {upcomingTitles.map((t) => {
                 const remaining = Math.max(0, t.target - totalMastery);
@@ -83,7 +83,7 @@ export function Settings({ state, onUpdate }: { state: KukuState; onUpdate: () =
                   <li key={t.name}>
                     <strong>{t.name}</strong>
                     <span className="title-hint-meta">
-                      合計 {t.target} 問
+                      あわせて {t.target} 問
                       {remaining > 0 && <> （あと {remaining} 問）</>}
                     </span>
                   </li>
@@ -95,10 +95,10 @@ export function Settings({ state, onUpdate }: { state: KukuState; onUpdate: () =
       </section>
 
       <section className="settings-section">
-        <h2 className="section-h">統計</h2>
+        <h2 className="section-h">きろく</h2>
         <div className="settings-stats-grid">
           <div className="settings-stat-card">
-            <span className="settings-stat-label">総スタンプ</span>
+            <span className="settings-stat-label">スタンプの かず</span>
             <span className="settings-stat-value">{state.totalStamps} 個</span>
           </div>
           <div className="settings-stat-card">
@@ -110,39 +110,39 @@ export function Settings({ state, onUpdate }: { state: KukuState; onUpdate: () =
             <span className="settings-stat-value">{state.stats?.totalAttackPlays ?? 0} 回</span>
           </div>
           <div className="settings-stat-card">
-            <span className="settings-stat-label">段位試験 累計</span>
+            <span className="settings-stat-label">だんいにんてい あわせて</span>
             <span className="settings-stat-value">{state.stats?.totalDanSolved ?? 0} 問</span>
           </div>
           <div className="settings-stat-card">
-            <span className="settings-stat-label">連続学習</span>
+            <span className="settings-stat-label">つづけて あそんだ日</span>
             <span className="settings-stat-value">{state.dailyStreak?.count ?? 0} 日</span>
           </div>
         </div>
       </section>
 
       <section className="settings-section">
-        <h2 className="section-h">データのリセット</h2>
+        <h2 className="section-h">データを けす</h2>
         <p className="settings-warn">
-          下のボタンを押すと、<strong>あなたの記録すべて</strong> が消えます。元には戻せません。
+          下の ボタンを おすと、<strong>きろくが ぜんぶ</strong> きえます。もとには もどせません。
         </p>
         {!confirmReset ? (
           <button className="btn-danger" onClick={() => setConfirmReset(true)}>
-            データをリセットする
+            データを ぜんぶ けす
           </button>
         ) : (
           <div className="reset-confirm-box">
-            <p className="reset-confirm-title">⚠️ 本当にリセットしますか？</p>
-            <p className="reset-confirm-msg">つぎの記録が <strong>すべて消えます</strong>：</p>
+            <p className="reset-confirm-title">⚠️ ほんとうに けしますか？</p>
+            <p className="reset-confirm-msg">つぎの きろくが <strong>ぜんぶ きえます</strong>：</p>
             <ul className="reset-confirm-list">
-              <li>マスタした段：<strong>{masteredDan}</strong> 個の段位メダル</li>
-              <li>キングダムパワー：<strong>{(state.kp || 0).toLocaleString()}</strong> KP</li>
-              <li>おうこくの仲間：<strong>{totalCompanions}</strong> 人</li>
-              <li>ずかんの収集：<strong>{collectionCount}</strong> 個</li>
-              <li>連続学習：<strong>{state.dailyStreak?.count ?? 0}</strong> 日</li>
-              <li>称号、設定、すべての履歴</li>
+              <li>マスターした だん：<strong>{masteredDan}</strong> 個の メダル</li>
+              <li>ポイント：<strong>{(state.kp || 0).toLocaleString()}</strong> KP</li>
+              <li>おうこくの なかま：<strong>{totalCompanions}</strong> 人</li>
+              <li>ずかんで あつめた もの：<strong>{collectionCount}</strong> 個</li>
+              <li>つづけて あそんだ日：<strong>{state.dailyStreak?.count ?? 0}</strong> 日</li>
+              <li>タイトル、せってい、ぜんぶの きろく</li>
             </ul>
             <div className="reset-confirm-actions">
-              <button className="btn-danger" onClick={doReset}>はい、すべて消す</button>
+              <button className="btn-danger" onClick={doReset}>はい、ぜんぶ けす</button>
               <button className="btn-secondary" onClick={() => setConfirmReset(false)}>キャンセル</button>
             </div>
           </div>

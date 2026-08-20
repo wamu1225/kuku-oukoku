@@ -247,8 +247,8 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
       <div className="screen">
         <h1 className="screen-title">⚔️ 九九バトル</h1>
         <p className="screen-desc">
-          てきが <strong>HP（つくる数）</strong> を持って現れます。
-          ならんだカードから <strong>2 まい</strong> を選び、その <strong>かけ算の答えが HP と同じ</strong> になったら たおせる！
+          てきが <strong>HP（つくる数）</strong> を持って でてきます。
+          ならんだカードから <strong>2 まい</strong> を えらび、その <strong>かけ算の答えが HP と同じ</strong> になったら たおせる！
         </p>
         <div className="battle-howto">
           <div className="battle-howto-example">
@@ -395,12 +395,12 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
         )}
       </div>
       <p className="battle-hint">
-        {selected.length === 0 && '↓ カードを 2 まい選ぼう'}
-        {selected.length === 1 && 'もう 1 まい選ぼう（× するとどうなる？）'}
+        {selected.length === 0 && '↓ カードを 2 まい えらぼう'}
+        {selected.length === 1 && 'もう 1 まい えらぼう（× するとどうなる？）'}
         {selected.length === 2 && (
           cards[selected[0]] * cards[selected[1]] === hp
             ? '⚔️ たおした！つぎの てきが くるよ'
-            : 'HP と合わない… 1 まい選び直そう'
+            : 'HP と 合わない… 1 まい えらびなおそう'
         )}
       </p>
 
