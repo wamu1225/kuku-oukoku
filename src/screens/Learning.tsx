@@ -126,6 +126,11 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
           まずは九九を <strong>声に出して</strong> よんで おぼえよう。{level < 10 && <>みぎがわの ドットは、{level}こずつの まとまりが よこに ならんでいるよ。</>}
           おぼえたら 下のボタンで <strong>クイズ</strong>に すすもう。
         </p>
+        {level < 10 && (
+          <p className="screen-desc learning-swap-tip">
+            💡 {level}×2 と 2×{level} は こたえが おなじだよ。かけ算は 前と後ろを 入れかえても こたえは かわらないんだ。かたっぽ おぼえれば、もう かたっぽも わかるね！
+          </p>
+        )}
         <div className="kuku-list">
           {problems.map((p) => (
             <div key={p.b} className="kuku-card kuku-card-v2">
