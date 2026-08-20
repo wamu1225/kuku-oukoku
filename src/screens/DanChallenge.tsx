@@ -204,18 +204,18 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
   if (phase === 'select') {
     return (
       <div className="screen">
-        <h1 className="screen-title">だんいにんてい試験</h1>
+        <h1 className="screen-title">だんいにんてい</h1>
         <div className="dan-rank-card">
-          <div className="dan-rank-now">現在の段位</div>
+          <div className="dan-rank-now">今の くらい</div>
           <div className="dan-rank-value">{state.rank}</div>
           {nextDan && (
             <div className="dan-rank-next">
-              次は <strong>{nextDan.name}</strong> ／ {nextDan.count}問を {nextDan.limitMs / 1000}秒以内に全問正解で合格
+              次は <strong>{nextDan.name}</strong> ／ {nextDan.count}問を {nextDan.limitMs / 1000}びょうより はやく ぜんぶ せいかいで クリア
             </div>
           )}
           {trialGateActive && (
             <div className="dan-rank-next">
-              次は <strong>初段</strong>。挑戦する前に <strong>暗黒の試練</strong> をクリアしてください
+              次は <strong>初段</strong>。ちょうせんする前に <strong>くらやみの しれん</strong> をクリアしてください
             </div>
           )}
         </div>
@@ -224,43 +224,43 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
           <div className="dan-card dan-card-locked">
             <h2>🌑 初段への道</h2>
             <p>
-              初段は <strong>10の段</strong> の試験です。挑む前に「<strong>暗黒の試練</strong>」をクリアして、10 の段を解禁しましょう。
+              初段は <strong>10の段</strong> の テストです。挑む前に「<strong>くらやみの しれん</strong>」をクリアして、10 の段を あそべるようにしましょう。
             </p>
             <p className="dan-trial-hint">
-              💡 暗黒の試練は <a href="/kuku-oukoku/empire/" onClick={(e) => { e.preventDefault(); navigate('/empire/'); }}>おうこく</a> で 9 の段のなかまを呼ぶと挑戦できるようになります。
+              💡 くらやみの しれんは <a href="/kuku-oukoku/empire/" onClick={(e) => { e.preventDefault(); navigate('/empire/'); }}>おうこく</a> で 9 の段のなかまを呼ぶと ちょうせんできるように なります。
             </p>
             <div className="cta-row">
-              <button className="btn-primary big" onClick={() => navigate('/trial/')}>⚔️ 試練の門へ</button>
+              <button className="btn-primary big" onClick={() => navigate('/trial/')}>⚔️ しれんの もんへ</button>
               <button className="btn-secondary" onClick={() => navigate('/empire/')}>おうこくへ</button>
             </div>
           </div>
         ) : nextDan ? (
           <div className="dan-card">
-            <h2>{nextDan.name} に挑戦</h2>
-            <p>出題範囲：{nextDan.source.length === 1 ? `${nextDan.source[0]}の段` : `${Math.min(...nextDan.source)}〜${Math.max(...nextDan.source)}の段ランダム`}</p>
-            <p>問題数：{nextDan.count}問　／　制限時間：{nextDan.limitMs / 1000}秒</p>
+            <h2>{nextDan.name} に ちょうせん</h2>
+            <p>もんだいの はんい：{nextDan.source.length === 1 ? `${nextDan.source[0]}の段` : `${Math.min(...nextDan.source)}〜${Math.max(...nextDan.source)}の段ランダム`}</p>
+            <p>問題数：{nextDan.count}問　／　じかん：{nextDan.limitMs / 1000}びょう</p>
             <div className="dan-medal-targets">
-              <span className="dan-medal-target dan-medal-gold">🥇 金：{nextDan.goldTimeMs / 1000}秒以内</span>
-              <span className="dan-medal-target dan-medal-silver">🥈 銀：{nextDan.silverTimeMs / 1000}秒以内</span>
-              <span className="dan-medal-target dan-medal-bronze">🥉 銅：{nextDan.limitMs / 1000}秒以内クリア</span>
+              <span className="dan-medal-target dan-medal-gold">🥇 金：{nextDan.goldTimeMs / 1000}びょうより はやく</span>
+              <span className="dan-medal-target dan-medal-silver">🥈 銀：{nextDan.silverTimeMs / 1000}びょうより はやく</span>
+              <span className="dan-medal-target dan-medal-bronze">🥉 銅：{nextDan.limitMs / 1000}びょうより はやく クリア</span>
             </div>
             {unmasteredHint !== null && (
               <p className="dan-prep-hint">
                 💡 <strong>{unmasteredHint}の段</strong> がまだの場合は、先に
                 <a href={`/kuku-oukoku/learn/${unmasteredHint}/`} onClick={(e) => { e.preventDefault(); navigate(`/learn/${unmasteredHint}/`); }}>まなぶ</a>
-                で覚えてから挑戦すると有利！
+                で覚えてから ちょうせんすると ゆうり！
               </p>
             )}
-            <button className="btn-primary big" onClick={() => start(nextDan.rank)}>挑戦する</button>
+            <button className="btn-primary big" onClick={() => start(nextDan.rank)}>ちょうせんする</button>
           </div>
         ) : (
-          <p>すべての段位を取得しています。おめでとう！</p>
+          <p>ぜんぶの くらいを とりました。おめでとう！</p>
         )}
 
         {currentRank > 0 ? (
           <>
-            <h2 className="section-h">📜 段位パスポート（タップで再挑戦）</h2>
-            <p className="dan-retry-hint">💡 より良いメダルを狙って再挑戦できます。記録は上書きされます。</p>
+            <h2 className="section-h">📜 くらいの きろく（タップで もう一度）</h2>
+            <p className="dan-retry-hint">💡 もっと よい メダルを めざして もう一度 ちょうせんできます。きろくは あたらしく なります。</p>
             <div className="dan-passport">
               {DAN_LEVELS.filter((d) => d.rank <= currentRank).map((d) => {
                 const medal = state.danMedals?.[d.rank];
@@ -270,7 +270,7 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
                     key={d.rank}
                     className={`dan-stamp dan-stamp-${medal || 'none'}`}
                     onClick={() => start(d.rank)}
-                    aria-label={`${d.name} を再挑戦（現在のメダル: ${medal ? BADGE_LABEL[medal] : 'クリア'}）`}
+                    aria-label={`${d.name} に もう一度 ちょうせん（今の メダル: ${medal ? BADGE_LABEL[medal] : 'クリア'}）`}
                   >
                     <span className="dan-stamp-medal" aria-hidden="true">{medalIcon}</span>
                     <span className="dan-stamp-name">{d.name}</span>
@@ -280,7 +280,7 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
             </div>
           </>
         ) : (
-          <p className="dan-empty">まだ段位を取得していません。初挑戦で 10級 を取得しよう！</p>
+          <p className="dan-empty">まだ くらいが ありません。はじめての ちょうせんで 10級を めざそう！</p>
         )}
 
         <button className="back-link" onClick={() => navigate('/')}>← ホームへ</button>
@@ -306,7 +306,7 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
         {(result.newDan || result.medal === 'ダイヤ') && <Confetti count={result.medal === 'ダイヤ' ? 70 : 50} />}
         <div className="result-symbol" aria-hidden="true">{result.newDan ? '🛡' : result.medal === 'ダイヤ' ? '💎' : result.medal === '金' ? '🥇' : result.medal === '銀' ? '🥈' : '🥉'}</div>
         <h1 className={`result-title ${result.newDan || result.medal === 'ダイヤ' ? 'celebrate' : ''}`}>
-          {result.newDan ? '🎉 昇段おめでとう！' : 'クリア！'}
+          {result.newDan ? '🎉 くらいアップ おめでとう！' : 'クリア！'}
         </h1>
         {result.newDan && prevRankName && newRankName && (
           <p className="dan-promotion">
@@ -318,12 +318,12 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
         <div className="result-stats">
           <div><span className="result-label">タイム</span><span className="result-value">{(result.timeMs / 1000).toFixed(2)}秒</span></div>
           <div><span className="result-label">メダル</span><span className="result-value">{result.medal}</span></div>
-          <div><span className="result-label">獲得 KP</span><span className="result-value">+{IdleManager.formatBigNumber(result.kpGained)}</span></div>
+          <div><span className="result-label">もらった ポイント</span><span className="result-value">+{IdleManager.formatBigNumber(result.kpGained)}</span></div>
         </div>
-        <p className="festival-notice">🎉 {result.festivalLevel}の段の祝祭が 30分 発動！その段のなかまの生産アップ</p>
+        <p className="festival-notice">🎉 {result.festivalLevel}のだんの おまつりが 30ぷん はじまった！そのだんの なかまが たくさん つくってくれるよ</p>
         {newUnlocks.length > 0 && (
           <div className="result-unlock">
-            <h3>🔓 新しく解禁されたよ！</h3>
+            <h3>🔓 あそべるように なったよ！</h3>
             <ul>{newUnlocks.map((u) => <li key={u}>{u}</li>)}</ul>
           </div>
         )}
@@ -340,14 +340,14 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
     const reviewLevel = failedDan?.source[0];
     return (
       <div className="screen result-screen">
-        <h1 className="result-title">時間切れ！</h1>
-        <p>あと {Math.max(0, (failedDan?.count ?? 15) - index)} 問のところで時間切れ。</p>
-        <p>苦手な段を <strong>まなぶ</strong> で復習してから挑戦すると一気に楽になるよ。</p>
+        <h1 className="result-title">じかんぎれ！</h1>
+        <p>あと {Math.max(0, (failedDan?.count ?? 15) - index)} 問のところで じかんぎれ。</p>
+        <p>にがてな だんを <strong>まなぶ</strong> で もう一度 見なおしてから ちょうせんすると ぐっと らくに なるよ。</p>
         <div className="result-actions">
           <button className="btn-primary" onClick={() => { setPhase('select'); }}>もう一度</button>
           {reviewLevel && reviewLevel <= 9 && (
             <button className="btn-secondary" onClick={() => navigate(`/learn/${reviewLevel}/`)}>
-              {reviewLevel}の段を復習
+              {reviewLevel}の段を もう一度 見なおす
             </button>
           )}
           <button className="btn-secondary" onClick={() => navigate('/')}>ホームへ</button>

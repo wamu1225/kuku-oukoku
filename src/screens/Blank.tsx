@@ -191,7 +191,7 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
           <br />
           例：<span className="blank-example">？ × 4 = 12</span> →「？」に入る数（この場合 <strong>3</strong>）をキーパッドで入力。
           <br />
-          10 問の合計タイムで金/銀/銅メダル。
+          10 問の あわせたタイムで 金/銀/銅メダル。
         </p>
 
         <div className="battle-stages">
@@ -202,10 +202,10 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
             let lockMsg = '';
             if (s.requiresStage4Gold && !stage4Gold) {
               unlocked = false;
-              lockMsg = '🔒 月見の雲海で 🥇 金メダルを取ると解禁';
+              lockMsg = '🔒 月見の雲海で 🥇 金メダルを とると あそべるよ';
             } else if (s.unlockRank != null && danRank < s.unlockRank) {
               unlocked = false;
-              lockMsg = `🔒 だんいにんてい ${UNLOCK_RANK_NAMES[s.unlockRank]}合格で解禁`;
+              lockMsg = `🔒 だんいにんてい ${UNLOCK_RANK_NAMES[s.unlockRank]}に なると あそべるよ`;
             }
             const best = state.challengeBestTimes?.[s.id];
             const medal = state.blankMedalsPerDiff?.[s.id];
@@ -222,7 +222,7 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
                 {unlocked ? (
                   <>
                     <span className="stage-best">
-                      {best ? `自己ベスト: ${(best / 1000).toFixed(2)}秒` : '未挑戦'}
+                      {best ? `じぶんの きろく: ${(best / 1000).toFixed(2)}秒` : 'まだ あそんでいない'}
                       {medal && ` (${medal === 'diamond' ? '💎ダイヤ' : medal === 'gold' ? '🥇金' : medal === 'silver' ? '🥈銀' : medal === 'bronze' ? '🥉銅' : 'クリア'})`}
                     </span>
                     <span className="stage-targets">
@@ -248,10 +248,10 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
     const showConfetti = result.medal === 'ダイヤ' || result.medal === '金' || result.medal === '銀';
     const ms = result.timeMs;
     let goalHint = '';
-    if (result.medal === 'ダイヤ') goalHint = '⚡ 神速クリア！自己ベスト更新を狙おう';
-    else if (ms <= GOLD_MS) goalHint = '🥇 金級！自己ベスト更新を狙おう';
-    else if (ms <= SILVER_MS) goalHint = `🥈 銀級。あと ${((ms - GOLD_MS) / 1000).toFixed(2)}秒 縮めれば 🥇 金へ`;
-    else goalHint = `🥉 銅級。あと ${((ms - SILVER_MS) / 1000).toFixed(2)}秒 縮めれば 🥈 銀へ`;
+    if (result.medal === 'ダイヤ') goalHint = '⚡ ものすごい はやさで クリア！じぶんの きろくを めざそう';
+    else if (ms <= GOLD_MS) goalHint = '🥇 金級！じぶんの きろくを めざそう';
+    else if (ms <= SILVER_MS) goalHint = `🥈 銀級。あと ${((ms - GOLD_MS) / 1000).toFixed(2)}秒 はやくすれば 🥇 金へ`;
+    else goalHint = `🥉 銅級。あと ${((ms - SILVER_MS) / 1000).toFixed(2)}秒 はやくすれば 🥈 銀へ`;
     const symbol = result.medal === 'ダイヤ' ? '💎' : result.medal === '金' ? '🥇' : result.medal === '銀' ? '🥈' : result.medal === '銅' ? '🥉' : '🌫';
     return (
       <div className="screen result-screen">
@@ -261,10 +261,10 @@ export function Blank({ state, onComplete }: { state: KukuState; onComplete: () 
         <div className="result-stats">
           <div><span className="result-label">タイム</span><span className="result-value">{(result.timeMs / 1000).toFixed(2)}秒</span></div>
           <div><span className="result-label">メダル</span><span className="result-value">{result.medal}</span></div>
-          <div><span className="result-label">報酬</span><span className="result-value">+{IdleManager.formatBigNumber(result.kpGained)} KP</span></div>
+          <div><span className="result-label">もらった ポイント</span><span className="result-value">+{IdleManager.formatBigNumber(result.kpGained)} KP</span></div>
         </div>
         <p className="result-hint">{goalHint}</p>
-        <p className="festival-notice">🎉 {result.festivalLevel}の段の祝祭が 30分 発動！その段のなかまの生産アップ</p>
+        <p className="festival-notice">🎉 {result.festivalLevel}のだんの おまつりが 30ぷん はじまった！そのだんの なかまが たくさん つくってくれるよ</p>
         <div className="result-actions">
           <button className="btn-primary" onClick={() => setPhase('select')}>もう一度</button>
           <button className="btn-secondary" onClick={() => navigate('/')}>ホームへ</button>

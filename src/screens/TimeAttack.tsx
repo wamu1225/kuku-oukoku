@@ -155,13 +155,13 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
     const secs = result.timeMs / 1000;
     let nextHint: string;
     if (secs <= 13) {
-      nextHint = '⚡ とんでもない速さ！自己ベスト更新を狙おう';
+      nextHint = '⚡ とんでもない はやさ！じぶんの きろくを めざそう';
     } else if (secs <= 15) {
       nextHint = result.isNewBest
-        ? '最速ペース達成！次は自己ベストをさらに更新しよう'
-        : '🥇 金メダル！自己ベスト更新を狙おう';
+        ? 'いちばん はやい ペース！もっと じぶんの きろくを めざそう'
+        : '🥇 金メダル！じぶんの きろくを めざそう';
     } else if (secs <= 25) {
-      nextHint = `今は 🥈 銀。あと ${(secs - 15).toFixed(2)}秒 縮めれば 🥇 金へ`;
+      nextHint = `今は 🥈 銀。あと ${(secs - 15).toFixed(2)}秒 はやくすれば 🥇 金へ`;
     } else if (secs <= 40) {
       nextHint = `今は 🥉 銅。あと ${(secs - 25).toFixed(2)}秒 で 🥈 銀へ`;
     } else {
@@ -172,15 +172,15 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
       <div className="screen result-screen">
         {showConfetti && <Confetti count={result.badge === 'ダイヤ' ? 70 : 45} />}
         <div className="result-symbol" aria-hidden="true">{result.badge === 'ダイヤ' ? '💎' : result.badge === '金' ? '🥇' : result.badge === '銀' ? '🥈' : result.badge === '銅' ? '🥉' : '✨'}</div>
-        <h1 className="result-title">{result.isNewBest ? '自己ベスト更新！' : 'クリア！'}</h1>
+        <h1 className="result-title">{result.isNewBest ? 'じぶんの きろくを ぬりかえた！' : 'クリア！'}</h1>
         <div className="result-stats">
           <div><span className="result-label">タイム</span><span className="result-value">{secs.toFixed(2)}秒</span></div>
           <div><span className="result-label">メダル</span><span className="result-value">{result.badge}</span></div>
-          <div><span className="result-label">報酬</span><span className="result-value">+{IdleManager.formatBigNumber(result.kpGained)} KP</span></div>
+          <div><span className="result-label">もらった ポイント</span><span className="result-value">+{IdleManager.formatBigNumber(result.kpGained)} KP</span></div>
         </div>
         <p className="result-hint">{nextHint}</p>
         <p className="festival-notice">
-          🎉 アタッククリアの特典：おうこくで「{level}の段の祝祭」が <strong>30 分間</strong> 発動！その段のなかまの生産が大幅アップ
+          🎉 アタックを クリアすると：おうこくで「{level}のだんの おまつり」が <strong>30 ふんかん</strong> はじまった！そのだんの なかまが たくさん つくってくれるよ
         </p>
         <div className="result-actions">
           <button className="btn-primary" onClick={retry}>もう一度</button>

@@ -146,12 +146,12 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
     if (!hasNineCompanion) {
       return (
         <div className="screen trial-intro">
-          <h1 className="screen-title">🌑 暗黒の試練</h1>
+          <h1 className="screen-title">🌑 くらやみの しれん</h1>
           <p className="screen-desc">
-            おうこくの奥にひっそりと立つ、いにしえの門。九九の真の力が試される、特別な挑戦の場です。
+            おうこくの おくに ひっそりと たつ、ふるい もん。九九の ちからが ためされる、とくべつな ばしょです。
           </p>
           <div className="trial-locked">
-            🔒 まずはおうこくでなかまをじっくり集めましょう。条件が整ったときに、自然と道が開きます。
+            🔒 まずは おうこくで なかまを じっくり あつめましょう。じゅんびが できたときに、みちが ひらきます。
           </div>
           <div className="cta-row">
             <button className="btn-secondary" onClick={() => navigate('/empire/')}>← おうこくへ</button>
@@ -161,30 +161,30 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
     }
     return (
       <div className="screen trial-intro">
-        <h1 className="screen-title">🌑 暗黒の試練</h1>
+        <h1 className="screen-title">🌑 くらやみの しれん</h1>
         <p className="screen-desc">
-          おうこくの奥にひっそりと立つ、いにしえの門。九九の真の力を試される高難度チャレンジです。
+          おうこくの おくに ひっそりと たつ、ふるい もん。九九の ちからが ためされる、とても むずかしい ちょうせんです。
         </p>
 
         <div className="trial-rules">
           <h2 className="section-h">ルール</h2>
           <ul>
-            <li>1×1〜9×9 から <strong>20 問</strong> がランダムに出題</li>
-            <li>制限時間 <strong>30 秒以内</strong> に全問正解で勝利</li>
-            <li>1 問でも時間切れになるとその挑戦は失敗</li>
+            <li>1×1〜9×9 から <strong>20 問</strong> が ランダムに でる</li>
+            <li><strong>30 びょうより はやく</strong> ぜんぶ せいかいすると かち</li>
+            <li>1 問でも じかんぎれに なると その ちょうせんは しっぱい</li>
           </ul>
 
-          <h2 className="section-h">報酬</h2>
+          <h2 className="section-h">もらえるもの</h2>
           <ul>
             <li>クリアで <strong>5,000 KP</strong></li>
-            <li>新たな段がいくつも解禁され、王国が大きく広がる</li>
-            <li>「暗黒の盾」のメダル獲得</li>
+            <li>あたらしい だんが いくつも あそべるようになり、おうこくが 大きく広がる</li>
+            <li>「暗黒の盾」の メダルが もらえる</li>
           </ul>
         </div>
 
         <div className="cta-row">
           <button className="btn-primary big" onClick={start}>
-            {trialCleared ? '⚔️ 再挑戦' : '⚔️ 挑戦する'}
+            {trialCleared ? '⚔️ もう一度 ちょうせん' : '⚔️ ちょうせんする'}
           </button>
           <button className="btn-secondary" onClick={() => navigate('/empire/')}>← おうこくへ</button>
         </div>
@@ -205,17 +205,17 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
         <Confetti count={isFirstClear ? 60 : 30} />
         <div className="result-symbol" aria-hidden="true">🌟</div>
         <h1 className={`result-title ${isFirstClear ? 'celebrate' : ''}`}>
-          {isFirstClear ? '🌟 試練の門が開いた！' : '🌟 試練クリア！'}
+          {isFirstClear ? '🌟 しれんの もんが ひらいた！' : '🌟 しれん クリア！'}
         </h1>
         {isFirstClear ? (
-          <p>新たな道が見えた。<strong>10 の段</strong> が解禁されたよ。</p>
+          <p>あたらしい みちが 見えた。<strong>10 の段</strong> が あそべるようになったよ。</p>
         ) : (
-          <p>もう一度試練を制覇した。KP を獲得！</p>
+          <p>もう一度 しれんを クリアした。ポイントを もらったよ！</p>
         )}
         <div className="result-stats">
-          <div><span className="result-label">報酬</span><span className="result-value">+{IdleManager.formatBigNumber(rewardKp)} KP</span></div>
+          <div><span className="result-label">もらった ポイント</span><span className="result-value">+{IdleManager.formatBigNumber(rewardKp)} KP</span></div>
           {isFirstClear && (
-            <div><span className="result-label">解禁</span><span className="result-value">10 の段</span></div>
+            <div><span className="result-label">あそべるように なった</span><span className="result-value">10 の段</span></div>
           )}
         </div>
         <div className="result-actions">
@@ -230,15 +230,15 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
     const remaining = Math.max(0, PROBLEMS_COUNT - index);
     return (
       <div className="screen result-screen">
-        <h1 className="result-title">🌑 時間切れ</h1>
+        <h1 className="result-title">🌑 じかんぎれ</h1>
         <p className="trial-fail-stats">
-          進捗：<strong>{index} / {PROBLEMS_COUNT} 問</strong>
+          すすみぐあい：<strong>{index} / {PROBLEMS_COUNT} 問</strong>
           {remaining <= 3 && <span className="trial-fail-close"> — もう少しだった！</span>}
         </p>
-        <p><strong>アタック</strong> や <strong>だんいにんてい</strong> で速度を磨いてから再挑戦するのがおすすめ。</p>
+        <p><strong>アタック</strong> や <strong>だんいにんてい</strong> で はやく とけるように れんしゅうしてから もう一度 ちょうせんするのが おすすめ。</p>
         <div className="result-actions">
           <button className="btn-primary" onClick={() => { setPhase('intro'); }}>もう一度</button>
-          <button className="btn-secondary" onClick={() => navigate('/attack/')}>アタックで練習</button>
+          <button className="btn-secondary" onClick={() => navigate('/attack/')}>アタックで れんしゅう</button>
           <button className="btn-secondary" onClick={() => navigate('/empire/')}>おうこくへ</button>
         </div>
       </div>

@@ -181,8 +181,8 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
       <div className="screen">
         <h1 className="screen-title">🗼 九九のタワー</h1>
         <p className="screen-desc">
-          30 秒で問題を解くたびに、答えの数だけタワーが伸びていくよ。
-          100m で雲の上、300m で成層圏、1000m で宇宙に到達！
+          30 びょうで もんだいを とくたびに、こたえの かずだけ タワーが のびていくよ。
+          100m で くもの上、300m で そらの高いところ、1000m で うちゅうまで とどく！
         </p>
 
         <div className="battle-stages">
@@ -193,11 +193,11 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
             let lockMsg = '';
             if (s.requiresStage4Gold && !stage4Gold) {
               unlocked = false;
-              lockMsg = '🔒 月光の天楼で 🥇 金メダルを取ると解禁';
+              lockMsg = '🔒 月光の天楼で 🥇 金メダルを とると あそべるよ';
             } else if (s.unlockRank != null && danRank < s.unlockRank) {
               unlocked = false;
               const rankLabel = s.unlockRank === 2 ? '9級' : s.unlockRank === 5 ? '6級' : '3級';
-              lockMsg = `🔒 だんいにんてい ${rankLabel}合格で解禁`;
+              lockMsg = `🔒 だんいにんてい ${rankLabel}に なると あそべるよ`;
             }
             const best = state.stats?.towerBestHeightsPerDiff?.[s.id] || 0;
             const medal = state.stats?.towerMedalsPerDiff?.[s.id];
@@ -214,7 +214,7 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
                 {unlocked ? (
                   <>
                     <span className="stage-best">
-                      自己ベスト: {best}m {medal && `(${medal === 'diamond' ? '💎ダイヤ' : medal === 'gold' ? '🥇金' : medal === 'silver' ? '🥈銀' : '🥉銅'})`}
+                      じぶんの きろく: {best}m {medal && `(${medal === 'diamond' ? '💎ダイヤ' : medal === 'gold' ? '🥇金' : medal === 'silver' ? '🥈銀' : '🥉銅'})`}
                     </span>
                     <span className="stage-targets">
                       🥇 {s.gold}m / 🥈 {s.silver}m / 🥉 {s.bronze}m
@@ -249,8 +249,8 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
     const stg = stage;
     let goalHint = '';
     if (stg) {
-      if (score >= stg.diamond) goalHint = `⚡ 空の頂を極めた！自己ベスト更新を狙おう`;
-      else if (score >= stg.gold) goalHint = `🥇 金級到達！自己ベスト更新を狙おう`;
+      if (score >= stg.diamond) goalHint = `⚡ そらの いちばん うえまで きた！じぶんの きろくを めざそう`;
+      else if (score >= stg.gold) goalHint = `🥇 金級に なったよ！じぶんの きろくを めざそう`;
       else if (score >= stg.silver) goalHint = `🥈 銀級。あと ${stg.gold - score}m で 🥇 金へ`;
       else if (score >= stg.bronze) goalHint = `🥉 銅級。あと ${stg.silver - score}m で 🥈 銀へ`;
       else goalHint = `あと ${stg.bronze - score}m で 🥉 銅級！`;
@@ -259,15 +259,15 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
       <div className="screen result-screen">
         {showConfetti && <Confetti count={45} />}
         <div className="result-symbol" aria-hidden="true">{tierSymbol}</div>
-        <h1 className="result-title">🗼 {tier.name}に到達！</h1>
+        <h1 className="result-title">🗼 {tier.name}まで とどいた！</h1>
         <div className="result-stats">
-          <div><span className="result-label">到達高度</span><span className="result-value">{score}m</span></div>
+          <div><span className="result-label">とどいた たかさ</span><span className="result-value">{score}m</span></div>
           <div><span className="result-label">エリア</span><span className="result-value">{tier.name}</span></div>
           <div><span className="result-label">問題数</span><span className="result-value">{problemCount}問</span></div>
-          <div><span className="result-label">獲得 KP</span><span className="result-value">+{IdleManager.formatBigNumber(reward?.kp ?? Math.floor(score / 10))}</span></div>
+          <div><span className="result-label">もらった ポイント</span><span className="result-value">+{IdleManager.formatBigNumber(reward?.kp ?? Math.floor(score / 10))}</span></div>
         </div>
         {goalHint && <p className="result-hint">{goalHint}</p>}
-        {reward && reward.festivalLevel > 0 && <p className="festival-notice">🎉 {reward.festivalLevel}の段の祝祭が 30分 発動！その段のなかまの生産アップ</p>}
+        {reward && reward.festivalLevel > 0 && <p className="festival-notice">🎉 {reward.festivalLevel}のだんの おまつりが 30ぷん はじまった！そのだんの なかまが たくさん つくってくれるよ</p>}
         <div className="result-actions">
           <button className="btn-primary" onClick={() => { setPhase('select'); }}>もう一度</button>
           <button className="btn-secondary" onClick={() => navigate('/')}>ホームへ</button>
