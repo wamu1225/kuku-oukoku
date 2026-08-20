@@ -233,7 +233,7 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
         <h1 className="result-title">🌑 じかんぎれ</h1>
         <p className="trial-fail-stats">
           すすみぐあい：<strong>{index} / {PROBLEMS_COUNT} 問</strong>
-          {remaining <= 3 && <span className="trial-fail-close"> — もう少しだった！</span>}
+          {remaining <= 3 && <span className="trial-fail-close">。もう少しだった！</span>}
         </p>
         <p><strong>アタック</strong> や <strong>だんいにんてい</strong> で はやく とけるように れんしゅうしてから もう一度 ちょうせんするのが おすすめ。</p>
         <div className="result-actions">

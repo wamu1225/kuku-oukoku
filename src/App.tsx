@@ -202,7 +202,7 @@ function Footer() {
           <a href={`${BASE}/privacy/`} onClick={(e) => { e.preventDefault(); navigate('/privacy/'); }}>プライバシーポリシー</a>
           <a href="https://study-apps.com/">study-apps.com</a>
         </nav>
-        <p className="copyright">© 九九おうこく — 小学2年生向けの算数学習ゲーム</p>
+        <p className="copyright">© 九九おうこく：小学2年生向けの算数学習ゲーム</p>
       </div>
     </footer>
   );
