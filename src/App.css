@@ -711,7 +711,22 @@ main { padding: 20px 16px 40px; }
 }
 .kuku-formula { font-size: 22px; font-weight: 700; }
 .kuku-answer { color: #2563eb; /* 純粋な青：text "青く" と一致 */ }
-.kuku-reading { color: var(--text-muted); font-size: 13px; }
+.kuku-reading { color: var(--text-muted); font-size: 13px; display: flex; align-items: center; gap: 4px; }
+
+.kuku-speak-btn {
+  border: none;
+  background: transparent;
+  padding: 4px;
+  min-width: 32px;
+  min-height: 32px;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 8px;
+  color: inherit;
+}
+.kuku-speak-btn:active { background: rgba(0, 0, 0, 0.08); }
+.kuku-speak-btn-inline { min-width: 28px; min-height: 28px; font-size: 13px; }
 
 /* Learning list v2: more spacious card */
 .kuku-card-v2 { padding: 16px 18px; min-height: 60px; }

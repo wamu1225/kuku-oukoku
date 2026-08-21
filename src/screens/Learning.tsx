@@ -6,12 +6,14 @@ import { KUKU_READINGS } from '../data/kukuReadings';
 import { DotGrid } from '../components/DotGrid';
 import { Confetti } from '../components/Confetti';
 import { vibrateCorrect, vibrateWrong } from '../utils/haptics';
+import { speak, speechSupported } from '../utils/speech';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
 
 export function Learning({ level, onComplete }: { level: number; onComplete: () => void }) {
   // 設定は mount 時に 1 度だけ読む（render 毎の localStorage アクセス防止）
   const showHint = useMemo(() => LearningEngine.loadState().settings?.showAnswerHint === true, []);
+  const canSpeak = useMemo(() => speechSupported(), []);
   const [phase, setPhase] = useState<'list' | 'quiz' | 'done'>('list');
   const [index, setIndex] = useState(0);
   const [input, setInput] = useState('');
@@ -139,7 +141,17 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
                   {p.a} × {p.b} = <span className="kuku-answer">{p.a * p.b}</span>
                 </div>
                 {level < 10 && (
-                  <div className="kuku-reading">🗣️ {KUKU_READINGS[`${p.a}x${p.b}`] || ''}</div>
+                  <div className="kuku-reading">
+                    🗣️ {KUKU_READINGS[`${p.a}x${p.b}`] || ''}
+                    {canSpeak && (
+                      <button
+                        type="button"
+                        className="kuku-speak-btn"
+                        aria-label="よみあげる"
+                        onClick={() => speak(KUKU_READINGS[`${p.a}x${p.b}`] || '')}
+                      >🔊</button>
+                    )}
+                  </div>
                 )}
               </div>
               {level < 10 && (
@@ -168,7 +180,19 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
           title="かくにんに もどる"
         >←</button>
         <span className="quiz-counter">{index + 1} / {problems.length}</span>
-        {level < 10 && <span className="quiz-reading">🗣️ {KUKU_READINGS[`${current.a}x${current.b}`] || ''}</span>}
+        {level < 10 && (
+          <span className="quiz-reading">
+            🗣️ {KUKU_READINGS[`${current.a}x${current.b}`] || ''}
+            {canSpeak && (
+              <button
+                type="button"
+                className="kuku-speak-btn kuku-speak-btn-inline"
+                aria-label="よみあげる"
+                onClick={() => speak(KUKU_READINGS[`${current.a}x${current.b}`] || '')}
+              >🔊</button>
+            )}
+          </span>
+        )}
       </div>
       <div className={`quiz-problem ${flashWrong ? 'flash-wrong' : ''}`}>
         <span className="quiz-equation">{current.a} × {current.b} =</span>
