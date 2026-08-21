@@ -50,13 +50,13 @@ export function Calendar({ state }: { state: KukuState }) {
   } else if (!hasClockRelic && streak < 3) {
     streakHint = <>あと <strong>{3 - streak}日</strong> で「時空の時計」メダル！</>;
   } else if (streak < 7) {
-    streakHint = <>あと <strong>{7 - streak}日</strong> で 1 週間達成！</>;
+    streakHint = <>あと <strong>{7 - streak}日</strong> で 1 しゅうかん つづく！</>;
   } else if (streak < 14) {
-    streakHint = <>あと <strong>{14 - streak}日</strong> で 2 週間達成！</>;
+    streakHint = <>あと <strong>{14 - streak}日</strong> で 2 しゅうかん つづく！</>;
   } else if (streak < 30) {
-    streakHint = <>あと <strong>{30 - streak}日</strong> で 1 ヶ月連続！</>;
+    streakHint = <>あと <strong>{30 - streak}日</strong> で 1 かげつ つづけて あそんだことに なる！</>;
   } else {
-    streakHint = <>すごい！1 ヶ月以上の連続学習達成 🎉</>;
+    streakHint = <>すごい！1 かげつ いじょう つづけて あそんでいるよ 🎉</>;
   }
 
   return (
@@ -78,7 +78,7 @@ export function Calendar({ state }: { state: KukuState }) {
       {!studiedToday && (
         <div className="calendar-today-cta">
           <span className="calendar-today-cta-msg">📚 まだ きょうの がくしゅうが おわってないよ！</span>
-          <button className="btn-primary calendar-today-cta-btn" onClick={() => navigate('/learning/')}>
+          <button className="btn-primary calendar-today-cta-btn" onClick={() => navigate('/learn/')}>
             まなぶをはじめる
           </button>
         </div>
@@ -101,18 +101,18 @@ export function Calendar({ state }: { state: KukuState }) {
             role="gridcell"
           >
             {c.day && <span className="calendar-day">{c.day}</span>}
-            {c.studied && <span className="calendar-mark" aria-label="学習済み">🌼</span>}
+            {c.studied && <span className="calendar-mark" aria-label="がくしゅうした日">🌼</span>}
           </div>
         ))}
       </div>
 
       <div className="calendar-stats">
         <div className="calendar-stats-row">
-          <span className="calendar-stats-label">この月の学習日数</span>
+          <span className="calendar-stats-label">この月に あそんだ日</span>
           <span className="calendar-stats-value">{studyDaysInMonth} 日</span>
         </div>
         <div className="calendar-stats-row">
-          <span className="calendar-stats-label">これまでの累計</span>
+          <span className="calendar-stats-label">これまで あわせて</span>
           <span className="calendar-stats-value">{totalStudyDays} 日</span>
         </div>
       </div>
