@@ -304,7 +304,7 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
     return (
       <div className="screen result-screen">
         {(result.newDan || result.medal === 'ダイヤ') && <Confetti count={result.medal === 'ダイヤ' ? 70 : 50} />}
-        <div className="result-symbol" aria-hidden="true">{result.newDan ? '🛡' : result.medal === 'ダイヤ' ? '💎' : result.medal === '金' ? '🥇' : result.medal === '銀' ? '🥈' : '🥉'}</div>
+        <div className="result-symbol" aria-hidden="true">{result.newDan ? '🛡️' : result.medal === 'ダイヤ' ? '💎' : result.medal === '金' ? '🥇' : result.medal === '銀' ? '🥈' : '🥉'}</div>
         <h1 className={`result-title ${result.newDan || result.medal === 'ダイヤ' ? 'celebrate' : ''}`}>
           {result.newDan ? '🎉 くらいアップ おめでとう！' : 'クリア！'}
         </h1>

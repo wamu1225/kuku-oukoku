@@ -246,10 +246,14 @@ function _updateRank(state: KukuState) {
 
 // アクティブプレイ報酬：現在の生産(KPS)×秒数を「前借り」として付与し、付与額を返す。
 // 放置収入が指数的に伸びても各モードの報酬が相対的に無意味化しないようにする。
+// おうこくでなかまをまだ1人も呼んでいない新規プレイヤーは kps=0 のためこの式だと常に+0になり、
+// 初めての合格・クリアで「もらった ポイント +0」と表示されてしまう（達成感を損なう）。
+// 最低保証として MIN_TIME_BONUS を敷く（kps>0になれば通常は式の値がこれを上回るため無害）。
+const MIN_TIME_BONUS = 10;
 function _grantTimeBonus(state: KukuState, seconds: number): number {
   const kps = IdleManager.calculateKPS(state);
-  const bonus = Math.floor(kps * seconds);
-  if (bonus > 0) state.kp = Math.min(MAX_KP, state.kp + bonus);
+  const bonus = Math.max(MIN_TIME_BONUS, Math.floor(kps * seconds));
+  state.kp = Math.min(MAX_KP, state.kp + bonus);
   return bonus;
 }
 
