@@ -249,7 +249,7 @@ function _updateRank(state: KukuState) {
 // おうこくでなかまをまだ1人も呼んでいない新規プレイヤーは kps=0 のためこの式だと常に+0になり、
 // 初めての合格・クリアで「もらった ポイント +0」と表示されてしまう（達成感を損なう）。
 // 最低保証として MIN_TIME_BONUS を敷く（kps>0になれば通常は式の値がこれを上回るため無害）。
-const MIN_TIME_BONUS = 10;
+export const MIN_TIME_BONUS = 10;
 function _grantTimeBonus(state: KukuState, seconds: number): number {
   const kps = IdleManager.calculateKPS(state);
   const bonus = Math.max(MIN_TIME_BONUS, Math.floor(kps * seconds));

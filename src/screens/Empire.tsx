@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { navigate } from '../App';
 import type { KukuState } from '../types';
-import { LearningEngine, QUEST_KP_SECONDS, silverCompletion } from '../utils/LearningEngine';
+import { LearningEngine, QUEST_KP_SECONDS, MIN_TIME_BONUS, silverCompletion } from '../utils/LearningEngine';
 import { IdleManager, FINAL_COMPANION_COST, MAX_PRESTIGE_COUNT } from '../utils/IdleManager';
 import { COMPANIONS } from '../data/companions';
 import { getCurrentSeasonal } from '../utils/seasonal';
@@ -184,7 +184,7 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
                   <div className="quest-head">
                     <span className="quest-title">{q.title}</span>
                     <span className="quest-reward">
-                      {q.reward.type === 'kp' ? '+' + IdleManager.formatBigNumber(Math.floor(kps * QUEST_KP_SECONDS)) + ' KP' : '+' + q.reward.amount + ' スタンプ'}
+                      {q.reward.type === 'kp' ? '+' + IdleManager.formatBigNumber(Math.max(MIN_TIME_BONUS, Math.floor(kps * QUEST_KP_SECONDS))) + ' KP' : '+' + q.reward.amount + ' スタンプ'}
                     </span>
                   </div>
                   <p className="quest-desc">{q.description}</p>
