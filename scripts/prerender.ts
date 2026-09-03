@@ -3,7 +3,6 @@ import * as path from 'path';
 
 const DIST = path.resolve(process.cwd(), 'dist');
 const BASE_URL = 'https://study-apps.com/kuku-oukoku';
-const TODAY = new Date().toISOString().split('T')[0];
 const SITE_NAME = '九九おうこく';
 const PUBLISHER = { '@type': 'Organization', name: 'study-apps.com', url: 'https://study-apps.com/' };
 
@@ -28,6 +27,8 @@ interface Page {
   priority: string;
   extraJsonLd?: object[];
   breadcrumbName?: string;
+  /** この画面が最後に実質更新された日（git log -L で当該行範囲の最終コミット日を実測） */
+  updatedAt: string;
 }
 
 const HOME_FALLBACK = `
@@ -105,6 +106,7 @@ const GUIDE_HOWTO_JSONLD = {
 const PAGES: Page[] = [
   {
     slug: '',
+    updatedAt: '2026-05-25',
     title: '九九おうこく | 九九を解くと王国が広がる学習ゲーム',
     description:
       '小学2年生向けの九九学習ゲーム。問題を解くたびにKPがたまり、なかまが集まり、おうこくが大きくなる。無料・登録不要で安心して遊べる。',
@@ -131,6 +133,7 @@ const PAGES: Page[] = [
   },
   {
     slug: 'guide',
+    updatedAt: '2026-05-25',
     title: 'あそびかた | 九九おうこく',
     description: '九九おうこくの遊び方ガイド。まなぶ・アタック・だんいにんてい・おうこく・バトル・タワーの使い方と上達のコツ、FAQ を網羅。',
     ogType: 'article',
@@ -142,6 +145,7 @@ const PAGES: Page[] = [
   },
   {
     slug: 'about',
+    updatedAt: '2026-05-31',
     title: 'このサイトについて | 九九おうこく',
     description: '九九おうこくのコンセプトと運営方針、動作環境、対象ユーザーについて。無料・登録不要・データはブラウザ内に保存。',
     ogType: 'article',
@@ -168,6 +172,7 @@ const PAGES: Page[] = [
   },
   {
     slug: 'privacy',
+    updatedAt: '2026-05-25',
     title: 'プライバシーポリシー | 九九おうこく',
     description: '九九おうこくの個人情報・利用情報の取り扱い方針。Google Analytics、AdSense、データ保存場所について。',
     ogType: 'article',
@@ -188,6 +193,7 @@ const PAGES: Page[] = [
   // === Interactive routes (now also indexed with unique meta + content) ===
   {
     slug: 'learn',
+    updatedAt: '2026-05-25',
     title: 'まなぶ | 九九おうこく',
     description: '1の段から9の段まで、九九を声に出して読みながら覚えるモード。読み仮名つきで初学者にも安心。',
     ogType: 'article', changefreq: 'monthly', priority: '0.7',
@@ -196,6 +202,7 @@ const PAGES: Page[] = [
   },
   {
     slug: 'attack',
+    updatedAt: '2026-05-25',
     title: 'アタック | 九九おうこく',
     description: '9問の九九をできるだけ速く解くタイムアタックモード。15秒以内で金、25秒以内で銀、40秒以内で銅メダル。',
     ogType: 'article', changefreq: 'monthly', priority: '0.7',
@@ -204,6 +211,7 @@ const PAGES: Page[] = [
   },
   {
     slug: 'dan',
+    updatedAt: '2026-05-25',
     title: 'だんいにんてい試験 | 九九おうこく',
     description: '15問を90秒以内に全問正解で合格する段位認定試験。10級から伝説まで23階級。合格でメダル取得＋なかまの生産力ボーナス。',
     ogType: 'article', changefreq: 'monthly', priority: '0.7',
@@ -212,6 +220,7 @@ const PAGES: Page[] = [
   },
   {
     slug: 'battle',
+    updatedAt: '2026-06-03',
     title: '九九バトル | 九九おうこく',
     description: '30秒で敵HPに一致する2枚カードの組み合わせを選んで撃破。コンボでメダル獲得。基本3＋でんせつ2の全5ステージ。',
     ogType: 'article', changefreq: 'monthly', priority: '0.7',
@@ -220,6 +229,7 @@ const PAGES: Page[] = [
   },
   {
     slug: 'tower',
+    updatedAt: '2026-05-25',
     title: '九九のタワー | 九九おうこく',
     description: '30秒で解いた答えの合計だけタワーが伸びる。100mで雲の上、300mで成層圏、1000mで宇宙、2000mで深宇宙へ。',
     ogType: 'article', changefreq: 'monthly', priority: '0.7',
@@ -228,6 +238,7 @@ const PAGES: Page[] = [
   },
   {
     slug: 'blank',
+    updatedAt: '2026-05-25',
     title: 'くもくも（あなあき九九） | 九九おうこく',
     description: '「？×4=12」のような穴あき問題を10問解く逆引きクイズ。九九を「答えから引く」力が鍛えられる。',
     ogType: 'article', changefreq: 'monthly', priority: '0.7',
@@ -236,6 +247,7 @@ const PAGES: Page[] = [
   },
   {
     slug: 'empire',
+    updatedAt: '2026-05-25',
     title: 'おうこく | 九九おうこく',
     description: 'KPでなかまを招待し、1秒ごとに自動でKPを稼ぐ放置ゲーム要素。熟練度バッジや祝祭で生産力アップ。',
     ogType: 'article', changefreq: 'weekly', priority: '0.7',
@@ -244,6 +256,7 @@ const PAGES: Page[] = [
   },
   {
     slug: 'trial',
+    updatedAt: '2026-05-25',
     title: '暗黒の試練 | 九九おうこく',
     description: 'おうこくの奥に眠るいにしえの門。九九の真の力が試される高難度チャレンジ。',
     ogType: 'article', changefreq: 'monthly', priority: '0.7',
@@ -252,6 +265,7 @@ const PAGES: Page[] = [
   },
   {
     slug: 'map',
+    updatedAt: '2026-06-03',
     title: '九九の地図 | 九九おうこく',
     description: '1×1 から 9×9 までの九九をひと目で見渡せる早見表ページ。マスをタップすると読みかたも確認できます。',
     ogType: 'article', changefreq: 'monthly', priority: '0.6',
@@ -260,6 +274,7 @@ const PAGES: Page[] = [
   },
   {
     slug: 'collection',
+    updatedAt: '2026-06-06',
     title: 'ずかん | 九九おうこく',
     description: '集めた賢者の印・王国の秘宝・挑戦の記録・探索の証明など51種類のコレクション一覧。',
     ogType: 'article', changefreq: 'monthly', priority: '0.6',
@@ -268,6 +283,7 @@ const PAGES: Page[] = [
   },
   {
     slug: 'calendar',
+    updatedAt: '2026-05-25',
     title: 'がくしゅうカレンダー | 九九おうこく',
     description: '毎日の学習履歴とストリーク（連続日数）を確認できるカレンダー。3日連続学習で「時空の時計」メダル獲得。',
     ogType: 'article', changefreq: 'weekly', priority: '0.5',
@@ -276,6 +292,7 @@ const PAGES: Page[] = [
   },
   {
     slug: 'settings',
+    updatedAt: '2026-05-25',
     title: 'せってい | 九九おうこく',
     description: '学習設定、統計の確認、データのリセット。',
     ogType: 'article', changefreq: 'yearly', priority: '0.3',
@@ -370,12 +387,13 @@ for (const p of PAGES) {
 }
 
 // Sitemap (every indexable page)
+// lastmod はページ単位の実更新日（O-2-27）。各ページの既存 updatedAt をそのまま使う。
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${PAGES
   .map(
     (p) =>
-      `  <url><loc>${BASE_URL}/${p.slug ? p.slug + '/' : ''}</loc><lastmod>${TODAY}</lastmod><changefreq>${p.changefreq}</changefreq><priority>${p.priority}</priority></url>`
+      `  <url><loc>${BASE_URL}/${p.slug ? p.slug + '/' : ''}</loc><lastmod>${p.updatedAt}</lastmod><changefreq>${p.changefreq}</changefreq><priority>${p.priority}</priority></url>`
   )
   .join('\n')}
 </urlset>
