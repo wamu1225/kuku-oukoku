@@ -76,8 +76,8 @@ export function Menu({ state }: { state: KukuState }) {
     if (tile.id === 'attack') return '1のだんの「まなぶ」をクリアするとあそべるよ';
     if (tile.id === 'dan' || tile.id === 'empire') return '1のだんの「アタック」をクリアするとあそべるよ';
     if (tile.danReq) {
-      const danLabel: Record<number, string> = { 1: '10級', 2: '9級', 3: '8級' };
-      return `だんいにんていで ${danLabel[tile.danReq] || tile.danReq + '級'} に なると あそべるよ`;
+      const danLabel: Record<number, string> = { 1: '10きゅう', 2: '9きゅう', 3: '8きゅう' };
+      return `だんいにんていで ${danLabel[tile.danReq] || tile.danReq + 'きゅう'} に なると あそべるよ`;
     }
     return 'まだ あそべないよ';
   };
@@ -98,7 +98,7 @@ export function Menu({ state }: { state: KukuState }) {
     // 3. danReq タイルで未解禁あり
     const lockedChallenge = GROUPS.flatMap((g) => g.tiles).find((t) => t.danReq && danRank < t.danReq);
     if (lockedChallenge) {
-      const danLabel: Record<number, string> = { 1: '10級', 2: '9級', 3: '8級' };
+      const danLabel: Record<number, string> = { 1: '10きゅう', 2: '9きゅう', 3: '8きゅう' };
       return {
         icon: lockedChallenge.emoji,
         text: `だんいにんていで ${danLabel[lockedChallenge.danReq!]} に なると「${lockedChallenge.label}」が あそべるよ！`,
@@ -133,7 +133,7 @@ export function Menu({ state }: { state: KukuState }) {
 
       {kps > 0 && (
         <div className="kps-banner" role="status">
-          <span aria-hidden="true">🌱</span> いま 1秒に {IdleManager.formatBigNumber(kps)} KP ふえてるよ
+          <span aria-hidden="true">🌱</span> いま 1びょうに {IdleManager.formatBigNumber(kps)} KP ふえてるよ
         </div>
       )}
 
@@ -206,10 +206,10 @@ export function Menu({ state }: { state: KukuState }) {
           <div id="menu-intro-body" className="menu-intro-body">
             <p>
               九九おうこくは、小学2年生から楽しめる<strong>九九の学習ゲーム</strong>です。
-              「まなぶ」で1の段から練習を始めると、しだいに新しいモードが開放されていきます。
+              「まなぶ」で1のだんから練習を始めると、しだいに新しいモードが開放されていきます。
             </p>
             <p>
-              解いた問題はすべて<strong>知識ポイント(KP)</strong>になり、KPで「なかま」を招待すると、
+              解いたもんだいはすべて<strong>知識ポイント(KP)</strong>になり、KPで「なかま」を招待すると、
               そのなかまが自動的にもっとKPを集めてくれます。無料・登録不要で、お子さんが安心して遊べる作りです。
             </p>
             <p>

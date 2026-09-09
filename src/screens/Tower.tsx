@@ -193,10 +193,10 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
             let lockMsg = '';
             if (s.requiresStage4Gold && !stage4Gold) {
               unlocked = false;
-              lockMsg = '🔒 月光の天楼で 🥇 金メダルを とると あそべるよ';
+              lockMsg = '🔒 月光の天楼で 🥇 きんメダルを とると あそべるよ';
             } else if (s.unlockRank != null && danRank < s.unlockRank) {
               unlocked = false;
-              const rankLabel = s.unlockRank === 2 ? '9級' : s.unlockRank === 5 ? '6級' : '3級';
+              const rankLabel = s.unlockRank === 2 ? '9きゅう' : s.unlockRank === 5 ? '6きゅう' : '3きゅう';
               lockMsg = `🔒 だんいにんてい ${rankLabel}に なると あそべるよ`;
             }
             const best = state.stats?.towerBestHeightsPerDiff?.[s.id] || 0;
@@ -250,10 +250,10 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
     let goalHint = '';
     if (stg) {
       if (score >= stg.diamond) goalHint = `⚡ そらの いちばん うえまで きた！じぶんの きろくを めざそう`;
-      else if (score >= stg.gold) goalHint = `🥇 金級に なったよ！じぶんの きろくを めざそう`;
-      else if (score >= stg.silver) goalHint = `🥈 銀級。あと ${stg.gold - score}m で 🥇 金へ`;
-      else if (score >= stg.bronze) goalHint = `🥉 銅級。あと ${stg.silver - score}m で 🥈 銀へ`;
-      else goalHint = `あと ${stg.bronze - score}m で 🥉 銅級！`;
+      else if (score >= stg.gold) goalHint = `🥇 きんきゅうに なったよ！じぶんの きろくを めざそう`;
+      else if (score >= stg.silver) goalHint = `🥈 ぎんきゅう。あと ${stg.gold - score}m で 🥇 きんへ`;
+      else if (score >= stg.bronze) goalHint = `🥉 どうきゅう。あと ${stg.silver - score}m で 🥈 ぎんへ`;
+      else goalHint = `あと ${stg.bronze - score}m で 🥉 どうきゅう！`;
     }
     return (
       <div className="screen result-screen">
@@ -263,7 +263,7 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
         <div className="result-stats">
           <div><span className="result-label">とどいた たかさ</span><span className="result-value">{score}m</span></div>
           <div><span className="result-label">エリア</span><span className="result-value">{tier.name}</span></div>
-          <div><span className="result-label">問題数</span><span className="result-value">{problemCount}問</span></div>
+          <div><span className="result-label">もんだいの かず</span><span className="result-value">{problemCount}もん</span></div>
           <div><span className="result-label">もらった ポイント</span><span className="result-value">+{IdleManager.formatBigNumber(reward?.kp ?? Math.floor(score / 10))}</span></div>
         </div>
         {goalHint && <p className="result-hint">{goalHint}</p>}
@@ -311,7 +311,7 @@ export function Tower({ state, onComplete }: { state: KukuState; onComplete: () 
       )}
       <div className="tower-overlay tower-overlay-v2">
         <div className="quiz-header">
-          <span className={`quiz-counter tower-time ${remainingSecs < 5 ? 'time-urgent' : ''}`}>⏱ {remainingSecs.toFixed(1)}秒</span>
+          <span className={`quiz-counter tower-time ${remainingSecs < 5 ? 'time-urgent' : ''}`}>⏱ {remainingSecs.toFixed(1)}びょう</span>
           <span className="quiz-counter tower-tier-label">📍 今は『{tier.name}』</span>
         </div>
 

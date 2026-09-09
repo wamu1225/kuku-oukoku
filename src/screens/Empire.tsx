@@ -165,7 +165,7 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
           <ul>
             <li><strong>よぶ X ポイント</strong>：そのなかまを 1 人 よぶ。ねだんは だんごと・もっている人数で 上がっていく</li>
             <li><strong>まとめて よぶ</strong>：今の ポイントで よべるだけ まとめて よぶ（さいだい 100 人まで）</li>
-            <li><strong>なれているど バッジ</strong>：そのだんの 九九を といた かずで 銅→銀→金。つくる ちからが 上がる（さいだい ×2.5）</li>
+            <li><strong>なれているど バッジ</strong>：そのだんの 九九を といた かずで どう→ぎん→きん。つくる ちからが 上がる（さいだい ×2.5）</li>
             <li><strong>🎉 おまつり</strong>：いろいろな モードの クリアで、あるだんの つくる りょうが <strong>30 ふんかん</strong> アップ</li>
             <li><strong>だんいの ボーナス</strong>：だんいにんていで クリアした だんは ×2 ボーナス</li>
             <li>あそんでいない ときも さいだい <strong>12 じかん</strong> ポイントが たまる</li>
@@ -284,7 +284,7 @@ export function Empire({ state: initialState, onUpdate }: { state: KukuState; on
                   {owned21 > 0 ? (
                     <span className="final-achieved">✨ できた</span>
                   ) : prog.missing > 0 ? (
-                    <span className="stage-locked">🔒 ぜんぶの モード・ぜんぶの ステージで 銀メダル いじょう（あと {prog.missing} 個）</span>
+                    <span className="stage-locked">🔒 ぜんぶの モード・ぜんぶの ステージで ぎんメダル いじょう（あと {prog.missing} 個）</span>
                   ) : (
                     <button
                       className={`btn-invite ${state.kp >= FINAL_COMPANION_COST ? '' : 'disabled'}`}

@@ -63,5 +63,5 @@ export const COLLECTION_ITEMS: CollectionItem[] = [
   { id: 'relic_7', name: '知の羅針盤', desc: 'くもくも「かみなりの山」で金メダル', category: 'relic', emoji: '🧭', color: '#06b6d4' },
   { id: 'relic_8', name: '光り輝く地図', desc: 'あわせて 500問 といた', category: 'relic', emoji: '🗺️', color: '#fcd34d' },
   { id: 'relic_9', name: '導きの杖', desc: 'あわせて 5000問 といた', category: 'relic', emoji: '🪄', color: '#a78bfa', hidden: true },
-  { id: 'relic_10', name: '賢者の石', desc: 'だんいにんてい 1級を 金メダルで クリアした あかし', category: 'relic', emoji: '💎', color: '#fb7185' },
+  { id: 'relic_10', name: '賢者の石', desc: 'だんいにんてい 1きゅうを 金メダルで クリアした あかし', category: 'relic', emoji: '💎', color: '#fb7185' },
 ];

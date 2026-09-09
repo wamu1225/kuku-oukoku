@@ -34,13 +34,13 @@ const STAGE4_GOLD_COUNT = BATTLE_GOLD_COUNT;
 // 撃破数 → 獲得メダル表示（💎14/金12/銀7/銅1体。ダイヤは隠し上位）
 function battleMedalLabel(count: number): string {
   if (count >= 14) return '💎 ダイヤ';
-  if (count >= BATTLE_GOLD_COUNT) return '🥇 金';
-  if (count >= 7) return '🥈 銀';
-  if (count >= 1) return '🥉 銅';
+  if (count >= BATTLE_GOLD_COUNT) return '🥇 きん';
+  if (count >= 7) return '🥈 ぎん';
+  if (count >= 1) return '🥉 どう';
   return 'メダルなし';
 }
 
-const UNLOCK_RANK_NAMES: Record<number, string> = { 1: '10級', 4: '7級', 7: '4級' };
+const UNLOCK_RANK_NAMES: Record<number, string> = { 1: '10きゅう', 4: '7きゅう', 7: '4きゅう' };
 
 // このステージで「初めて出る段」を多めに出すための前ステージ上限（並び順から算出）
 const prevMaxFor = (max: number): number => {
@@ -274,7 +274,7 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
             let lockMsg = '';
             if (s.requiresStage4Gold && !stage4Gold) {
               unlocked = false;
-              lockMsg = `🔒 月夜の古城で 🥇 金級（${STAGE4_GOLD_COUNT}たい たおす）に なると あそべるよ`;
+              lockMsg = `🔒 月夜の古城で 🥇 きんきゅう（${STAGE4_GOLD_COUNT}たい たおす）に なると あそべるよ`;
             } else if (s.unlockRank != null && danRank < s.unlockRank) {
               unlocked = false;
               lockMsg = `🔒 だんいにんてい ${UNLOCK_RANK_NAMES[s.unlockRank]}に なると あそべるよ`;
@@ -293,7 +293,7 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
                 {unlocked ? (
                   <>
                     <span className="stage-best">じぶんの きろく: {best}たい（{battleMedalLabel(best)}）</span>
-                    <span className="stage-targets">🥇 金 {s.goldCount}たい</span>
+                    <span className="stage-targets">🥇 きん {s.goldCount}たい</span>
                   </>
                 ) : (
                   <span className="stage-locked">{lockMsg}</span>
@@ -319,10 +319,10 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
       result.count >= 14
         ? `⚡ ${stage!.name} すごい たおした かずだ！`
         : result.count >= goldGoal
-        ? `🥇 ${stage!.name} で 金級に なったよ！`
+        ? `🥇 ${stage!.name} で きんきゅうに なったよ！`
         : result.count >= Math.floor(goldGoal * 0.7)
-        ? `あと ${goldGoal - result.count}たい で 🥇 金級！`
-        : `次は ${goldGoal}たい たおすことを めざそう（🥇 金級ライン）`;
+        ? `あと ${goldGoal - result.count}たい で 🥇 きんきゅう！`
+        : `次は ${goldGoal}たい たおすことを めざそう（🥇 きんきゅうライン）`;
     const comboNote = result.combo >= 5 ? `🔥 ${result.combo} れんぞくコンボ！` : null;
     return (
       <div className="screen result-screen">
@@ -360,7 +360,7 @@ export function Battle({ state, onComplete }: { state: KukuState; onComplete: ()
         </div>
       )}
       <div className="quiz-header">
-        <span className={`quiz-counter ${remainingSecs < 5 ? 'time-urgent' : ''}`}>⏱ {remainingSecs.toFixed(1)}秒</span>
+        <span className={`quiz-counter ${remainingSecs < 5 ? 'time-urgent' : ''}`}>⏱ {remainingSecs.toFixed(1)}びょう</span>
         <span className="quiz-counter">⚔️ {defeated}体</span>
         <span className={`quiz-counter combo-counter combo-${combo >= 5 ? 'hot' : combo >= 3 ? 'warm' : ''} ${comboFlash ? 'combo-flash' : ''}`}>
           🔥 {combo}コンボ

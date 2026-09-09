@@ -83,8 +83,8 @@ export function Settings({ state, onUpdate }: { state: KukuState; onUpdate: () =
                   <li key={t.name}>
                     <strong>{t.name}</strong>
                     <span className="title-hint-meta">
-                      あわせて {t.target} 問
-                      {remaining > 0 && <> （あと {remaining} 問）</>}
+                      あわせて {t.target} もん
+                      {remaining > 0 && <> （あと {remaining} もん）</>}
                     </span>
                   </li>
                 );
@@ -111,7 +111,7 @@ export function Settings({ state, onUpdate }: { state: KukuState; onUpdate: () =
           </div>
           <div className="settings-stat-card">
             <span className="settings-stat-label">だんいにんてい あわせて</span>
-            <span className="settings-stat-value">{state.stats?.totalDanSolved ?? 0} 問</span>
+            <span className="settings-stat-value">{state.stats?.totalDanSolved ?? 0} もん</span>
           </div>
           <div className="settings-stat-card">
             <span className="settings-stat-label">つづけて あそんだ日</span>

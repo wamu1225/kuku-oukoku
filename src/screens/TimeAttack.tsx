@@ -159,13 +159,13 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
     } else if (secs <= 15) {
       nextHint = result.isNewBest
         ? 'いちばん はやい ペース！もっと じぶんの きろくを めざそう'
-        : '🥇 金メダル！じぶんの きろくを めざそう';
+        : '🥇 きんメダル！じぶんの きろくを めざそう';
     } else if (secs <= 25) {
-      nextHint = `今は 🥈 銀。あと ${(secs - 15).toFixed(2)}秒 はやくすれば 🥇 金へ`;
+      nextHint = `今は 🥈 ぎん。あと ${(secs - 15).toFixed(2)}びょう はやくすれば 🥇 きんへ`;
     } else if (secs <= 40) {
-      nextHint = `今は 🥉 銅。あと ${(secs - 25).toFixed(2)}秒 で 🥈 銀へ`;
+      nextHint = `今は 🥉 どう。あと ${(secs - 25).toFixed(2)}びょう で 🥈 ぎんへ`;
     } else {
-      nextHint = `あと ${(secs - 40).toFixed(2)}秒 で 🥉 銅メダル！`;
+      nextHint = `あと ${(secs - 40).toFixed(2)}びょう で 🥉 どうメダル！`;
     }
     const showConfetti = result.isNewBest || result.badge === '金' || result.badge === 'ダイヤ';
     return (
@@ -174,7 +174,7 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
         <div className="result-symbol" aria-hidden="true">{result.badge === 'ダイヤ' ? '💎' : result.badge === '金' ? '🥇' : result.badge === '銀' ? '🥈' : result.badge === '銅' ? '🥉' : '✨'}</div>
         <h1 className="result-title">{result.isNewBest ? 'じぶんの きろくを ぬりかえた！' : 'クリア！'}</h1>
         <div className="result-stats">
-          <div><span className="result-label">タイム</span><span className="result-value">{secs.toFixed(2)}秒</span></div>
+          <div><span className="result-label">タイム</span><span className="result-value">{secs.toFixed(2)}びょう</span></div>
           <div><span className="result-label">メダル</span><span className="result-value">{result.badge}</span></div>
           <div><span className="result-label">もらった ポイント</span><span className="result-value">+{IdleManager.formatBigNumber(result.kpGained)} KP</span></div>
         </div>
@@ -205,8 +205,8 @@ export function TimeAttack({ level, onComplete }: { level: number; onComplete: (
         </div>
       )}
       <div className="quiz-header">
-        <span className="quiz-counter">⏱ {(elapsed / 1000).toFixed(2)}秒</span>
-        <span className="quiz-counter">📝 のこり {problems.length - index}問</span>
+        <span className="quiz-counter">⏱ {(elapsed / 1000).toFixed(2)}びょう</span>
+        <span className="quiz-counter">📝 のこり {problems.length - index}もん</span>
       </div>
       <div className={`quiz-problem attack-problem ${flashCorrect ? 'flash-correct' : ''} ${flashWrong ? 'flash-wrong' : ''}`}>
         <span className="quiz-equation">{current.a} × {current.b} =</span>

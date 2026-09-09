@@ -21,8 +21,8 @@ export function LevelSelect({ mode, state }: { mode: 'learn' | 'attack'; state: 
   const isLearn = mode === 'learn';
   const title = isLearn ? 'まなぶ' : 'タイムアタック';
   const description = isLearn
-    ? 'だんを えらんで、ゆっくり九九を確認してから問題にちょうせんしよう'
-    : 'タイムを競って、金メダルをめざそう';
+    ? 'だんを えらんで、ゆっくり九九を確認してからもんだいにちょうせんしよう'
+    : 'タイムを競って、きんメダルをめざそう';
 
   const unlocked = state.unlockedLevels ?? [1];
   const showLegendary = unlocked.some((l) => l >= 10);
@@ -59,7 +59,7 @@ export function LevelSelect({ mode, state }: { mode: 'learn' | 'attack'; state: 
                 </span>
               )}
               {best?.bestTimeMs && !isLearn ? (
-                <span className="level-time">{(best.bestTimeMs / 1000).toFixed(2)}秒</span>
+                <span className="level-time">{(best.bestTimeMs / 1000).toFixed(2)}びょう</span>
               ) : null}
             </button>
           );

@@ -210,7 +210,7 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
           <div className="dan-rank-value">{state.rank}</div>
           {nextDan && (
             <div className="dan-rank-next">
-              次は <strong>{nextDan.name}</strong> ／ {nextDan.count}問を {nextDan.limitMs / 1000}びょうより はやく ぜんぶ せいかいで クリア
+              次は <strong>{nextDan.name}</strong> ／ {nextDan.count}もんを {nextDan.limitMs / 1000}びょうより はやく ぜんぶ せいかいで クリア
             </div>
           )}
           {trialGateActive && (
@@ -238,11 +238,11 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
           <div className="dan-card">
             <h2>{nextDan.name} に ちょうせん</h2>
             <p>もんだいの はんい：{nextDan.source.length === 1 ? `${nextDan.source[0]}のだん` : `${Math.min(...nextDan.source)}〜${Math.max(...nextDan.source)}のだんランダム`}</p>
-            <p>問題数：{nextDan.count}問　／　じかん：{nextDan.limitMs / 1000}びょう</p>
+            <p>もんだいの かず：{nextDan.count}もん　／　じかん：{nextDan.limitMs / 1000}びょう</p>
             <div className="dan-medal-targets">
-              <span className="dan-medal-target dan-medal-gold">🥇 金：{nextDan.goldTimeMs / 1000}びょうより はやく</span>
-              <span className="dan-medal-target dan-medal-silver">🥈 銀：{nextDan.silverTimeMs / 1000}びょうより はやく</span>
-              <span className="dan-medal-target dan-medal-bronze">🥉 銅：{nextDan.limitMs / 1000}びょうより はやく クリア</span>
+              <span className="dan-medal-target dan-medal-gold">🥇 きん：{nextDan.goldTimeMs / 1000}びょうより はやく</span>
+              <span className="dan-medal-target dan-medal-silver">🥈 ぎん：{nextDan.silverTimeMs / 1000}びょうより はやく</span>
+              <span className="dan-medal-target dan-medal-bronze">🥉 どう：{nextDan.limitMs / 1000}びょうより はやく クリア</span>
             </div>
             {unmasteredHint !== null && (
               <p className="dan-prep-hint">
@@ -280,7 +280,7 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
             </div>
           </>
         ) : (
-          <p className="dan-empty">まだ くらいが ありません。はじめての ちょうせんで 10級を めざそう！</p>
+          <p className="dan-empty">まだ くらいが ありません。はじめての ちょうせんで 10きゅうを めざそう！</p>
         )}
 
         <button className="back-link" onClick={() => navigate('/')}>← ホームへ</button>
@@ -316,7 +316,7 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
           </p>
         )}
         <div className="result-stats">
-          <div><span className="result-label">タイム</span><span className="result-value">{(result.timeMs / 1000).toFixed(2)}秒</span></div>
+          <div><span className="result-label">タイム</span><span className="result-value">{(result.timeMs / 1000).toFixed(2)}びょう</span></div>
           <div><span className="result-label">メダル</span><span className="result-value">{result.medal}</span></div>
           <div><span className="result-label">もらった ポイント</span><span className="result-value">+{IdleManager.formatBigNumber(result.kpGained)}</span></div>
         </div>
@@ -341,7 +341,7 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
     return (
       <div className="screen result-screen">
         <h1 className="result-title">じかんぎれ！</h1>
-        <p>あと {Math.max(0, (failedDan?.count ?? 15) - index)} 問のところで じかんぎれ。</p>
+        <p>あと {Math.max(0, (failedDan?.count ?? 15) - index)} もんのところで じかんぎれ。</p>
         <p>にがてな だんを <strong>まなぶ</strong> で もう一度 見なおしてから ちょうせんすると ぐっと らくに なるよ。</p>
         <div className="result-actions">
           <button className="btn-primary" onClick={() => { setPhase('select'); }}>もう一度</button>
@@ -372,7 +372,7 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
       )}
       <div className="quiz-header">
         <span className={`quiz-counter ${remainingSecs < 10 ? 'time-urgent' : ''}`}>
-          ⏱ のこり {remainingSecs.toFixed(1)}秒
+          ⏱ のこり {remainingSecs.toFixed(1)}びょう
         </span>
         <span className="quiz-counter">📝 {index + 1} / {problems.length}</span>
       </div>

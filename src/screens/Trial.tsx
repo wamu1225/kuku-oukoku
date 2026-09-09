@@ -169,9 +169,9 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
         <div className="trial-rules">
           <h2 className="section-h">ルール</h2>
           <ul>
-            <li>1×1〜9×9 から <strong>20 問</strong> が ランダムに でる</li>
+            <li>1×1〜9×9 から <strong>20 もん</strong> が ランダムに でる</li>
             <li><strong>30 びょうより はやく</strong> ぜんぶ せいかいすると かち</li>
-            <li>1 問でも じかんぎれに なると その ちょうせんは しっぱい</li>
+            <li>1 もんでも じかんぎれに なると その ちょうせんは しっぱい</li>
           </ul>
 
           <h2 className="section-h">もらえるもの</h2>
@@ -232,7 +232,7 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
       <div className="screen result-screen">
         <h1 className="result-title">🌑 じかんぎれ</h1>
         <p className="trial-fail-stats">
-          すすみぐあい：<strong>{index} / {PROBLEMS_COUNT} 問</strong>
+          すすみぐあい：<strong>{index} / {PROBLEMS_COUNT} もん</strong>
           {remaining <= 3 && <span className="trial-fail-close">。もう少しだった！</span>}
         </p>
         <p><strong>アタック</strong> や <strong>だんいにんてい</strong> で はやく とけるように れんしゅうしてから もう一度 ちょうせんするのが おすすめ。</p>
@@ -261,7 +261,7 @@ export function Trial({ state, onComplete }: { state: KukuState; onComplete: () 
         </div>
       )}
       <div className="quiz-header">
-        <span className="quiz-counter trial-timer">⏱ {((TIME_LIMIT_MS - elapsed) / 1000).toFixed(1)}秒</span>
+        <span className="quiz-counter trial-timer">⏱ {((TIME_LIMIT_MS - elapsed) / 1000).toFixed(1)}びょう</span>
         <span className="quiz-counter">📝 {index + 1} / {problems.length}</span>
       </div>
       <div className={`quiz-problem attack-problem ${flashCorrect ? 'flash-correct' : ''} ${flashWrong ? 'flash-wrong' : ''}`}>
