@@ -23,8 +23,14 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
   const wrongTimerRef = useRef<number | null>(null);
   const endedRef = useRef(false);
   const [flashWrong, setFlashWrong] = useState(false);
+  const [wrongCount, setWrongCount] = useState(0);
   const phaseRef = useRef(phase);
   useEffect(() => { phaseRef.current = phase; }, [phase]);
+  // ③自己発見の改善（O-3-21）：デフォルト設定（showAnswerHint=false）だと、
+  // 忘れた九九を間違え続けても正解が分からないまま無限にやり直しになる詰まりどころだった。
+  // 実は読み上げ（🗣️）の九九の唱え方に答えが含まれているが、困っている子どもが
+  // それに気づく手がかりが無かったため、2回間違えたら読み上げボタンを案内する。
+  useEffect(() => { setWrongCount(0); }, [index]);
 
   const problems = Array.from({ length: 9 }, (_, i) => ({ a: level, b: i + 1 }));
   const current = problems[index];
@@ -81,6 +87,7 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
       vibrateWrong();
       setInput(next);
       setFlashWrong(true);
+      setWrongCount((c) => c + 1);
       wrongTimerRef.current = window.setTimeout(() => {
         wrongTimerRef.current = null;
         if (phaseRef.current !== 'quiz') return;
@@ -200,6 +207,9 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
           {showSuccess ? '✓' : input || (showHint ? <span className="answer-hint">{current.a * current.b}</span> : <span className="placeholder-q">?</span>)}
         </span>
       </div>
+      {!showHint && wrongCount >= 2 && canSpeak && level < 10 && (
+        <p className="quiz-hint-nudge">🔊を おしてみてね。となえかたに こたえが かくれているよ</p>
+      )}
       {level < 10 && (
         <div className="quiz-dotgrid-mini" aria-hidden="true">
           <DotGrid a={current.a} b={current.b} size={8} color="#94a3b8" />

@@ -1707,6 +1707,17 @@ main { padding: 20px 16px 40px; }
   opacity: 0.3;
 }
 
+.quiz-hint-nudge {
+  text-align: center;
+  font-size: 13px;
+  color: #b45309;
+  background: #fef9e7;
+  padding: 6px 14px;
+  border-radius: 999px;
+  margin: 6px auto 0;
+  max-width: fit-content;
+}
+
 /* === Tower targets / hints === */
 .stage-targets {
   font-size: 12px;
