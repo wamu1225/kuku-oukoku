@@ -93,7 +93,7 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
         if (phaseRef.current !== 'quiz') return;
         setFlashWrong(false);
         setInput('');
-      }, 600);
+      }, 1600);
     } else {
       setInput(next);
     }
@@ -207,6 +207,9 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
           {showSuccess ? '✓' : input || (showHint ? <span className="answer-hint">{current.a * current.b}</span> : <span className="placeholder-q">?</span>)}
         </span>
       </div>
+      {flashWrong && (
+        <p className="quiz-wrong-msg">ざんねん… こたえは <strong>{current.a * current.b}</strong> だよ</p>
+      )}
       {!showHint && wrongCount >= 2 && canSpeak && level < 10 && (
         <p className="quiz-hint-nudge">🔊を おしてみてね。となえかたに こたえが かくれているよ</p>
       )}

@@ -1,5 +1,14 @@
 import type { KukuState } from '../types';
 import { navigate } from '../App';
+import { getDanRankName } from '../data/danLevels';
+
+function getLockMessage(level: number, state: KukuState): string {
+  if (level === 10) {
+    return '🔒 くらやみの しれんを のりこえると あそべるよ';
+  }
+  const threshold = level <= 6 ? 3 : level <= 9 ? 6 : level <= 13 ? 11 : level <= 16 ? 14 : level <= 19 ? 17 : 20;
+  return `🔒 だんいにんてい ${getDanRankName(threshold)}に なると あそべるよ`;
+}
 
 const BADGE_LABEL: Record<string, string> = {
   diamond: 'ダイヤ',
@@ -61,6 +70,9 @@ export function LevelSelect({ mode, state }: { mode: 'learn' | 'attack'; state: 
               {best?.bestTimeMs && !isLearn ? (
                 <span className="level-time">{(best.bestTimeMs / 1000).toFixed(2)}びょう</span>
               ) : null}
+              {!isUnlocked && (
+                <span className="level-locked-msg">{getLockMessage(level, state)}</span>
+              )}
             </button>
           );
         })}

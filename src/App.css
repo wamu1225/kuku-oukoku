@@ -351,6 +351,7 @@ main { padding: 20px 16px 40px; }
 .level-number { font-size: 20px; font-weight: 900; }
 .level-status { font-size: 13px; font-weight: 700; white-space: nowrap; }
 .level-time { font-size: 12px; color: var(--text-muted); }
+.level-locked-msg { font-size: 10px; line-height: 1.3; text-align: center; margin-top: 2px; }
 
 /* === Quiz / Keypad === */
 .quiz-screen { max-width: 480px; }
@@ -1716,6 +1717,18 @@ main { padding: 20px 16px 40px; }
   border-radius: 999px;
   margin: 6px auto 0;
   max-width: fit-content;
+}
+.quiz-wrong-msg {
+  text-align: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: #b91c1c;
+  background: #fee2e2;
+  padding: 8px 16px;
+  border-radius: 999px;
+  margin: 8px auto 0;
+  max-width: fit-content;
+  animation: pop-in 0.15s;
 }
 
 /* === Tower targets / hints === */
