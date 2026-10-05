@@ -1,6 +1,9 @@
 import type { KukuState } from '../types';
 import { navigate } from '../App';
 import { getDanRankName } from '../data/danLevels';
+import { IdleManager } from '../utils/IdleManager';
+
+const MASTERY_LABEL: Record<string, string> = { gold: '金', silver: '銀', bronze: '銅' };
 
 function getLockMessage(level: number, state: KukuState): string {
   if (level === 10) {
@@ -49,6 +52,7 @@ export function LevelSelect({ mode, state }: { mode: 'learn' | 'attack'; state: 
           const best = state.tableBests[level];
           const showLearnCompleted = isLearn && best?.isCompleted;
           const showAttackBadge = !isLearn && best?.badge;
+          const masteryInfo = isLearn && isUnlocked ? IdleManager.getMasteryInfo(state, level) : null;
 
           return (
             <button
@@ -70,6 +74,11 @@ export function LevelSelect({ mode, state }: { mode: 'learn' | 'attack'; state: 
               {best?.bestTimeMs && !isLearn ? (
                 <span className="level-time">{(best.bestTimeMs / 1000).toFixed(2)}びょう</span>
               ) : null}
+              {masteryInfo && masteryInfo.badge !== 'none' && (
+                <span className={`mastery-badge mastery-${masteryInfo.badge} level-mastery-badge`}>
+                  なれているど {MASTERY_LABEL[masteryInfo.badge]}
+                </span>
+              )}
               {!isUnlocked && (
                 <span className="level-locked-msg">{getLockMessage(level, state)}</span>
               )}
