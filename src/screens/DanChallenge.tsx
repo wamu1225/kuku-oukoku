@@ -257,31 +257,44 @@ export function DanChallenge({ state, onComplete }: { state: any; onComplete: ()
           <p>ぜんぶの くらいを とりました。おめでとう！</p>
         )}
 
-        {currentRank > 0 ? (
-          <>
-            <h2 className="section-h">📜 くらいの きろく（タップで もう一度）</h2>
-            <p className="dan-retry-hint">💡 もっと よい メダルを めざして もう一度 ちょうせんできます。きろくは あたらしく なります。</p>
-            <div className="dan-passport">
-              {DAN_LEVELS.filter((d) => d.rank <= currentRank).map((d) => {
-                const medal = state.danMedals?.[d.rank];
-                const medalIcon = medal === 'diamond' ? '💎' : medal === 'gold' ? '🥇' : medal === 'silver' ? '🥈' : medal === 'bronze' ? '🥉' : '📜';
-                return (
-                  <button
-                    key={d.rank}
-                    className={`dan-stamp dan-stamp-${medal || 'none'}`}
-                    onClick={() => start(d.rank)}
-                    aria-label={`${d.name} に もう一度 ちょうせん（今の メダル: ${medal ? BADGE_LABEL[medal] : 'クリア'}）`}
-                  >
-                    <span className="dan-stamp-medal" aria-hidden="true">{medalIcon}</span>
-                    <span className="dan-stamp-name">{d.name}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </>
-        ) : (
+        {currentRank === 0 && (
           <p className="dan-empty">まだ くらいが ありません。はじめての ちょうせんで 10きゅうを めざそう！</p>
         )}
+
+        <h2 className="section-h">🗺️ くらいの ちず（タップで もういちど ちょうせん）</h2>
+        {currentRank > 0 && (
+          <p className="dan-retry-hint">💡 もっと よい メダルを めざして もう一度 ちょうせんできます。きろくは あたらしく なります。</p>
+        )}
+        <div className="dan-passport">
+          {DAN_LEVELS.map((d) => {
+            const cleared = d.rank <= currentRank;
+            const medal = state.danMedals?.[d.rank];
+            const medalIcon = medal === 'diamond' ? '💎' : medal === 'gold' ? '🥇' : medal === 'silver' ? '🥈' : medal === 'bronze' ? '🥉' : '📜';
+            if (!cleared) {
+              return (
+                <div
+                  key={d.rank}
+                  className="dan-stamp dan-stamp-locked"
+                  aria-label={`${d.name}（まだ とどいていない）`}
+                >
+                  <span className="dan-stamp-medal" aria-hidden="true">🔒</span>
+                  <span className="dan-stamp-name">{d.name}</span>
+                </div>
+              );
+            }
+            return (
+              <button
+                key={d.rank}
+                className={`dan-stamp dan-stamp-${medal || 'none'}`}
+                onClick={() => start(d.rank)}
+                aria-label={`${d.name} に もう一度 ちょうせん（今の メダル: ${medal ? BADGE_LABEL[medal] : 'クリア'}）`}
+              >
+                <span className="dan-stamp-medal" aria-hidden="true">{medalIcon}</span>
+                <span className="dan-stamp-name">{d.name}</span>
+              </button>
+            );
+          })}
+        </div>
 
         <button className="back-link" onClick={() => navigate('/')}>← ホームへ</button>
       </div>

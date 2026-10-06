@@ -662,6 +662,7 @@ main { padding: 20px 16px 40px; }
 .countdown-screen {
   text-align: center;
   padding: 100px 0;
+  overflow-x: hidden;
 }
 .countdown-ready { color: var(--text-muted); font-size: 18px; }
 .countdown-number {
@@ -2287,6 +2288,15 @@ main { padding: 20px 16px 40px; }
   background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
   border-color: #9ca3af;
 }
+.dan-stamp-locked {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  border-style: dashed;
+  opacity: 0.6;
+  cursor: default;
+}
+.dan-stamp-locked .dan-stamp-name { color: #6b7280; }
+.dan-stamp-locked:hover { transform: none; box-shadow: none; }
 
 /* === Empire kingdom banner === */
 .kingdom-banner {
