@@ -71,6 +71,7 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
       vibrateCorrect();
       setShowSuccess(true);
       setInput(next);
+      LearningEngine.clearMistake(current.a, current.b);
       successTimerRef.current = window.setTimeout(() => {
         successTimerRef.current = null;
         if (phaseRef.current !== 'quiz' || endedRef.current) return;
@@ -88,6 +89,7 @@ export function Learning({ level, onComplete }: { level: number; onComplete: () 
       setInput(next);
       setFlashWrong(true);
       setWrongCount((c) => c + 1);
+      LearningEngine.recordMistake(current.a, current.b);
       wrongTimerRef.current = window.setTimeout(() => {
         wrongTimerRef.current = null;
         if (phaseRef.current !== 'quiz') return;

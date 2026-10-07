@@ -74,6 +74,8 @@ export interface KukuState {
   unlockedModes?: ('learn' | 'attack' | 'empire' | 'dan')[];
   unlockedLevels?: number[];
 
+  mistakes?: Record<string, number>;
+
   settings?: {
     showAnswerHint?: boolean;
     bgColor?: string;

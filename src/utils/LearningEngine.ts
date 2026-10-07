@@ -97,6 +97,7 @@ const sanitize = (raw: unknown): KukuState => {
   if (!merged.danBestTimes) merged.danBestTimes = {};
   if (typeof merged.danRank !== 'number') merged.danRank = 0;
   if (!merged.dailyStreak) merged.dailyStreak = { lastDate: DateUtils.getLocalDateString(), count: 0 };
+  if (!merged.mistakes) merged.mistakes = {};
   return merged;
 };
 
@@ -452,6 +453,34 @@ export const LearningEngine = {
     _checkAchievements(state);
     this.saveState(state);
     return state;
+  },
+
+  recordMistake(a: number, b: number): KukuState {
+    const state = this.loadState();
+    if (!state.mistakes) state.mistakes = {};
+    const key = `${a}x${b}`;
+    state.mistakes[key] = (state.mistakes[key] || 0) + 1;
+    this.saveState(state);
+    return state;
+  },
+
+  clearMistake(a: number, b: number): KukuState {
+    const state = this.loadState();
+    if (state.mistakes) delete state.mistakes[`${a}x${b}`];
+    this.saveState(state);
+    return state;
+  },
+
+  getTopMistakes(state: KukuState, limit: number): Array<{ a: number; b: number; count: number }> {
+    if (!state.mistakes) return [];
+    return Object.entries(state.mistakes)
+      .map(([key, count]) => {
+        const [a, b] = key.split('x').map(Number);
+        return { a, b, count };
+      })
+      .filter((m) => m.count > 0)
+      .sort((x, y) => y.count - x.count)
+      .slice(0, limit);
   },
 
   inviteCompanion(level: number, cost: number): KukuState {

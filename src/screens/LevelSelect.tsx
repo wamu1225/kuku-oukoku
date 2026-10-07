@@ -2,6 +2,7 @@ import type { KukuState } from '../types';
 import { navigate } from '../App';
 import { getDanRankName } from '../data/danLevels';
 import { IdleManager } from '../utils/IdleManager';
+import { LearningEngine } from '../utils/LearningEngine';
 
 const MASTERY_LABEL: Record<string, string> = { gold: '金', silver: '銀', bronze: '銅' };
 
@@ -40,11 +41,29 @@ export function LevelSelect({ mode, state }: { mode: 'learn' | 'attack'; state: 
   const showLegendary = unlocked.some((l) => l >= 10);
   const maxLevel = showLegendary ? 20 : 9;
   const allLevels = Array.from({ length: maxLevel }, (_, i) => i + 1);
+  const topMistakes = isLearn ? LearningEngine.getTopMistakes(state, 5) : [];
 
   return (
     <div className="screen">
       <h1 className="screen-title">{title}</h1>
       <p className="screen-desc">{description}</p>
+
+      {topMistakes.length > 0 && (
+        <div className="mistake-review">
+          <h2 className="mistake-review-title">🔁 よく まちがえる もんだい</h2>
+          <div className="mistake-review-list">
+            {topMistakes.map((m) => (
+              <button
+                key={`${m.a}x${m.b}`}
+                className="mistake-review-item"
+                onClick={() => navigate(`/learn/${m.a}/`)}
+              >
+                {m.a} × {m.b}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="level-grid">
         {allLevels.map((level) => {
