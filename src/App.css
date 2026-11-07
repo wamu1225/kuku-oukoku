@@ -2525,3 +2525,8 @@ main { padding: 20px 16px 40px; }
   .battle-slot { min-width: 40px; height: 40px; font-size: 20px; padding: 0 6px; }
   .battle-target { min-width: 50px; }
 }
+
+/* あそびの入口は <a href>（2026-11-07）。ボタンだったときと同じ見た目にする */
+a.menu-tile, a.menu-next-goal { text-decoration: none; color: inherit; line-height: normal; box-sizing: border-box; }
+a.menu-tile { color: #fff; }
+a.menu-tile:hover, a.menu-next-goal:hover { text-decoration: none; }

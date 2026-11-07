@@ -1,6 +1,11 @@
 import { useState, useMemo } from 'react';
 import type { KukuState } from '../types';
 import { navigate } from '../App';
+
+// あそびの入口は <a href>（描画後の HTML にもリンクを残す・2026-11-07）。ふつうの左クリックだけ アプリの中で うつる
+function isPlainClick(e: React.MouseEvent) {
+  return !(e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey);
+}
 import { IdleManager } from '../utils/IdleManager';
 
 interface Tile {
@@ -138,9 +143,10 @@ export function Menu({ state }: { state: KukuState }) {
       )}
 
       {nextGoal && (
-        <button
+        <a
           className="menu-next-goal"
-          onClick={() => navigate(nextGoal.path)}
+          href={`/kuku-oukoku${nextGoal.path}`}
+          onClick={(e) => { if (isPlainClick(e)) { e.preventDefault(); navigate(nextGoal.path); } }}
           aria-label={`次の目標：${nextGoal.text}`}
         >
           <span className="menu-next-goal-icon" aria-hidden="true">{nextGoal.icon}</span>
@@ -149,7 +155,7 @@ export function Menu({ state }: { state: KukuState }) {
             <span className="menu-next-goal-text">{nextGoal.text}</span>
           </span>
           <span className="menu-next-goal-arrow" aria-hidden="true">→</span>
-        </button>
+        </a>
       )}
 
       {lockMsg && (
@@ -165,11 +171,14 @@ export function Menu({ state }: { state: KukuState }) {
             {g.tiles.map((t) => {
               const unlocked = isUnlocked(t);
               return (
-                <button
+                <a
                   key={t.id}
                   className={`menu-tile ${unlocked ? '' : 'locked'}`}
+                  href={`/kuku-oukoku${t.path}`}
                   style={{ '--tile-color': unlocked ? t.color : '#94a3b8' } as React.CSSProperties}
-                  onClick={() => {
+                  onClick={(e) => {
+                    if (unlocked && !isPlainClick(e)) return; // Ctrl/⌘・中クリックは ブラウザに まかせる
+                    e.preventDefault();
                     if (!unlocked) {
                       setLockMsg(lockMessage(t));
                       window.setTimeout(() => setLockMsg(null), 4000);
@@ -182,7 +191,7 @@ export function Menu({ state }: { state: KukuState }) {
                   <span className="menu-tile-emoji" aria-hidden="true">{unlocked ? t.emoji : '🔒'}</span>
                   <span className="menu-tile-label">{t.label}</span>
                   <span className="menu-tile-desc">{t.desc}</span>
-                </button>
+                </a>
               );
             })}
           </div>
