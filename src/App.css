@@ -2501,9 +2501,9 @@ main { padding: 20px 16px 40px; }
   .site-header-inner { padding: 10px 12px; gap: 6px; }
   .site-title { font-size: 16px; }
   .site-title-emoji { font-size: 20px; }
-  .stat-badge { font-size: 10px; padding: 3px 7px; gap: 2px; }
+  .stat-badge { font-size: 11px; padding: 3px 7px; gap: 2px; }
   .stat-badge .stat-name { display: none; }
-  .stat-label { font-size: 0.8em; }
+  .stat-label { font-size: 1em; }
   .header-stats { gap: 4px; }
   .site-nav { padding: 0 12px 8px; gap: 2px; }
   .site-nav a { font-size: 12px; padding: 4px 8px; }
